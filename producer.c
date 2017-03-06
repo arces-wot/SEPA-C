@@ -30,8 +30,13 @@ long kpProduce(const char * update_string,const char * http_server) {
 	struct curl_slist *list = NULL;
 	long response_code;
 	FILE * nullFile;
+	int curlFail = 0;
 	
-	curl_global_init(CURL_GLOBAL_ALL);
+	result = curl_global_init(CURL_GLOBAL_ALL);
+	if (!result) {
+		fprintf(stderr,"curl_global_init() failed.\n");
+		return -1;
+	}
 	curl = curl_easy_init();
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, http_server);
@@ -43,17 +48,27 @@ long kpProduce(const char * update_string,const char * http_server) {
 #ifdef __linux__
 		nullFile = fopen("/dev/null","w");
 #else
+		// TODO check if working under Windows
 		nullFile = fopen("nul","w");
 #endif
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, nullFile);
 		 
 		result = curl_easy_perform(curl);
-		if (result!=CURLE_OK) fprintf(stderr, "curl_easy_perform() failed: %s\n",curl_easy_strerror(result));
+		if (result!=CURLE_OK) {
+			fprintf(stderr, "curl_easy_perform() failed: %s\n",curl_easy_strerror(result));
+			curlFail = 1;
+		}
 		else {
 			curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
 		}
 		curl_easy_cleanup(curl);
+		fclose(nullFile);
+	}
+	else {
+		fprintf(stderr, "curl_easy_init() failed.\n");
+		curlFail = 1;
 	}
 	curl_global_cleanup();
+	if (curlFail) return -1;	
 	return response_code;
 }
