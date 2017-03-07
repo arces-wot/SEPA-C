@@ -33,7 +33,7 @@ long kpProduce(const char * update_string,const char * http_server) {
 	int curlFail = 0;
 	
 	result = curl_global_init(CURL_GLOBAL_ALL);
-	if (!result) {
+	if (result) {
 		fprintf(stderr,"curl_global_init() failed.\n");
 		return -1;
 	}
