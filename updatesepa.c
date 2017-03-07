@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 		else {
 			if (!strcmp("prompt",argv[1])) {
 				printf("Insert SEPA address: "); scanf("%s",sepaAddress);
-				printf("Insert one line update "); scanf("%s",update);
+				printf("Insert one line update: "); scanf("%s",update);
 				outCode = kpProduce(update,sepaAddress);
 				printf("Http post output code=%ld\n",outCode);
 				return (int) outCode;
