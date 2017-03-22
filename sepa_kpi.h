@@ -21,13 +21,16 @@
  * 
  */
 
-#ifndef SEPA_PRODUCER
-#define SEPA_PRODUCER
+#ifndef SEPA_KPI
+#define SEPA_KPI
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
+#include <libwebsockets.h>
+
+#define KPI_PRODUCE_FAIL		-1
 
 long kpProduce(const char * update_string,const char * http_server);
 

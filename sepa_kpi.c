@@ -21,21 +21,20 @@
  * 
  */
 
-#include "producer.h"
+#include "sepa_kpi.h"
 
 
 long kpProduce(const char * update_string,const char * http_server) {
-	CURL * curl;
+	CURL *curl;
 	CURLcode result;
 	struct curl_slist *list = NULL;
 	long response_code;
-	FILE * nullFile;
-	int curlFail = 0;
+	FILE *nullFile;
 	
 	result = curl_global_init(CURL_GLOBAL_ALL);
 	if (result) {
 		fprintf(stderr,"curl_global_init() failed.\n");
-		return -1;
+		return KPI_PRODUCE_FAIL;
 	}
 	curl = curl_easy_init();
 	if (curl) {
@@ -45,30 +44,29 @@ long kpProduce(const char * update_string,const char * http_server) {
 		list = curl_slist_append(list, "\"Content-Type: application/sparql-update\"");
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
 		
-#ifdef __linux__
 		nullFile = fopen("/dev/null","w");
-#else
-		// TODO check if working under Windows
-		nullFile = fopen("nul","w");
-#endif
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, nullFile);
-		 
-		result = curl_easy_perform(curl);
-		if (result!=CURLE_OK) {
-			fprintf(stderr, "curl_easy_perform() failed: %s\n",curl_easy_strerror(result));
-			curlFail = 1;
+		if (nullFile==NULL)	{
+			fprintf(stderr,"Error opening /dev/null.");
+			response_code = KPI_PRODUCE_FAIL;
 		}
 		else {
-			curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
+			curl_easy_setopt(curl, CURLOPT_WRITEDATA, nullFile);
+			result = curl_easy_perform(curl);
+			if (result!=CURLE_OK) {
+				fprintf(stderr, "curl_easy_perform() failed: %s\n",curl_easy_strerror(result));
+				response_code = KPI_PRODUCE_FAIL;
+			}
+			else {
+				curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
+			}
+			fclose(nullFile);
 		}
 		curl_easy_cleanup(curl);
-		fclose(nullFile);
 	}
 	else {
 		fprintf(stderr, "curl_easy_init() failed.\n");
-		curlFail = 1;
+		response_code = KPI_PRODUCE_FAIL;
 	}
 	curl_global_cleanup();
-	if (curlFail) return -1;	
 	return response_code;
 }
