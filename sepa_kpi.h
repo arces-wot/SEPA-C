@@ -27,11 +27,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 #include <curl/curl.h>
 #include <libwebsockets.h>
 
 #define KPI_PRODUCE_FAIL		-1
+#define FIRST_SUBSCRIPTION_CODE	100
+
+typedef struct subscription_params {
+	char * subscription_string;
+	char * ws_server;
+	int use_ssl;
+} SEPA_subscription_params;
 
 long kpProduce(const char * update_string,const char * http_server);
+long kpSubscribe(const char * subscription_string,const char * ws_server);
 
 #endif
