@@ -1,5 +1,5 @@
 /*
- * producer.c
+ * sepa_kpi.c
  * 
  * Copyright 2017 Francesco Antoniazzi <francesco.antoniazzi@unibo.it>
  * 
@@ -52,52 +52,7 @@ static const struct libwebsocket_protocols protocols[] = {
 	}
 }
 
-long kpProduce(const char * update_string,const char * http_server) {
-	CURL *curl;
-	CURLcode result;
-	struct curl_slist *list = NULL;
-	long response_code;
-	FILE *nullFile;
-	
-	result = curl_global_init(CURL_GLOBAL_ALL);
-	if (result) {
-		fprintf(stderr,"curl_global_init() failed.\n");
-		return KPI_PRODUCE_FAIL;
-	}
-	curl = curl_easy_init();
-	if (curl) {
-		curl_easy_setopt(curl, CURLOPT_URL, http_server);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, update_string);
-		
-		list = curl_slist_append(list, "\"Content-Type: application/sparql-update\"");
-		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
-		
-		nullFile = fopen("/dev/null","w");
-		if (nullFile==NULL)	{
-			fprintf(stderr,"Error opening /dev/null.");
-			response_code = KPI_PRODUCE_FAIL;
-		}
-		else {
-			curl_easy_setopt(curl, CURLOPT_WRITEDATA, nullFile);
-			result = curl_easy_perform(curl);
-			if (result!=CURLE_OK) {
-				fprintf(stderr, "curl_easy_perform() failed: %s\n",curl_easy_strerror(result));
-				response_code = KPI_PRODUCE_FAIL;
-			}
-			else {
-				curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
-			}
-			fclose(nullFile);
-		}
-		curl_easy_cleanup(curl);
-	}
-	else {
-		fprintf(stderr, "curl_easy_init() failed.\n");
-		response_code = KPI_PRODUCE_FAIL;
-	}
-	curl_global_cleanup();
-	return response_code;
-}
+
 
 long kpSubscribe(SEPA_subscription_params params) {
 	pthread_t subThread;
