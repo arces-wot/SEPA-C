@@ -9,6 +9,13 @@
 #include <pthread.h>
 #include <libwebsockets.h>
 
+#define PATH_ADDRESS_LEN					100
+#define _getSubscriptionProtocols()			protocols
+#define _getSubscriptionProtocolName()		protocols[0].name
+#define _getSubscriptionCallback()			protocols[0].sepa_subscription_callback
+#define _getSubscriptionDataSize()			protocols[0].per_session_data_size
+#define _getSubscriptionRxBufferSize()		protocols[0].rx_buffer_size
+
 typedef struct subscription_params {
 	char *subscription_string;
 	char *server_address;
@@ -18,8 +25,9 @@ typedef struct subscription_params {
 	pthread_t subscription_task;
 	char *protocol;
 	char *address;
-	char *path;
+	char path[PATH_ADDRESS_LEN];
 	int *port;
+	struct lws *ws_identifier;
 } SEPA_subscription_params,*pSEPA_subscription_params;
 
 typedef struct sepa_subscriber {
@@ -47,8 +55,8 @@ const struct lws_protocols protocols[] = {
 int sepa_subscriber_init();
 int sepa_subscriber_destroy();
 int getActiveSubscriptions();
-int kpSubscribe(SEPA_subscription_params params,pthread_t * subscription_task);
-int kpUnsubscribe(int subscription_code);
+int kpSubscribe(SEPA_subscription_params params);
+int kpUnsubscribe(pSEPA_subscription_params params);
 
 #endif // SEPA_CONSUMER
 
