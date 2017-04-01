@@ -30,6 +30,21 @@ long kpProduce(const char * update_string,const char * http_server) {
 	struct curl_slist *list = NULL;
 	long response_code;
 	FILE *nullFile;
+	int protocol_used = KPI_PRODUCE_FAIL;
+	
+	if ((update_string==NULL) && (http_server==NULL)) {
+		fprintf(stderr,"NullPointerException in kpProduce.\n");
+		return KPI_PRODUCE_FAIL;
+	}
+	
+	if (strstr(http_server,"http:")!=NULL) protcol_used = HTTP;
+	else {
+		if (strstr(http_server,"https:")!=NULL) protocol_used = HTTPS;
+		else {
+			fprintf(stderr,"%s protocol error in kpProduce: only http and https are accepted.\n",http_server);
+			return KPI_PRODUCE_FAIL; 
+		}
+	}
 	
 	result = curl_global_init(CURL_GLOBAL_ALL);
 	if (result) {

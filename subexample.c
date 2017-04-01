@@ -26,12 +26,17 @@
 #include "sepa_consumer.h"
 
 int main(int argc, char **argv) {
-	SEPA_subscription_params this_subscription;
-	
+	SEPA_subscription_params this_subscription = _initSubscription();
+	int a;
 	sepa_subscriber_init();
 	sepa_subscription_builder("SELECT ?a ?b ?c WHERE {?a ?b ?c}","ws://mml.arces.unibo.it:9000/sparql",&this_subscription);
+	fprintfSubscriptionParams(stdout,this_subscription);
 	
-	printf("sparql=%s\nuse_ssl=%d\nprotocol=%s\naddress=%s\npath=%s\nport=%d\n",this_subscription.subscription_sparql,this_subscription.use_ssl,this_subscription.protocol,this_subscription.address,this_subscription.path,this_subscription.port);
+	printf("Exit code = %d\n",kpSubscribe(&this_subscription));
+	printf("insert a number to continue: "); scanf("%d",&a);
+	
+	kpUnsubscribe(&this_subscription);
+	
 	sepa_subscriber_destroy();
 	return 0;
 }
