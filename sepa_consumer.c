@@ -41,7 +41,7 @@ static const struct lws_protocols _protocols[2] = {
 		"SEPA_SUBSCRIPTION",
 		sepa_subscription_callback,
 		0,
-		20
+		RX_BUFFER_SIZE
 	},
 	{
 		NULL,
@@ -89,12 +89,6 @@ static int sepa_subscription_callback(	struct lws *wsi,
             break;
     }
 	return 0;
-}
-
-int compare_integer(const void * a, const void * b) {
-	const int *ia = (const int *) a;
-	const int *ib = (const int *) b;
-	return (*ia>*ib)-(*ia<*ib); 
 }
 
 int sepa_subscriber_init() {
@@ -245,7 +239,7 @@ int kpUnsubscribe(pSEPA_subscription_params params) {
 }
 
 int getActiveSubscriptions() {
-	int result=-1;
+	int result = -1;
 	if (!pthread_mutex_lock(&(sepa_session.subscription_mutex))) {
 		result = sepa_session.active_subscriptions;
 		pthread_mutex_unlock(&(sepa_session.subscription_mutex));

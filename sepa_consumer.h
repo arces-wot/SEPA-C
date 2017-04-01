@@ -10,12 +10,13 @@
 #define PATH_ADDRESS_LEN					100
 #define PROTOCOL_LEN						100
 #define WS_ADDRESS_LEN						100
+#define RX_BUFFER_SIZE						100
 #define _getSubscriptionProtocols()			_protocols
 #define _getSubscriptionProtocolName()		_protocols[0].name
 #define _getSubscriptionCallback()			_protocols[0].sepa_subscription_callback
 #define _getSubscriptionDataSize()			_protocols[0].per_session_data_size
 #define _getSubscriptionRxBufferSize()		_protocols[0].rx_buffer_size
-#define _initSubscription()					{.subscription_sparql = "",.use_ssl=-1,.subscription_code=-1,.protocol="",.address="",.path="",.port=-1}
+#define _initSubscription()					{.subscription_sparql="",.use_ssl=-1,.subscription_code=-1,.protocol="",.address="",.path="",.port=-1}
 
 typedef struct subscription_params {
 	char *subscription_sparql;
