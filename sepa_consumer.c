@@ -91,9 +91,11 @@ static int sepa_subscription_callback(	struct lws *wsi,
 				break;
 			case LWS_CALLBACK_CLIENT_CONNECTION_ERROR:
 				printf("%p\tSepa Callback: Connect with server error.\n",wsi);
+				// maybe we need to unsubscribeAll or terminate application
 				break;
 			case LWS_CALLBACK_CLOSED:
 				printf("%p\tSepa Callback: LWS_CALLBACK_CLOSED\n",wsi);
+				// maybe we need to unsubscribeAll or terminate application
 				break;
 			case LWS_CALLBACK_CLIENT_RECEIVE:
 				printf("%p\tSepa Callback Client received: %s\n",wsi,(char *)in);
