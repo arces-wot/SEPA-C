@@ -33,14 +33,14 @@ typedef struct subscription_params {
 
 typedef struct sepa_subscriber {
 	int active_subscriptions;
-	pSEPA_subscription_params subscription_list;
+	pSEPA_subscription_params *subscription_list;
 	pthread_mutex_t subscription_mutex;
 	int closing_subscription_code;
 } SEPA_subscriber,*pSEPA_subscriber;
 
 int sepa_subscriber_init();
 int sepa_subscriber_destroy();
-pSEPA_subscription_params getSubscriptionList();
+pSEPA_subscription_params * getSubscriptionList();
 int getActiveSubscriptions();
 void fprintfSubscriptionParams(FILE * outputstream,SEPA_subscription_params params);
 int sepa_subscription_builder(char * sparql_subscription,char * server_address,pSEPA_subscription_params subscription);
