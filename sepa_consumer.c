@@ -79,10 +79,11 @@ static int sepa_subscription_callback(	struct lws *wsi,
 			case LWS_CALLBACK_CLIENT_ESTABLISHED:
 				printf("%p\tSepa Callback: Connect with server success.\n",wsi);
 				pthread_mutex_lock(&(sepa_session.subscription_mutex));
-				sparql_length = strlen(raisedSubscription->subscription_sparql)+1;
+				sparql_length = strlen(raisedSubscription->subscription_sparql)+strlen(SUBSCRIPTION_TAG);
 				sparql_buffer = (char *) malloc((LWS_PRE+sparql_length)*sizeof(char));
 				if (sparql_buffer!=NULL) {
-					strcpy(sparql_buffer+LWS_PRE,raisedSubscription->subscription_sparql);
+					strcpy(sparql_buffer+LWS_PRE,SUBSCRIPTION_TAG);
+					strcat(sparql_buffer+LWS_PRE,raisedSubscription->subscription_sparql);
 					lws_write(wsi,sparql_buffer+LWS_PRE,sparql_length,LWS_WRITE_TEXT);
 					free(sparql_buffer);
 				}
@@ -284,7 +285,6 @@ static void * subscription_thread(void * parameters) {
 	struct lws_client_connect_info connect_info;
 	pSEPA_subscription_params params = (pSEPA_subscription_params) parameters;
 	int force_exit=0;
-	char *sparql_buffer;
 	
 	printf("Thread per la sottoscrizione %d attivato.\n",params->subscription_code);
 	
