@@ -6,6 +6,7 @@
 #include <string.h>
 #include <pthread.h>
 #include "/usr/local/include/libwebsockets.h"
+#include "sepa_utilities.h"
 
 #define PATH_ADDRESS_LEN					100
 #define PROTOCOL_LEN						100
@@ -17,7 +18,10 @@
 #define _getSubscriptionCallback()			_protocols[0].sepa_subscription_callback
 #define _getSubscriptionDataSize()			_protocols[0].per_session_data_size
 #define _getSubscriptionRxBufferSize()		_protocols[0].rx_buffer_size
-#define _initSubscription()					{.subscription_sparql="",.use_ssl=-1,.subscription_code=-1,.protocol="",.address="",.path="",.port=-1}
+#define _initSubscription()					{.use_ssl=-1,.subscription_code=-1,.protocol="",.address="",.path="",.port=-1}
+
+typedef void (*SubscriptionHandler)(sepaNode *,int *,sepaNode *,int *);
+typedef void (*UnsubscriptionHandler)(void);
 
 typedef struct subscription_params {
 	char *subscription_sparql;
@@ -30,6 +34,9 @@ typedef struct subscription_params {
 	char path[PATH_ADDRESS_LEN];
 	int port;
 	struct lws *ws_identifier;
+	SubscriptionHandler subHandler;
+	UnsubscriptionHandler unsubHandler;
+	char *resultBuffer;
 } SEPA_subscription_params,*pSEPA_subscription_params;
 
 typedef struct sepa_subscriber {
@@ -44,6 +51,7 @@ int sepa_subscriber_destroy();
 pSEPA_subscription_params * getSubscriptionList();
 int getActiveSubscriptions();
 void fprintfSubscriptionParams(FILE * outputstream,SEPA_subscription_params params);
+void sepa_setSubscriptionHandlers(SubscriptionHandler subhandler,UnsubscriptionHandler unsubhandler,pSEPA_subscription_params subscription);
 int sepa_subscription_builder(char * sparql_subscription,char * server_address,pSEPA_subscription_params subscription);
 int kpSubscribe(pSEPA_subscription_params params);
 int kpUnsubscribe(pSEPA_subscription_params params);

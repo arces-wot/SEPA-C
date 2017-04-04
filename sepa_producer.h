@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
+#include "sepa_utilities.h"
 
 #define KPI_PRODUCE_FAIL		-1
 #define HTTP					0

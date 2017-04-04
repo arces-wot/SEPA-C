@@ -25,13 +25,16 @@
 #include <stdio.h>
 #include "sepa_consumer.h"
 
+void mySubscriptionNotification(sepaNode * added,int * addedlen,sepaNode * removed,int * removedlen);
+void myUnsubscriptionNotification();
+
 int main(int argc, char **argv) {
 	SEPA_subscription_params this_subscription = _initSubscription();
 	int a;
 	sepa_subscriber_init();
 	sepa_subscription_builder("SELECT ?a ?c WHERE {?a <http://b.org> ?c}","ws://mml.arces.unibo.it:9000/sparql",&this_subscription);
+	sepa_setSubscriptionHandlers(mySubscriptionNotification,myUnsubscriptionNotification,&this_subscription);
 	fprintfSubscriptionParams(stdout,this_subscription);
-	
 	printf("Exit code = %d\n",kpSubscribe(&this_subscription));
 	printf("insert a number to continue: "); scanf("%d",&a);
 	
@@ -41,3 +44,10 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
+void mySubscriptionNotification(sepaNode * added,int * addedlen,sepaNode * removed,int * removedlen) {
+	printf("This is a subscription notification!\n");
+}
+
+void myUnsubscriptionNotification() {
+	printf("This is an unsubscription notification!\n");
+}
