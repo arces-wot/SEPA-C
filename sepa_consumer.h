@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <curl/curl.h>
 #include "/usr/local/include/libwebsockets.h"
 #include "sepa_utilities.h"
 
@@ -55,5 +56,6 @@ void sepa_setSubscriptionHandlers(SubscriptionHandler subhandler,UnsubscriptionH
 int sepa_subscription_builder(char * sparql_subscription,char * server_address,pSEPA_subscription_params subscription);
 int kpSubscribe(pSEPA_subscription_params params);
 int kpUnsubscribe(pSEPA_subscription_params params);
+char * kpQuery(const char * sparql_query,const char * sparql_address);
 
 #endif // SEPA_CONSUMER

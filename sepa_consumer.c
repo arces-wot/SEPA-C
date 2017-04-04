@@ -108,6 +108,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 						//json process
 						//(raisedSubscription->subHandler)();
 						printf("%p\tSepa Callback Client received: %s\n",wsi,raisedSubscription->resultBuffer);
+						
 						strcpy(raisedSubscription->resultBuffer,"");
 					}
 				}
@@ -382,4 +383,8 @@ void fprintfSubscriptionParams(FILE * outstream,SEPA_subscription_params params)
 				params.path,
 				params.port);
 	}
+}
+
+char * kpQuery(const char * sparql_query,const char * sparql_address) {
+	return NULL;
 }

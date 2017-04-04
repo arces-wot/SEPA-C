@@ -34,16 +34,29 @@ void freeSepaNodes(sepaNode * nodeArray,int arraylen) {
 
 sepaNode buildSepaNode(const char * node_bindingName,FieldType node_type,const char * node_value) {
 	sepaNode result;
-	
 	result.bindingName = strdup(node_bindingName);
 	result.type = node_type;
 	result.value = strdup(node_value);
-	
 	return result;
 }
 
 int subscriptionResultsParser(const char * jsonResults,sepaNode * addedNodes,int * addedlen,sepaNode * removedNodes,int * removedlen) {
-	return 0;
+	jsmn_parser parser;
+	jsmntok_t *jstokens = NULL;
+	int parsing_result=JSM_ERROR_NOMEM,jstok_dim=100,result=EXIT_FAILURE;
+	
+	jsmn_init(&parser);
+	while (parsing_result==JSM_ERROR_NOMEM) {
+		jstok_dim += 10;
+		jstokens = (jsmntok_t *) realloc(jstokens,jstok_dim*sizeof(jsmtok_t));
+		if (jstokens==NULL) {
+			fprintf(stderr,"Realloc error in json parsing!\n");
+			parsing_result = JSON_ERROR;
+		}
+		parsing_result = jsmn_parse(&parser, jsonResults, strlen(jsonResults), jstokens, jstok_dim);
+	}
+	free(jstokens);
+	return parsing_result;
 }
 
 int queryResultsParser(const char * jsonResults,sepaNode * results,int * resultlen) {
