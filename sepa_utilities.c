@@ -23,6 +23,39 @@
 
 #include "sepa_utilities.h"
 
+static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
+	if (tok->type == JSMN_STRING && (int) strlen(s) == tok->end - tok->start && strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
+		return 0;
+	}
+	return -1;
+}
+
+void fprintfSepaNodes(FILE * outstream,sepaNode * nodeArray,int arraylen) {
+	int i;
+	if (outstream!=NULL) {
+		for (i=0; i<arraylen; i++) {
+			if (nodeArray[i].bindingName!=NULL) fprintf(outstream,"Binding = %s; ",nodeArray[i].bindingName);
+			else fprintf(outstream,"Binding = None; ");
+			switch (nodeArray[i].type) {
+				case URI:
+					fprintf(outstream,"Field type = URI; ");
+					break;
+				case LITERAL:
+					fprintf(outstream,"Field type = LITERAL; ");
+					break;
+				case BNODE:
+					fprintf(outstream,"Field type = BNODE; ");
+					break;
+				default:
+					fprintf(outstream,"Field type = UNKNOWN; ");
+					break;
+			}
+			if (nodeArray[i].value!=NULL) fprintf(outstream,"Value = %s;\n",nodeArray[i].value);
+			else fprintf(outstream,"Value = None;\n");
+		}
+	}
+}
+
 void freeSepaNodes(sepaNode * nodeArray,int arraylen) {
 	int i;
 	for (i=0; i<arraylen; i++) {
@@ -40,21 +73,29 @@ sepaNode buildSepaNode(const char * node_bindingName,FieldType node_type,const c
 	return result;
 }
 
-int subscriptionResultsParser(const char * jsonResults,sepaNode * addedNodes,int * addedlen,sepaNode * removedNodes,int * removedlen) {
+int subscriptionResultsParser(const char * jsonResults,sepaNode * addedNodes,int * addedlen,sepaNode * removedNodes,int * removedlen,notifyProperty * data) {
 	jsmn_parser parser;
 	jsmntok_t *jstokens = NULL;
-	int parsing_result=JSM_ERROR_NOMEM,jstok_dim=100,result=EXIT_FAILURE;
+	int parsing_result=JSMN_ERROR_NOMEM,jstok_dim,i;
+	char *mybufferkey,*mybufferval;
 	
 	jsmn_init(&parser);
-	while (parsing_result==JSM_ERROR_NOMEM) {
-		jstok_dim += 10;
-		jstokens = (jsmntok_t *) realloc(jstokens,jstok_dim*sizeof(jsmtok_t));
-		if (jstokens==NULL) {
-			fprintf(stderr,"Realloc error in json parsing!\n");
-			parsing_result = JSON_ERROR;
-		}
-		parsing_result = jsmn_parse(&parser, jsonResults, strlen(jsonResults), jstokens, jstok_dim);
+	jstok_dim = jsmn_parse(&parser, jsonResults, strlen(jsonResults), NULL, 0);
+	if (jstok_dim<0) return jstok_dim;
+	printf("jstok_dim=%d\n",jstok_dim);
+	jstokens = (jsmntok_t *) malloc(jstok_dim*sizeof(jsmntok_t));
+	if (jstokens==NULL) {
+		fprintf(stderr,"Malloc error in json parsing!\n");
+		parsing_result = JSON_ERROR;
 	}
+	else {
+		parsing_result = jsmn_parse(&parser, jsonResults, strlen(jsonResults), jstokens, (unsigned int) jstok_dim);
+	printf("parsing result = %d\n",parsing_result);
+	if (parsing_result==0) {
+
+			printf("type=%d; start=%d; end=%d; size=%d\n",jstokens[0].type,jstokens[0].start,jstokens[0].end,jstokens[0].size);
+	}
+}
 	free(jstokens);
 	return parsing_result;
 }
@@ -63,11 +104,7 @@ int queryResultsParser(const char * jsonResults,sepaNode * results,int * resultl
 	return 0;
 }
 
-char * kpQuery(const char * sparql_query,const char * sparql_address) {
-	return NULL;
-}
-
-int checkReceivedJson(char * myjson) {
+/*int checkReceivedJson(char * myjson) {
 	char *jsoncopy,*index;
 	int started_tag=0,opened=0,closed=0;
 	
@@ -88,4 +125,4 @@ int checkReceivedJson(char * myjson) {
 	free(jsoncopy);
 	if (opened==closed) return COMPLETE_JSON;
 	else return INCOMPLETE_JSON;
-}
+}*/

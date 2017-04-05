@@ -70,8 +70,10 @@ static int sepa_subscription_callback(	struct lws *wsi,
 										void *in, 
 										size_t len) {
 	char *sparql_buffer,*receive_buffer;
-	int sparql_length,jsonOpened,jsonClosed;
+	int sparql_length;
 	pSEPA_subscription_params raisedSubscription;
+	sepaNode *added,*removed;
+	int addedLen,removedLen;
 	
 	raisedSubscription = getRaisedSubscription(wsi);
 	if (raisedSubscription!=NULL) {
@@ -104,12 +106,23 @@ static int sepa_subscription_callback(	struct lws *wsi,
 				raisedSubscription->resultBuffer = (char *) realloc(raisedSubscription->resultBuffer,(strlen(raisedSubscription->resultBuffer)+strlen(receive_buffer)+1)*sizeof(char));
 				if (raisedSubscription->resultBuffer!=NULL) {
 					strcat(raisedSubscription->resultBuffer,receive_buffer);
-					if (checkReceivedJson(raisedSubscription->resultBuffer)==COMPLETE_JSON) {
-						//json process
-						//(raisedSubscription->subHandler)();
-						printf("%p\tSepa Callback Client received: %s\n",wsi,raisedSubscription->resultBuffer);
-						
-						strcpy(raisedSubscription->resultBuffer,"");
+					//if (checkReceivedJson(raisedSubscription->resultBuffer)==COMPLETE_JSON) {
+					switch (subscriptionResultsParser(raisedSubscription->resultBuffer,added,&addedLen,removed,&removedLen,NULL)) {
+						case JSMN_ERROR_INVAL:
+							fprintf(stderr,"%p\tSepa Callback Client received error - Invalid JSON Received!\n",wsi);
+							strcpy(raisedSubscription->resultBuffer,"");
+							break;
+						case JSMN_ERROR_PART:
+							fprintf(stderr,"%p\tSepa Callback Client received partial JSON...\n",wsi);
+							break;
+						case JSON_ERROR:
+							fprintf(stderr,"%p\tSepa Callback Client received realloc error: aborting this read\n",wsi);
+							strcpy(raisedSubscription->resultBuffer,"");
+							break;
+						default:
+							fprintf(stderr,"%p\tSepa Callback Client received: %s\n",wsi,raisedSubscription->resultBuffer);
+							strcpy(raisedSubscription->resultBuffer,"");
+							break;
 					}
 				}
 				else fprintf(stderr,"Realloc error in sepa_subscription_callback LWS_CALLBACK_CLIENT_RECEIVE\n");
