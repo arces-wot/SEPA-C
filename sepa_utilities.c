@@ -23,13 +23,6 @@
 
 #include "sepa_utilities.h"
 
-static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
-	if (tok->type == JSMN_STRING && (int) strlen(s) == tok->end - tok->start && strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
-		return 0;
-	}
-	return -1;
-}
-
 void fprintfSepaNodes(FILE * outstream,sepaNode * nodeArray,int arraylen) {
 	int i;
 	if (outstream!=NULL) {
@@ -76,7 +69,7 @@ sepaNode buildSepaNode(const char * node_bindingName,FieldType node_type,const c
 int subscriptionResultsParser(const char * jsonResults,sepaNode * addedNodes,int * addedlen,sepaNode * removedNodes,int * removedlen,notifyProperty * data) {
 	jsmn_parser parser;
 	jsmntok_t *jstokens = NULL;
-	int parsing_result=JSMN_ERROR_NOMEM,jstok_dim,i;
+	int parsing_result,jstok_dim,i;
 	char *mybufferkey,*mybufferval;
 	
 	jsmn_init(&parser);
@@ -90,12 +83,12 @@ int subscriptionResultsParser(const char * jsonResults,sepaNode * addedNodes,int
 	}
 	else {
 		parsing_result = jsmn_parse(&parser, jsonResults, strlen(jsonResults), jstokens, (unsigned int) jstok_dim);
-	printf("parsing result = %d\n",parsing_result);
-	if (parsing_result==0) {
+		printf("parsing result = %d\n",parsing_result);
+		if (parsing_result==0) {
 
-			printf("type=%d; start=%d; end=%d; size=%d\n",jstokens[0].type,jstokens[0].start,jstokens[0].end,jstokens[0].size);
+				printf("type=%d; start=%d; end=%d; size=%d\n",jstokens[0].type,jstokens[0].start,jstokens[0].end,jstokens[0].size);
+		}
 	}
-}
 	free(jstokens);
 	return parsing_result;
 }
