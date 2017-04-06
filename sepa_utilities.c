@@ -23,6 +23,15 @@
 
 #include "sepa_utilities.h"
 
+static int getJsonValue(char * json,jsmntok_t token,char * buffer) {
+	buffer = strndup(json+token.start,token.end-token.start);
+	if (buffer==NULL) {
+		fprintf(stderr,"Error in strndup while parsing json.\n");
+		return 0;
+	}
+	return 1;
+}
+
 void fprintfSepaNodes(FILE * outstream,sepaNode * nodeArray,int arraylen) {
 	int i;
 	if (outstream!=NULL) {
@@ -66,37 +75,54 @@ sepaNode buildSepaNode(const char * node_bindingName,FieldType node_type,const c
 	return result;
 }
 
-int subscriptionResultsParser(const char * jsonResults,sepaNode * addedNodes,int * addedlen,sepaNode * removedNodes,int * removedlen,notifyProperty * data) {
+int subscriptionResultsParser(char * jsonResults,sepaNode * addedNodes,int * addedlen,sepaNode * removedNodes,int * removedlen,notifyProperty * data) {
 	jsmn_parser parser;
-	jsmntok_t *jstokens = NULL;
-	int parsing_result,jstok_dim,i;
-	char *mybufferkey,*mybufferval;
+	jsmntok_t *jstokens;
+	int parsing_result,jstok_dim,i,fflag,next=IDLEPOINT;
+	char *js_buffer;
 	
-	jsmn_init(&parser);
 	jstok_dim = jsmn_parse(&parser, jsonResults, strlen(jsonResults), NULL, 0);
 	if (jstok_dim<0) return jstok_dim;
-	printf("jstok_dim=%d\n",jstok_dim);
-	jstokens = (jsmntok_t *) malloc(jstok_dim*sizeof(jsmntok_t));
-	if (jstokens==NULL) {
-		fprintf(stderr,"Malloc error in json parsing!\n");
-		parsing_result = JSON_ERROR;
+	
+	if (strstr(jsonResults,"{\"ping\":")!=NULL) {
+		strcpy(jsonResults,"");
+		return PING_JSON;
 	}
 	else {
-		parsing_result = jsmn_parse(&parser, jsonResults, strlen(jsonResults), jstokens, (unsigned int) jstok_dim);
-		printf("parsing result = %d\n",parsing_result);
-		if (parsing_result==0) {
-
-				printf("type=%d; start=%d; end=%d; size=%d\n",jstokens[0].type,jstokens[0].start,jstokens[0].end,jstokens[0].size);
+		jsmn_init(&parser);
+		jstokens = (jsmntok_t *) malloc(jstok_dim*sizeof(jsmntok_t));
+		if (jstokens==NULL) {
+			fprintf(stderr,"Malloc error in json parsing!\n");
+			strcpy(jsonResults,"");
+			return PARSING_ERROR;
+		}
+		parsing_result = jsmn_parse(&parser, jsonResults, strlen(jsonResults), jstokens, jstok_dim);
+		if (parsing_result>3) {
+			// notification to subscription case
+			
+			parsing_result = NOTIFICATION_JSON;
+		}
+		else {
+			// subscription confirm case
+			if (!getJsonValue(jsonResults,jstokens[2],js_buffer)) {
+				fprintf(stderr,"Reading subscription identifier failure\n");
+				parsing_result = PARSING_ERROR;
+			}
+			else {
+				strcpy(data->identifier,js_buffer);
+				free(js_buffer);
+				parsing_result = SUBSCRIPTION_ID_JSON;
+			}
 		}
 	}
-	free(jstokens);
-	return parsing_result;
+	strcpy(jsonResults,"");			
+	free(jstokens);		
+	return parsing_result;	
 }
 
 int queryResultsParser(const char * jsonResults,sepaNode * results,int * resultlen) {
 	return 0;
 }
-
 /*int checkReceivedJson(char * myjson) {
 	char *jsoncopy,*index;
 	int started_tag=0,opened=0,closed=0;
@@ -118,4 +144,5 @@ int queryResultsParser(const char * jsonResults,sepaNode * results,int * resultl
 	free(jsoncopy);
 	if (opened==closed) return COMPLETE_JSON;
 	else return INCOMPLETE_JSON;
-}*/
+}
+*/

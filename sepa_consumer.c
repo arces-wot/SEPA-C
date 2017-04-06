@@ -70,10 +70,10 @@ static int sepa_subscription_callback(	struct lws *wsi,
 										void *in, 
 										size_t len) {
 	char *sparql_buffer,*receive_buffer;
-	int sparql_length;
+	int sparql_length,addedLen,removedLen,parse_result;
 	pSEPA_subscription_params raisedSubscription;
 	sepaNode *added,*removed;
-	int addedLen,removedLen;
+	notifyProperty n_properties;
 	
 	raisedSubscription = getRaisedSubscription(wsi);
 	if (raisedSubscription!=NULL) {
@@ -106,22 +106,31 @@ static int sepa_subscription_callback(	struct lws *wsi,
 				raisedSubscription->resultBuffer = (char *) realloc(raisedSubscription->resultBuffer,(strlen(raisedSubscription->resultBuffer)+strlen(receive_buffer)+1)*sizeof(char));
 				if (raisedSubscription->resultBuffer!=NULL) {
 					strcat(raisedSubscription->resultBuffer,receive_buffer);
-					//if (checkReceivedJson(raisedSubscription->resultBuffer)==COMPLETE_JSON) {
-					switch (subscriptionResultsParser(raisedSubscription->resultBuffer,added,&addedLen,removed,&removedLen,NULL)) {
+					parse_result = subscriptionResultsParser(raisedSubscription->resultBuffer,added,&addedLen,removed,&removedLen,&n_properties);
+					switch (parse_result) {
 						case JSMN_ERROR_INVAL:
-							fprintf(stderr,"%p\tSepa Callback Client received error - Invalid JSON Received!\n",wsi);
+							fprintf(stderr,"Sepa Callback Client received error - Invalid JSON Received!\n");
 							strcpy(raisedSubscription->resultBuffer,"");
 							break;
 						case JSMN_ERROR_PART:
-							fprintf(stderr,"%p\tSepa Callback Client received partial JSON...\n",wsi);
+							fprintf(stderr,"Sepa Callback Client received partial JSON...\n");
 							break;
-						case JSON_ERROR:
-							fprintf(stderr,"%p\tSepa Callback Client received realloc error: aborting this read\n",wsi);
-							strcpy(raisedSubscription->resultBuffer,"");
+						case PARSING_ERROR:
+							fprintf(stderr,"Sepa Callback Client received realloc error: aborting this read\n");
+							break;
+						case PING_JSON:
+							fprintf(stderr,"Sepa Callback Client received a ping from SEPA\n");
+							break;
+						case SUBSCRIPTION_ID_JSON:
+							strcpy(raisedSubscription->identifier,n_properties.identifier);
+							fprintf(stderr,"Sepa Callback Client received subscription confirmation #%s\n",raisedSubscription->identifier);
+							break;
+						case NOTIFICATION_JSON:
+							fprintf(stderr,"Sepa Callback Client notification packet received: %s\n",raisedSubscription->resultBuffer);
+							// Qui chiami l'handler
 							break;
 						default:
-							fprintf(stderr,"%p\tSepa Callback Client received: %s\n",wsi,raisedSubscription->resultBuffer);
-							strcpy(raisedSubscription->resultBuffer,"");
+							fprintf(stderr,"Sepa Callback Client unknown parsing code: %d\n",parse_result);
 							break;
 					}
 				}
@@ -129,7 +138,6 @@ static int sepa_subscription_callback(	struct lws *wsi,
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 				break;
 			default:
-				//printf("\n");
 				break;
 		}
 	}

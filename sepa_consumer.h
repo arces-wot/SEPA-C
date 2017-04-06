@@ -19,7 +19,7 @@
 #define _getSubscriptionCallback()			_protocols[0].sepa_subscription_callback
 #define _getSubscriptionDataSize()			_protocols[0].per_session_data_size
 #define _getSubscriptionRxBufferSize()		_protocols[0].rx_buffer_size
-#define _initSubscription()					{.use_ssl=-1,.subscription_code=-1,.protocol="",.address="",.path="",.port=-1}
+#define _initSubscription()					{.use_ssl=-1,.subscription_code=-1,.identifier="",.protocol="",.address="",.path="",.port=-1}
 
 typedef void (*SubscriptionHandler)(sepaNode *,int *,sepaNode *,int *);
 typedef void (*UnsubscriptionHandler)(void);
@@ -29,6 +29,7 @@ typedef struct subscription_params {
 	
 	int use_ssl;
 	int subscription_code;
+	char identifier[IDENTIFIER_LEN];
 	pthread_t subscription_task;
 	char protocol[PROTOCOL_LEN];
 	char address[WS_ADDRESS_LEN];
