@@ -37,7 +37,7 @@ long kpProduce(const char * update_string,const char * http_server) {
 		return KPI_PRODUCE_FAIL;
 	}
 	
-	if (strstr(http_server,"http:")!=NULL) protcol_used = HTTP;
+	if (strstr(http_server,"http:")!=NULL) protocol_used = HTTP;
 	else {
 		if (strstr(http_server,"https:")!=NULL) protocol_used = HTTPS;
 		else {

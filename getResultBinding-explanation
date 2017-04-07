@@ -1,0 +1,126 @@
+sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen)
+
+You get as parameters
+
+
+*json
+{
+	"results":{
+		"addedresults":{
+			"bindings":[
+				{
+					"a":{
+						"type":"uri",
+						"value":"http://francesco"
+					},
+					"c":{
+						"type":"uri",
+						"value":"http://batman"
+					}
+				},
+				{
+					"a":{
+						"type":"uri",
+						"value":"http://fabio"
+					},
+					"c":{
+						"type":"uri",
+							"value":"http://spiderman"
+					}
+				},
+				{
+					"a":{
+						"type":"uri",
+						"value":"http://luca"
+					},
+					"c":{
+						"type":"uri",
+						"value":"http://magneto"
+					}
+				}
+			]
+		},
+		"removedresults":{
+			"bindings":[
+			]
+		},
+		"head":{
+			"vars":[
+				"a",
+				"c"
+			]
+		}
+	},
+	"sequence":0,
+	"notification":"16742071-7174-4ddc-bc4e-92a8779e95ae"
+}
+
+*tokens
+tokens[0]=bindings array
+					NOTA: il numero di risultati corrisponde al numero di elementi del
+					binding array
+tokens[1]={a,c} (1)
+					NOTA: tokens[1].size corrisponde al numero di variabili di cui
+					fare il bind
+tokens[2]="a" (1)
+tokens[3]={type,value} (1-1)
+tokens[4]="type" (1-1)
+tokens[5]="uri" (1-1)
+tokens[6]="value" (1-1)
+tokens[7]="http://francesco"
+					NOTA: la lunghezza, in token, di un binding, è di 6
+tokens[8]="c" (1)
+tokens[9]={type,value} (1-2)
+tokens[10]="type" (1-2)
+tokens[11]="uri" (1-2)
+tokens[12]="value" (1-2)
+tokens[13]="http://batman"
+tokens[14]={a,c} (2)
+tokens[15]="a" (2)
+tokens[16]={type,value} (2-1)
+tokens[17]="type" (2-1)
+tokens[18]="uri" (2-1)
+tokens[19]="value" (2-1)
+tokens[20]="http://fabio"
+tokens[21]="c" (2)
+tokens[22]={type,value} (2-2)
+tokens[23]="type" (2-2)
+tokens[24]="uri" (2-2)
+tokens[25]="value" (2-2)
+tokens[26]="http://spiderman"
+tokens[27]={a,c} (3)
+tokens[28]="a" (3)
+tokens[29]={type,value} (3-1)
+tokens[30]="type" (3-1)
+tokens[31]="uri" (3-1)
+tokens[32]="value" (3-1)
+tokens[33]="http://luca"
+tokens[34]="c" (3)
+tokens[35]={type,value} (3-2)
+tokens[36]="type" (3-2)
+tokens[37]="uri" (3-2)
+tokens[38]="value" (3-2)
+tokens[39]="http://magneto"
+
+L'algoritmo usa le informazioni delle note.
+i e j sono due indici che useremo in maniera incrociata per tenere il computo dei
+token che siamo utilizzando.
+
+Cominciamo dal ciclo interno:
+come si può vedere, utilizziamo degli indici i+2, i+5 e i+7 per ottenere i valori
+che ci servono. Se i=0, coincidono con la lista scritta sopra. Quando si deve leggere
+più di un binding, da i=2,5,7 si dovrà passare a i=8,11,13, perchè la lunghezza di 
+un binding è di 6. Quindi aggiorno il valore di i accumulando BINDING_LEN(=6) in i.
+Il numero di variabili ci darà quante volte dovremo ripetere il ciclo: questo valore
+al primo giro è tokens[1].size, da moltiplicare per il passo BINDING_LEN(=6).
+
+Una volta letti tutti i binding di un risultato, ci ricordiamo che ci può essere
+più di un risultato: sappiamo quindi che il ciclo esterno deve replicare la lettura 
+interna per tokens[0].size volte. Inoltre, ad ogni lettura consumiamo
+tokens[1].size*BINDING_LEN tokens: quindi il ciclo esterno definisce il token iniziale
+e ha passo pari al numero di token consumati dal ciclo interno +1 che rappresenta
+l'avanzamento della lettura. 
+
+Il ciclo interno usa l'indice del ciclo esterno come memoria su quale sia il token
+da cui iniziare di volta in volta. Di conseguenza, j e i vanno di pari passo, con
+j che viene aggiornato ogni risultato, mentre i ogni binding.

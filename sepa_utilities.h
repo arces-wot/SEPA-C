@@ -22,6 +22,11 @@
 #define OBJECTNAME			3
 #define BINDINGS			4
 
+#define BINDING_LEN			6
+#define BINDING_NAME		2
+#define BINDING_TYPE		5
+#define BINDING_VALUE		7
+
 
 typedef enum field_type {
 	URI,
@@ -42,11 +47,13 @@ typedef struct notification_properties {
 	// head:vars?
 } notifyProperty;
 
+int getJsonItem(char * json,jsmntok_t token,char ** destination);
 void fprintfSepaNodes(FILE * outstream,sepaNode * nodeArray,int arraylen);
 void freeSepaNodes(sepaNode * nodeArray,int arraylen);
 sepaNode buildSepaNode(const char * node_bindingName,FieldType node_type,const char * node_value);
 int subscriptionResultsParser(char * jsonResults,sepaNode * addedNodes,int * addedlen,sepaNode * removedNodes,int * removedlen,notifyProperty * data);
 int queryResultsParser(const char * jsonResults,sepaNode * results,int * resultlen);
-int checkReceivedJson(char * myjson);
+//int checkReceivedJson(char * myjson);
+sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen);
 
 #endif 

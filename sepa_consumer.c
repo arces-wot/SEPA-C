@@ -214,6 +214,7 @@ int sepa_subscription_builder(char * sparql_subscription,char * server_address,p
 	}
 	
 	subscription->resultBuffer = strdup("");
+	strcpy(subscription->identifier,"");
 	if (subscription->resultBuffer==NULL) {
 		fprintf(stderr,"strdup resultBuffer failure in sepa_subscription_builder\n");
 		return EXIT_FAILURE;
