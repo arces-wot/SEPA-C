@@ -7,28 +7,36 @@
 #include <string.h>
 #include "jsmn.h"
 
+#define SEPA_LOGGER_INFO
+
 #ifdef SUPER_VERBOSITY
 #define SEPA_LOGGER_DEBUG
 #endif
 
-#define logE( format , ... ) fprintf (stderr, "ERROR		" format, ##__VA_ARGS__ )
-#ifndef SEPA_LOGGER_WARNING
-#define logW( format , ... ) do { if (0) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ ); } while (0)
-	#ifndef SEPA_LOGGER_INFO
+#if defined SEPA_LOGGER_ERROR
+	#define logE( format , ... ) fprintf (stderr, "ERROR		" format, ##__VA_ARGS__ )
+	#define logW( format , ... ) do { if (0) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ ); } while (0)
 	#define logI( format , ... ) do { if (0) fprintf (stderr, "INFO			" format, ##__VA_ARGS__ ); } while (0)
-		#ifndef SEPA_LOGGER_DEBUG
-		#define logD( format , ... ) do { if (0) fprintf (stderr, "DEBUG		" format, ##__VA_ARGS__ ); } while (0)
-		#else
-		#define logD( format , ... ) fprintf (stderr, "DEBUG		" format, ##__VA_ARGS__ )
-		#define logI( format , ... ) fprintf (stderr, "INFO			" format, ##__VA_ARGS__ )
-		#define logW( format , ... ) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ )
-		#endif
-	#else
-	#define logI( format , ... ) fprintf (stderr, "INFO			" format, ##__VA_ARGS__ )
-	#define logW( format , ... ) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ )
-	#endif
+	#define logD( format , ... ) do { if (0) fprintf (stderr, "DEBUG		" format, ##__VA_ARGS__ ); } while (0)
 #else
-#define logW( format , ... ) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ )
+	#ifdef SEPA_LOGGER_WARNING
+		#define logE( format , ... ) fprintf (stderr, "ERROR		" format, ##__VA_ARGS__ )
+		#define logW( format , ... ) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ )
+		#define logI( format , ... ) do { if (0) fprintf (stderr, "INFO			" format, ##__VA_ARGS__ ); } while (0)
+		#define logD( format , ... ) do { if (0) fprintf (stderr, "DEBUG		" format, ##__VA_ARGS__ ); } while (0)
+	#else
+		#ifdef SEPA_LOGGER_INFO
+			#define logE( format , ... ) fprintf (stderr, "ERROR		" format, ##__VA_ARGS__ )
+			#define logW( format , ... ) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ )
+			#define logI( format , ... ) fprintf (stderr, "INFO			" format, ##__VA_ARGS__ )
+			#define logD( format , ... ) do { if (0) fprintf (stderr, "DEBUG		" format, ##__VA_ARGS__ ); } while (0)
+		#else
+			#define logE( format , ... ) fprintf (stderr, "ERROR		" format, ##__VA_ARGS__ )
+			#define logW( format , ... ) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ )
+			#define logI( format , ... ) fprintf (stderr, "INFO			" format, ##__VA_ARGS__ )
+			#define logD( format , ... ) fprintf (stderr, "DEBUG		" format, ##__VA_ARGS__ )
+		#endif
+	#endif
 #endif
 
 #define COMPLETE_JSON			1
@@ -37,9 +45,9 @@
 #define PING_JSON				-101
 #define SUBSCRIPTION_ID_JSON	-102
 #define NOTIFICATION_JSON		-103
+#define UNSUBSCRIBE_CONFIRM		-104
 #define IDENTIFIER_ARRAY_LEN	38
 #define IDENTIFIER_LAST_INDEX	37
-#define IDENTIFIER_FORMAT		"{\"subscribed\":\"%36s\"}"
 #define _initSepaNode()			{.bindingName=NULL,.type=UNKNOWN,.value=NULL}
 
 #define IDLEPOINT			0

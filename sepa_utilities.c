@@ -97,7 +97,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 	jsmn_parser parser;
 	jsmntok_t *jstokens;
 	int parsing_result,jstok_dim,i,seqflag=0,notflag=0;
-	char *js_buffer=NULL,*checkA,*checkB;
+	char *js_buffer=NULL,*checkA,*checkB,*checkC;
 	
 	if (jsonResults==NULL) {
 		logE("NullpointerException in subscriptionResultParser.\n");
@@ -108,7 +108,8 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 	jstok_dim = jsmn_parse(&parser, jsonResults, strlen(jsonResults), NULL, 0);
 	logD("results=%s - jstok_dim=%d\n",jsonResults,jstok_dim);
 	if (jstok_dim<0) {
-		logE("Result dimension parsing gave %d\n",jstok_dim);
+		if (jstok_dim==JSMN_ERROR_PART) logD("Result dimension parsing gave %d\n",jstok_dim);
+		else logE("Result dimension parsing gave %d\n",jstok_dim);
 		return jstok_dim;
 	}
 	
@@ -127,7 +128,8 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 		parsing_result = jsmn_parse(&parser, jsonResults, strlen(jsonResults), jstokens, jstok_dim);
 		if (parsing_result<0) {
 			free(jstokens);
-			logE("Result total parsing gave %d\n",parsing_result);
+			if (parsing_result==JSMN_ERROR_PART) logD("Result total parsing gave %d\n",parsing_result);
+			else logE("Result dimension parsing gave %d\n",parsing_result);
 			return parsing_result;
 		}
 		
@@ -169,17 +171,21 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 			else parsing_result = PARSING_ERROR;
 		}
 		else {
-			// subscription confirm case
+			// (un)subscription confirm case
 			checkA = strstr(jsonResults,"{\"subscribed\":\"");
+			checkC = strstr(jsonResults,"{\"unsubscribed\":\"");
 			checkB = strstr(jsonResults,"\"}");
-			if ((checkA==NULL) || (checkB==NULL) || (checkB-checkA!=51)) {
-				logE("Subscription confirmation is corrupted: %s\n",jsonResults);
-				parsing_result = PARSING_ERROR;
-			}
+			if (checkC!=NULL) parsing_result = UNSUBSCRIBE_CONFIRM;
 			else {
-				sscanf(jsonResults,IDENTIFIER_FORMAT,data->identifier);
-				(data->identifier)[IDENTIFIER_LAST_INDEX]='\0';
-				parsing_result = SUBSCRIPTION_ID_JSON;
+				if (checkA!=NULL) {
+					sscanf(jsonResults,"{\"subscribed\":\"%36s\"}",data->identifier);
+					(data->identifier)[IDENTIFIER_LAST_INDEX]='\0';
+					parsing_result = SUBSCRIPTION_ID_JSON;
+				}
+				else {
+					logE("Subscription confirmation is corrupted: %s\n",jsonResults);
+					parsing_result = PARSING_ERROR;
+				}
 			}
 		}
 		free(jstokens);
@@ -192,7 +198,7 @@ int queryResultsParser(const char * jsonResults,sepaNode * results,int * resultl
 	return 0;
 }
 
-int checkReceivedJson(char * myjson) {
+/*int checkReceivedJson(char * myjson) {
 	char *jsoncopy,*index;
 	int started_tag=0,opened=0,closed=0;
 	
@@ -213,7 +219,7 @@ int checkReceivedJson(char * myjson) {
 	free(jsoncopy);
 	if (opened==closed) return COMPLETE_JSON;
 	else return INCOMPLETE_JSON;
-}
+}*/
 
 
 sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
@@ -253,11 +259,11 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 #endif
 			for (i; i<j+tokens[j+1].size*BINDING_LEN; i+=BINDING_LEN) {
 				if (getJsonItem(json,tokens[i+BINDING_NAME],&bindingName)==PARSING_ERROR) return NULL;
-				logD("Binding Name %d=%s - size=%d\n",BINDING_NAME,js_buffer,tokens[i+BINDING_NAME].size);
+				logD("Binding Name %d=%s - size=%d\n",BINDING_NAME,bindingName,tokens[i+BINDING_NAME].size);
 				if (getJsonItem(json,tokens[i+BINDING_TYPE],&bindingType)==PARSING_ERROR) return NULL;
-				logD("Binding Type %d=%s - size=%d\n",BINDING_TYPE,js_buffer,tokens[i+BINDING_TYPE].size);
+				logD("Binding Type %d=%s - size=%d\n",BINDING_TYPE,bindingType,tokens[i+BINDING_TYPE].size);
 				if (getJsonItem(json,tokens[i+BINDING_VALUE],&bindingValue)==PARSING_ERROR) return NULL;
-				logD("Binding Value %d=%s - size=%d\n",BINDING_VALUE,js_buffer,tokens[i+BINDING_VALUE].size);
+				logD("Binding Value %d=%s - size=%d\n",BINDING_VALUE,bindingValue,tokens[i+BINDING_VALUE].size);
 				result[res_index] = buildSepaNode(bindingName,bindingType,bindingValue);
 				res_index++;
 			}

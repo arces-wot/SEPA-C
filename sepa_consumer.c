@@ -79,7 +79,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 	if (raisedSubscription!=NULL) {
 		switch (reason) {
 			case LWS_CALLBACK_CLIENT_ESTABLISHED:
-				printf("%p\tSepa Callback: Connect with server success.\n",wsi);
+				logI("Sepa Callback: Connect with server success.\n");
 				pthread_mutex_lock(&(sepa_session.subscription_mutex));
 				sparql_length = strlen(raisedSubscription->subscription_sparql)+strlen(SUBSCRIPTION_TAG);
 				sparql_buffer = (char *) malloc((LWS_PRE+sparql_length)*sizeof(char));
@@ -89,15 +89,15 @@ static int sepa_subscription_callback(	struct lws *wsi,
 					lws_write(wsi,sparql_buffer+LWS_PRE,sparql_length,LWS_WRITE_TEXT);
 					free(sparql_buffer);
 				}
-				else fprintf(stderr,"Malloc error in sepa_subscription_callback LWS_CALLBACK_CLIENT_ESTABLISHED\n");
+				else logE("Malloc error in sepa_subscription_callback LWS_CALLBACK_CLIENT_ESTABLISHED\n");
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 				break;
 			case LWS_CALLBACK_CLIENT_CONNECTION_ERROR:
-				printf("%p\tSepa Callback: Connect with server error.\n",wsi);
+				logE("Sepa Callback: Connect with server error.\n");
 				// maybe we need to unsubscribeAll or terminate application
 				break;
 			case LWS_CALLBACK_CLOSED:
-				printf("%p\tSepa Callback: LWS_CALLBACK_CLOSED\n",wsi);
+				logI("Sepa Callback: LWS_CALLBACK_CLOSED\n");
 				// maybe we need to unsubscribeAll or terminate application
 				break;
 			case LWS_CALLBACK_CLIENT_RECEIVE:
@@ -109,33 +109,36 @@ static int sepa_subscription_callback(	struct lws *wsi,
 					parse_result = subscriptionResultsParser(raisedSubscription->resultBuffer,&added,&addedLen,&removed,&removedLen,&n_properties);
 					switch (parse_result) {
 						case JSMN_ERROR_INVAL:
-							fprintf(stderr,"Sepa Callback Client received error - Invalid JSON Received!\n");
+							logW("Sepa Callback Client received error - Invalid JSON Received!\n");
 							strcpy(raisedSubscription->resultBuffer,"");
 							break;
 						case JSMN_ERROR_PART:
-							fprintf(stderr,"Sepa Callback Client received partial JSON...\n");
+							logI("Sepa Callback Client received partial JSON...\n");
 							break;
 						case PARSING_ERROR:
-							fprintf(stderr,"Sepa Callback Client received parsing error: aborting this read\n");
+							logE("Sepa Callback Client received parsing error: aborting this read\n");
 							strcpy(raisedSubscription->resultBuffer,"");
 							break;
 						case PING_JSON:
-							fprintf(stderr,"Sepa Callback Client received a ping from SEPA\n");
+							logI("Sepa Callback Client received a ping from SEPA\n");
 							break;
 						case SUBSCRIPTION_ID_JSON:
 							strcpy(raisedSubscription->identifier,n_properties.identifier);
-							fprintf(stderr,"Sepa Callback Client received subscription confirmation #%s\n",raisedSubscription->identifier,n_properties.identifier);
+							logI("Sepa Callback Client received subscription confirmation #%s\n",raisedSubscription->identifier);
 							break;
 						case NOTIFICATION_JSON:
-							fprintf(stderr,"Sepa Callback Client notification packet received [sequence=%d, id=%s]\n",n_properties.sequence,n_properties.identifier);
+							logI("Sepa Callback Client notification packet received [sequence=%d, id=%s]\n",n_properties.sequence,n_properties.identifier);
 							(raisedSubscription->subHandler)(added,addedLen,removed,removedLen);
 							break;
+						case UNSUBSCRIBE_CONFIRM:
+							logI("Sepa Callback Client unsubscribe confirm received [%s]\n",raisedSubscription->identifier);
+							break;
 						default:
-							fprintf(stderr,"Sepa Callback Client unknown parsing code: %d\n",parse_result);
+							logW("Sepa Callback Client unknown parsing code: %d\n",parse_result);
 							break;
 					}
 				}
-				else fprintf(stderr,"Realloc error in sepa_subscription_callback LWS_CALLBACK_CLIENT_RECEIVE\n");
+				else logE("Realloc error in sepa_subscription_callback LWS_CALLBACK_CLIENT_RECEIVE\n");
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 				break;
 			default:
@@ -160,7 +163,7 @@ int sepa_subscriber_init() {
 			pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 			break;
 		default:
-			perror("Error in sepa_subscriber_init - ");
+			logE("Error in sepa_subscriber_init mutex.\n");
 			break;
 	}
 	return result;
@@ -173,7 +176,7 @@ int sepa_subscriber_destroy() {
 		pthread_mutex_destroy(&(sepa_session.subscription_mutex));
 		return EXIT_SUCCESS;
 	}
-	fprintf(stderr,"Error: %d subscriptions still running!",runningSubscriptions);
+	logI("Error: %d subscriptions still running!",runningSubscriptions);
 	return EXIT_FAILURE;
 }
 
@@ -186,12 +189,12 @@ int sepa_subscription_builder(char * sparql_subscription,char * server_address,p
 	
 	sa_ghostcopy = strdup(server_address);
 	if ((sparql_subscription==NULL) || (server_address==NULL) || (sa_ghostcopy==NULL)) {
-		fprintf(stderr,"Nullpointer exception in subscription_builder\n");
+		logE("Nullpointer exception in subscription_builder\n");
 		return EXIT_FAILURE;
 	}
 	subscription->subscription_sparql = sparql_subscription;
 	if (lws_parse_uri(sa_ghostcopy,&sub_protocol,&sub_address,&port,&p)) {
-		fprintf(stderr,"Error while parsing address %s\n",server_address);
+		logE("Error while parsing address %s\n",server_address);
 		free(sa_ghostcopy);
 		return EXIT_FAILURE;
 	}
@@ -209,7 +212,7 @@ int sepa_subscription_builder(char * sparql_subscription,char * server_address,p
 	else {
 		if (!strcmp(subscription->protocol,"wss")) subscription->use_ssl=1;
 		else {
-			fprintf(stderr,"Requested protocol %s error: must be ws or wss.\n",subscription->protocol);
+			logE("Requested protocol %s error: must be ws or wss.\n",subscription->protocol);
 			return EXIT_FAILURE;
 		}
 	}
@@ -217,7 +220,7 @@ int sepa_subscription_builder(char * sparql_subscription,char * server_address,p
 	subscription->resultBuffer = strdup("");
 	strcpy(subscription->identifier,"");
 	if (subscription->resultBuffer==NULL) {
-		fprintf(stderr,"strdup resultBuffer failure in sepa_subscription_builder\n");
+		logE("strdup resultBuffer failure in sepa_subscription_builder\n");
 		return EXIT_FAILURE;
 	}
 	
@@ -227,7 +230,7 @@ int sepa_subscription_builder(char * sparql_subscription,char * server_address,p
 }
 
 void sepa_setSubscriptionHandlers(SubscriptionHandler subhandler,UnsubscriptionHandler unsubhandler,pSEPA_subscription_params subscription) {
-	if ((subscription==NULL) || (subhandler==NULL)) fprintf(stderr,"NullPointerException in sepa_setSubscriptionHandlers\n");
+	if ((subscription==NULL) || (subhandler==NULL)) logE("NullPointerException in sepa_setSubscriptionHandlers\n");
 	else {
 		subscription->subHandler = subhandler;
 		subscription->unsubHandler = unsubhandler;
@@ -238,12 +241,12 @@ int kpSubscribe(pSEPA_subscription_params params) {
 	int result = -1;
 	char *p;
 	if (params!=NULL) {
-		if (params->subHandler==NULL) fprintf(stderr,"Subscription handler NullPointerException.\n");
+		if (params->subHandler==NULL) logE("Subscription handler NullPointerException.\n");
 		else {
 			if (!pthread_mutex_lock(&(sepa_session.subscription_mutex))) {
 				sepa_session.active_subscriptions++;
 				sepa_session.subscription_list = (pSEPA_subscription_params *) realloc(sepa_session.subscription_list,sepa_session.active_subscriptions*sizeof(pSEPA_subscription_params));
-				if (sepa_session.subscription_list==NULL) fprintf(stderr,"Realloc error in kpSubscribe.\n");
+				if (sepa_session.subscription_list==NULL) logE("Realloc error in kpSubscribe.\n");
 				else {
 					if (sepa_session.active_subscriptions>1) params->subscription_code = (sepa_session.subscription_list[sepa_session.active_subscriptions-2])->subscription_code+1;
 					else params->subscription_code = 1;
@@ -251,12 +254,12 @@ int kpSubscribe(pSEPA_subscription_params params) {
 					result = params->subscription_code;
 				}
 				if ((result==-1) || (pthread_create(&(params->subscription_task),NULL,subscription_thread,(void *) params))) {
-					fprintf(stderr,"Problem in creating subscription thread! Exiting...\n");
+					logE("Problem in creating subscription thread! Aborting subscription...\n");
 					result = -1;
 				}
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 			}
-			else fprintf(stderr,"kpSubscribe error: parameters are null or mutex not lockable.\n");
+			else logE("kpSubscribe error: parameters are null or mutex not lockable.\n");
 		}
 	}
 	return result;
@@ -264,13 +267,14 @@ int kpSubscribe(pSEPA_subscription_params params) {
 
 int kpUnsubscribe(pSEPA_subscription_params params) {
 	int result=EXIT_FAILURE,i=0,code_index=-1;
+	char unsubscribeRequest[LWS_PRE+UNSUBSCRIBE_TAG_LEN+IDENTIFIER_LAST_INDEX];
 	if (params==NULL) {
-		fprintf(stderr,"kpUnsubscribe info: null params request\n");
+		logE("kpUnsubscribe error: null params request\n");
 		return EXIT_FAILURE;
 	}
 	else {
 		if (!pthread_mutex_lock(&(sepa_session.subscription_mutex))) {
-			printf("Starting unsubscribe procedure!\n");
+			logI("Starting unsubscribe procedure!\n");
 			while ((i<sepa_session.active_subscriptions) && (code_index==-1)) {
 				if ((sepa_session.subscription_list[i])->subscription_code==params->subscription_code) {
 					code_index = i;
@@ -278,15 +282,21 @@ int kpUnsubscribe(pSEPA_subscription_params params) {
 				else i++;
 			}
 			if (i==sepa_session.active_subscriptions) {
-				if (!i) fprintf(stderr,"No active subscriptions: cannot unsubscribe.\n");
-				else fprintf(stderr,"Nonexistent subscription code %d\n",params->subscription_code);
+				if (!i) logW("No active subscriptions: cannot unsubscribe.\n");
+				else logW("Nonexistent subscription code %d\n",params->subscription_code);
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 				return EXIT_FAILURE;
 			}
-			else pthread_mutex_unlock(&(sepa_session.subscription_mutex));
+			else {
+				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
+				strcpy(unsubscribeRequest+LWS_PRE,UNSUBSCRIBE_TAG);
+				strcat(unsubscribeRequest+LWS_PRE,params->identifier);
+				lws_write(params->ws_identifier,unsubscribeRequest+LWS_PRE,UNSUBSCRIBE_TAG_LEN+IDENTIFIER_LAST_INDEX-1,LWS_WRITE_TEXT);
+				logI("Sent unsubscription packet...\n");
+			}
 		}
 		else {
-			fprintf(stderr,"kpUnubscribe error: mutex not lockable.\n");
+			logE("kpUnubscribe error: mutex not lockable.\n");
 			return EXIT_FAILURE;
 		}
 	}
@@ -310,12 +320,13 @@ int kpUnsubscribe(pSEPA_subscription_params params) {
 		}
 		sepa_session.subscription_list = (pSEPA_subscription_params *) realloc(sepa_session.subscription_list,sepa_session.active_subscriptions*sizeof(pSEPA_subscription_params));
 		if (sepa_session.subscription_list==NULL) {
-			fprintf(stderr,"Realloc error in kpUnsubscribe\n");
+			logE("Realloc error in kpUnsubscribe\n");
 			result = EXIT_FAILURE;
 		}
 	}
-	printf("Unsubscribe executed!\n");
+	
 	if (params->unsubHandler!=NULL) (params->unsubHandler)();
+	logI("Unsubscribe executed!\n");
 	pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 	free(params->resultBuffer);
 	return result;
@@ -347,10 +358,10 @@ static void * subscription_thread(void * parameters) {
 	pSEPA_subscription_params params = (pSEPA_subscription_params) parameters;
 	int force_exit=0;
 	
-	printf("Thread per la sottoscrizione %d attivato.\n",params->subscription_code);
+	logI("Thread per la sottoscrizione %d attivato.\n",params->subscription_code);
 	
 	if (params==NULL) {
-		fprintf(stderr,"Subscription_thread NullPointerExceptions (parameters)\n");
+		logE("Subscription_thread NullPointerExceptions (parameters)\n");
 		pthread_exit(&exit_failure);
 	}
 	
@@ -365,7 +376,7 @@ static void * subscription_thread(void * parameters) {
 	lwsContext_info.ws_ping_pong_interval = 0;
 	ws_context = lws_create_context(&lwsContext_info);
 	if (ws_context==NULL) {
-		fprintf(stderr,"Creating sepa subscription libwebsocket context failed\n");
+		logE("Creating sepa subscription libwebsocket context failed\n");
 		pthread_exit(&exit_failure);
 	}
 	
@@ -381,7 +392,7 @@ static void * subscription_thread(void * parameters) {
 	connect_info.pwsi = &(params->ws_identifier);
 
 	params->ws_identifier = lws_client_connect_via_info(&connect_info);
-	printf("Subscription %d wsi=%p\n",params->subscription_code,params->ws_identifier);
+	logD("Subscription %d wsi=%p\n",params->subscription_code,params->ws_identifier);
 	
 	while (!force_exit) {
 		lws_service(ws_context, 50);
@@ -392,7 +403,7 @@ static void * subscription_thread(void * parameters) {
 	}
 	lws_context_destroy(ws_context);
 	
-	printf("Thread per la sottoscrizione %d terminato.\n",params->subscription_code);
+	logI("Thread per la sottoscrizione %d terminato.\n",params->subscription_code);
 	pthread_exit(&exit_success);
 }
 

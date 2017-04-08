@@ -14,6 +14,8 @@
 #define WS_ADDRESS_LEN						100
 #define RX_BUFFER_SIZE						100
 #define SUBSCRIPTION_TAG					"subscribe="
+#define UNSUBSCRIBE_TAG						"unsubscribe="
+#define UNSUBSCRIBE_TAG_LEN					12
 #define _getSubscriptionProtocols()			_protocols
 #define _getSubscriptionProtocolName()		_protocols[0].name
 #define _getSubscriptionCallback()			_protocols[0].sepa_subscription_callback

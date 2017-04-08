@@ -21,7 +21,7 @@
  * 
  */
 
-#define SEPA_UTILITIES_LOGGER
+#define SEPA_LOGGER_ERROR
 #include <stdio.h>
 #include "sepa_consumer.h"
 
@@ -41,7 +41,6 @@ int main(int argc, char **argv) {
 	kpUnsubscribe(&this_subscription);
 	
 	sepa_subscriber_destroy();
-	logE("Ciao mona\n");
 	return 0;
 }
 

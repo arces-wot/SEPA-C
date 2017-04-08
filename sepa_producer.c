@@ -33,7 +33,7 @@ long kpProduce(const char * update_string,const char * http_server) {
 	int protocol_used = KPI_PRODUCE_FAIL;
 	
 	if ((update_string==NULL) && (http_server==NULL)) {
-		fprintf(stderr,"NullPointerException in kpProduce.\n");
+		logE("NullPointerException in kpProduce.\n");
 		return KPI_PRODUCE_FAIL;
 	}
 	
@@ -41,14 +41,14 @@ long kpProduce(const char * update_string,const char * http_server) {
 	else {
 		if (strstr(http_server,"https:")!=NULL) protocol_used = HTTPS;
 		else {
-			fprintf(stderr,"%s protocol error in kpProduce: only http and https are accepted.\n",http_server);
+			logE("%s protocol error in kpProduce: only http and https are accepted.\n",http_server);
 			return KPI_PRODUCE_FAIL; 
 		}
 	}
 	
 	result = curl_global_init(CURL_GLOBAL_ALL);
 	if (result) {
-		fprintf(stderr,"curl_global_init() failed.\n");
+		logE("curl_global_init() failed.\n");
 		return KPI_PRODUCE_FAIL;
 	}
 	curl = curl_easy_init();
@@ -61,25 +61,23 @@ long kpProduce(const char * update_string,const char * http_server) {
 		
 		nullFile = fopen("/dev/null","w");
 		if (nullFile==NULL)	{
-			fprintf(stderr,"Error opening /dev/null.");
+			logE("Error opening /dev/null.");
 			response_code = KPI_PRODUCE_FAIL;
 		}
 		else {
 			curl_easy_setopt(curl, CURLOPT_WRITEDATA, nullFile);
 			result = curl_easy_perform(curl);
 			if (result!=CURLE_OK) {
-				fprintf(stderr, "curl_easy_perform() failed: %s\n",curl_easy_strerror(result));
+				logE("curl_easy_perform() failed: %s\n",curl_easy_strerror(result));
 				response_code = KPI_PRODUCE_FAIL;
 			}
-			else {
-				curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
-			}
+			else curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
 			fclose(nullFile);
 		}
 		curl_easy_cleanup(curl);
 	}
 	else {
-		fprintf(stderr, "curl_easy_init() failed.\n");
+		logE("curl_easy_init() failed.\n");
 		response_code = KPI_PRODUCE_FAIL;
 	}
 	curl_global_cleanup();
