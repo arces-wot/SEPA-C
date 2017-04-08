@@ -21,7 +21,7 @@
 #define _getSubscriptionRxBufferSize()		_protocols[0].rx_buffer_size
 #define _initSubscription()					{.use_ssl=-1,.subscription_code=-1,.identifier="",.protocol="",.address="",.path="",.port=-1}
 
-typedef void (*SubscriptionHandler)(sepaNode *,int *,sepaNode *,int *);
+typedef void (*SubscriptionHandler)(sepaNode *,int,sepaNode *,int);
 typedef void (*UnsubscriptionHandler)(void);
 
 typedef struct subscription_params {
@@ -29,7 +29,7 @@ typedef struct subscription_params {
 	
 	int use_ssl;
 	int subscription_code;
-	char identifier[IDENTIFIER_LEN];
+	char identifier[IDENTIFIER_ARRAY_LEN];
 	pthread_t subscription_task;
 	char protocol[PROTOCOL_LEN];
 	char address[WS_ADDRESS_LEN];

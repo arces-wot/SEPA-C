@@ -21,11 +21,11 @@
  * 
  */
 
-
+#define SEPA_UTILITIES_LOGGER
 #include <stdio.h>
 #include "sepa_consumer.h"
 
-void mySubscriptionNotification(sepaNode * added,int * addedlen,sepaNode * removed,int * removedlen);
+void mySubscriptionNotification(sepaNode * added,int addedlen,sepaNode * removed,int removedlen);
 void myUnsubscriptionNotification();
 
 int main(int argc, char **argv) {
@@ -41,11 +41,20 @@ int main(int argc, char **argv) {
 	kpUnsubscribe(&this_subscription);
 	
 	sepa_subscriber_destroy();
+	logE("Ciao mona\n");
 	return 0;
 }
 
-void mySubscriptionNotification(sepaNode * added,int * addedlen,sepaNode * removed,int * removedlen) {
+void mySubscriptionNotification(sepaNode * added,int addedlen,sepaNode * removed,int removedlen) {
+	int i;
 	printf("This is a subscription notification!\n");
+	printf("\nAdded %d items:\n",addedlen);
+	fprintfSepaNodes(stdout,added,addedlen);
+	if (removed!=NULL) {
+		printf("Removed %d items:\n",removedlen);
+		fprintfSepaNodes(stdout,removed,removedlen);
+	}
+	printf("\n");
 }
 
 void myUnsubscriptionNotification() {

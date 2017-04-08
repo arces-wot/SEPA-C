@@ -106,7 +106,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 				raisedSubscription->resultBuffer = (char *) realloc(raisedSubscription->resultBuffer,(strlen(raisedSubscription->resultBuffer)+strlen(receive_buffer)+1)*sizeof(char));
 				if (raisedSubscription->resultBuffer!=NULL) {
 					strcat(raisedSubscription->resultBuffer,receive_buffer);
-					parse_result = subscriptionResultsParser(raisedSubscription->resultBuffer,added,&addedLen,removed,&removedLen,&n_properties);
+					parse_result = subscriptionResultsParser(raisedSubscription->resultBuffer,&added,&addedLen,&removed,&removedLen,&n_properties);
 					switch (parse_result) {
 						case JSMN_ERROR_INVAL:
 							fprintf(stderr,"Sepa Callback Client received error - Invalid JSON Received!\n");
@@ -116,18 +116,19 @@ static int sepa_subscription_callback(	struct lws *wsi,
 							fprintf(stderr,"Sepa Callback Client received partial JSON...\n");
 							break;
 						case PARSING_ERROR:
-							fprintf(stderr,"Sepa Callback Client received realloc error: aborting this read\n");
+							fprintf(stderr,"Sepa Callback Client received parsing error: aborting this read\n");
+							strcpy(raisedSubscription->resultBuffer,"");
 							break;
 						case PING_JSON:
 							fprintf(stderr,"Sepa Callback Client received a ping from SEPA\n");
 							break;
 						case SUBSCRIPTION_ID_JSON:
 							strcpy(raisedSubscription->identifier,n_properties.identifier);
-							fprintf(stderr,"Sepa Callback Client received subscription confirmation #%s\n",raisedSubscription->identifier);
+							fprintf(stderr,"Sepa Callback Client received subscription confirmation #%s\n",raisedSubscription->identifier,n_properties.identifier);
 							break;
 						case NOTIFICATION_JSON:
-							fprintf(stderr,"Sepa Callback Client notification packet received: %s\n",raisedSubscription->resultBuffer);
-							// Qui chiami l'handler
+							fprintf(stderr,"Sepa Callback Client notification packet received [sequence=%d, id=%s]\n",n_properties.sequence,n_properties.identifier);
+							(raisedSubscription->subHandler)(added,addedLen,removed,removedLen);
 							break;
 						default:
 							fprintf(stderr,"Sepa Callback Client unknown parsing code: %d\n",parse_result);

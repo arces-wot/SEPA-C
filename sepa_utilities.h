@@ -7,13 +7,39 @@
 #include <string.h>
 #include "jsmn.h"
 
+#ifdef SUPER_VERBOSITY
+#define SEPA_LOGGER_DEBUG
+#endif
+
+#define logE( format , ... ) fprintf (stderr, "ERROR		" format, ##__VA_ARGS__ )
+#ifndef SEPA_LOGGER_WARNING
+#define logW( format , ... ) do { if (0) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ ); } while (0)
+	#ifndef SEPA_LOGGER_INFO
+	#define logI( format , ... ) do { if (0) fprintf (stderr, "INFO			" format, ##__VA_ARGS__ ); } while (0)
+		#ifndef SEPA_LOGGER_DEBUG
+		#define logD( format , ... ) do { if (0) fprintf (stderr, "DEBUG		" format, ##__VA_ARGS__ ); } while (0)
+		#else
+		#define logD( format , ... ) fprintf (stderr, "DEBUG		" format, ##__VA_ARGS__ )
+		#define logI( format , ... ) fprintf (stderr, "INFO			" format, ##__VA_ARGS__ )
+		#define logW( format , ... ) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ )
+		#endif
+	#else
+	#define logI( format , ... ) fprintf (stderr, "INFO			" format, ##__VA_ARGS__ )
+	#define logW( format , ... ) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ )
+	#endif
+#else
+#define logW( format , ... ) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ )
+#endif
+
 #define COMPLETE_JSON			1
 #define INCOMPLETE_JSON			0
 #define PARSING_ERROR			-100
 #define PING_JSON				-101
 #define SUBSCRIPTION_ID_JSON	-102
 #define NOTIFICATION_JSON		-103
-#define IDENTIFIER_LEN			37
+#define IDENTIFIER_ARRAY_LEN	38
+#define IDENTIFIER_LAST_INDEX	37
+#define IDENTIFIER_FORMAT		"{\"subscribed\":\"%36s\"}"
 #define _initSepaNode()			{.bindingName=NULL,.type=UNKNOWN,.value=NULL}
 
 #define IDLEPOINT			0
@@ -43,17 +69,17 @@ typedef struct SEPA_Node {
 
 typedef struct notification_properties {
 	int sequence;
-	char identifier[IDENTIFIER_LEN];
+	char identifier[IDENTIFIER_ARRAY_LEN];
 	// head:vars?
 } notifyProperty;
 
 int getJsonItem(char * json,jsmntok_t token,char ** destination);
 void fprintfSepaNodes(FILE * outstream,sepaNode * nodeArray,int arraylen);
 void freeSepaNodes(sepaNode * nodeArray,int arraylen);
-sepaNode buildSepaNode(const char * node_bindingName,FieldType node_type,const char * node_value);
-int subscriptionResultsParser(char * jsonResults,sepaNode * addedNodes,int * addedlen,sepaNode * removedNodes,int * removedlen,notifyProperty * data);
+sepaNode buildSepaNode(char * node_bindingName,char * node_type,char * node_value);
+int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * addedlen,sepaNode ** removedNodes,int * removedlen,notifyProperty * data);
 int queryResultsParser(const char * jsonResults,sepaNode * results,int * resultlen);
-//int checkReceivedJson(char * myjson);
+int checkReceivedJson(char * myjson);
 sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen);
 
 #endif 
