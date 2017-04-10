@@ -56,10 +56,12 @@ void anotherSubscriptionNotification(sepaNode * added,int addedlen,sepaNode * re
 	if (added!=NULL) {
 		printf("---Added %d items:\n",addedlen);
 		fprintfSepaNodes(stdout,added,addedlen,"---");
+		freeSepaNodes(added,addedlen);
 	}
 	if (removed!=NULL) {
 		printf("---Removed %d items:\n",removedlen);
 		fprintfSepaNodes(stdout,removed,removedlen,"---");
+		freeSepaNodes(removed,removedlen);
 	}
 	printf("---\n");
 }
@@ -70,10 +72,12 @@ void mySubscriptionNotification(sepaNode * added,int addedlen,sepaNode * removed
 	if (added!=NULL) {
 		printf("Added %d items:\n",addedlen);
 		fprintfSepaNodes(stdout,added,addedlen,"");
+		freeSepaNodes(added,addedlen);
 	}
 	if (removed!=NULL) {
 		printf("Removed %d items:\n",removedlen);
 		fprintfSepaNodes(stdout,removed,removedlen,"");
+		freeSepaNodes(removed,removedlen);
 	}
 	printf("\n");
 }

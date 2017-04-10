@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 	queryResultsParser(json,&results,&resultsLen);
 	fprintfSepaNodes(stdout,results,resultsLen,"");
 	
-	free(results);
+	freeSepaNodes(results,resultsLen);
 	free(json);
 	return 0;
 }
