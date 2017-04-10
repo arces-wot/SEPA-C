@@ -417,6 +417,85 @@ void fprintfSubscriptionParams(FILE * outstream,SEPA_subscription_params params)
 	}
 }
 
-char * kpQuery(const char * sparql_query,const char * sparql_address) {
-	return NULL;
+static size_t queryResultAccumulator(void * ptr, size_t size, size_t nmemb, QueryJson * data) {
+	size_t index = data->size;
+    size_t n = (size * nmemb);
+    char* tmp;
+    data->size += (size * nmemb);
+    tmp = realloc(data->json, data->size + 1); // +1 for '\0'
+    if (tmp!=NULL) data->json = tmp;
+    else {
+        if (data->json!=NULL) free(data->json);
+        logE("Failed to allocate memory.\n");
+        return 0;
+    }
+
+    memcpy((data->json + index), ptr, n);
+    data->json[data->size] = '\0';
+    return size * nmemb;
+}
+
+char * kpQuery(const char * sparql_query,const char * http_server) {
+	CURL *curl;
+	CURLcode result;
+	struct curl_slist *list = NULL;
+	long response_code;
+	FILE *nullFile;
+	int protocol_used = KPI_QUERY_FAIL;
+	QueryJson data;
+	
+	if ((sparql_query==NULL) || (http_server==NULL)) {
+		logE("NullPointerException in kpProduce.\n");
+		return NULL;
+	}
+	
+	if (strstr(http_server,"http:")!=NULL) protocol_used = HTTP;
+	else {
+		if (strstr(http_server,"https:")!=NULL) protocol_used = HTTPS;
+		else {
+			logE("%s protocol error in kpProduce: only http and https are accepted.\n",http_server);
+			return NULL; 
+		}
+	}
+	
+	data.size = 0;
+	data.json = (char *) malloc(QUERY_START_BUFFER*sizeof(char));
+	if (data.json==NULL) {
+		logE("strdup error in kpQuery.\n");
+		return NULL;
+	}
+	
+	result = curl_global_init(CURL_GLOBAL_ALL);
+	if (result) {
+		logE("curl_global_init() failed.\n");
+		return NULL;
+	}
+	curl = curl_easy_init();
+	if (curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, http_server);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, sparql_query);
+		
+		list = curl_slist_append(list, "Content-Type: application/sparql-query");
+		list = curl_slist_append(list, "Accept: application/json");
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, queryResultAccumulator);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
+		result = curl_easy_perform(curl);
+		if (result!=CURLE_OK) {
+			logE("curl_easy_perform() failed: %s\n",curl_easy_strerror(result));
+			response_code = KPI_QUERY_FAIL;
+		}
+		else {
+			curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
+			logI("Response code is %ld\n",response_code);
+		}
+		curl_easy_cleanup(curl);
+	}
+	else {
+		logE("curl_easy_init() failed.\n");
+		response_code = KPI_QUERY_FAIL;
+	}
+	curl_global_cleanup();
+	if (response_code==KPI_QUERY_FAIL) return NULL;
+	else return data.json;
 }

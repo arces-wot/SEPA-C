@@ -21,7 +21,7 @@
  * 
  */
 
-#include "sepa_kpi.h"
+#include "sepa_producer.h"
 
 #define COMMAND_NAME		argv[0]
 

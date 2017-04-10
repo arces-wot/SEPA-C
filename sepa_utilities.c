@@ -96,7 +96,7 @@ sepaNode buildSepaNode(char * node_bindingName,char * node_type,char * node_valu
 int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * addedlen,sepaNode ** removedNodes,int * removedlen,notifyProperty * data) {
 	jsmn_parser parser;
 	jsmntok_t *jstokens;
-	int parsing_result,jstok_dim,i,seqflag=0,notflag=0,a,b;
+	int parsing_result,jstok_dim,i,completed=0;
 	char *js_buffer=NULL,*checkA,*checkB,*checkC;
 	
 	if (jsonResults==NULL) {
@@ -136,28 +136,32 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 		if (jstok_dim>3) {
 			// notification to subscription case
 			parsing_result = EXIT_SUCCESS;
-			for (i=0; (i<jstok_dim) && (parsing_result==EXIT_SUCCESS); i++) {
+			for (i=0; (i<jstok_dim) && (parsing_result==EXIT_SUCCESS) && (completed<4); i++) {
 				if (jstokens[i].type==JSMN_STRING) {
 					parsing_result = getJsonItem(jsonResults,jstokens[i],&js_buffer);
 					if (parsing_result==EXIT_SUCCESS) {
 						if (!strcmp(js_buffer,"addedresults")) {
 							logI("Building added results...\n");
 							*addedNodes = getResultBindings(jsonResults,&(jstokens[i+3]),addedlen);
+							completed++;
 						}
 						else {
 							if (!strcmp(js_buffer,"removedresults")) {
 								logI("Building removed results...\n");
 								*removedNodes = getResultBindings(jsonResults,&(jstokens[i+3]),removedlen);
+								completed++;
 							}
 							else {
 								if (!strcmp(js_buffer,"sequence")) {
 									parsing_result = getJsonItem(jsonResults,jstokens[i+1],&js_buffer);
 									if (parsing_result==EXIT_SUCCESS) sscanf(js_buffer,"%d",&(data->sequence));
+									completed++;
 								}
 								else {
 									if (!strcmp(js_buffer,"notification")) {
 										parsing_result = getJsonItem(jsonResults,jstokens[i+1],&js_buffer);
 										if (parsing_result==EXIT_SUCCESS) strcpy(data->identifier,js_buffer);
+										completed++;
 									}
 								}
 							}
@@ -178,7 +182,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 			if (checkC!=NULL) parsing_result = UNSUBSCRIBE_CONFIRM;
 			else {
 				if (checkA!=NULL) {
-					sscanf(jsonResults,"{\"subscribed\":\"%36s\"}",data->identifier);
+					sscanf(jsonResults,"{\"subscribed\":\"" IDENTIFIER_STRING_LEN "\"}",data->identifier);
 					(data->identifier)[IDENTIFIER_LAST_INDEX]='\0';
 					parsing_result = SUBSCRIPTION_ID_JSON;
 				}
@@ -194,8 +198,55 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 	return parsing_result;	
 }
 
-int queryResultsParser(const char * jsonResults,sepaNode * results,int * resultlen) {
-	return 0;
+int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen) {
+	jsmn_parser parser;
+	jsmntok_t *jstokens;
+	int jstok_dim,completed=0,parsing_result,i;
+	char *js_buffer = NULL;
+	
+	if (jsonResults==NULL) {
+		logE("NullpointerException in queryResultParser.\n");
+		return PARSING_ERROR;
+	}
+	
+	jsmn_init(&parser);
+	jstok_dim = jsmn_parse(&parser, jsonResults, strlen(jsonResults), NULL, 0);
+	logD("results=%s - jstok_dim=%d\n",jsonResults,jstok_dim);
+	if (jstok_dim<0) {
+		if (jstok_dim==JSMN_ERROR_PART) logD("Result dimension parsing gave %d\n",jstok_dim);
+		else logE("Result dimension parsing gave %d\n",jstok_dim);
+		return jstok_dim;
+	}
+	
+	jstokens = (jsmntok_t *) malloc(jstok_dim*sizeof(jsmntok_t));
+	if (jstokens==NULL) {
+		logE("Malloc error in json parsing!\n");
+		strcpy(jsonResults,"");
+		return PARSING_ERROR;
+	}
+	jsmn_init(&parser);
+	parsing_result = jsmn_parse(&parser, jsonResults, strlen(jsonResults), jstokens, jstok_dim);
+	if (parsing_result<0) {
+		free(jstokens);
+		logE("Result dimension parsing gave %d\n",parsing_result);
+		return parsing_result;
+	}
+	
+	parsing_result = EXIT_SUCCESS;
+	for (i=0; (i<jstok_dim) && (parsing_result==EXIT_SUCCESS) && (!completed); i++) {
+		if (jstokens[i].type==JSMN_STRING) {
+			parsing_result = getJsonItem(jsonResults,jstokens[i],&js_buffer);
+			if ((parsing_result==EXIT_SUCCESS) && (!strcmp(js_buffer,"results"))) {
+				logI("Building added results...\n");
+				*results = getResultBindings(jsonResults,&(jstokens[i+3]),resultlen);
+				completed++;
+			}
+		}
+	}
+	
+	if (js_buffer!=NULL) free(js_buffer);
+	free(jstokens);
+	return *resultlen;
 }
 
 /*int checkReceivedJson(char * myjson) {
@@ -252,8 +303,8 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 		if (getJsonItem(json,tokens[0],&js_buffer)==PARSING_ERROR) return NULL;
 		logD("array=%s - size=%d\n",js_buffer,tokens[0].size);
 #endif
-		i=0;
-		for (j=0; j<tokens[1].size*BINDING_LEN*tokens[0].size; j=i) {
+		i=0; j=0;
+		while (res_index<*outlen) {
 #ifdef SUPER_VERBOSITY
 			if (getJsonItem(json,tokens[j+1],&js_buffer)==PARSING_ERROR) return NULL;
 			logD("token[%d]=%s - token[%d].size=%d\n",j+1,js_buffer,j+1,tokens[j+1].size);
@@ -267,8 +318,11 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 				logD("Binding Value %d=%s - size=%d\n",BINDING_VALUE,bindingValue,tokens[i+BINDING_VALUE].size);
 				result[res_index] = buildSepaNode(bindingName,bindingType,bindingValue);
 				res_index++;
+				//printf("res_index=%d;\n",res_index);
 			}
 			i++;
+			//printf("i=%d\n",i);
+			j=i;
 		}
 		free(bindingName);
 		free(bindingType);

@@ -9,6 +9,9 @@
 #include "/usr/local/include/libwebsockets.h"
 #include "sepa_utilities.h"
 
+#define HTTP								0
+#define HTTPS								1
+#define QUERY_START_BUFFER					512
 #define PATH_ADDRESS_LEN					100
 #define PROTOCOL_LEN						100
 #define WS_ADDRESS_LEN						100
@@ -16,6 +19,7 @@
 #define SUBSCRIPTION_TAG					"subscribe="
 #define UNSUBSCRIBE_TAG						"unsubscribe="
 #define UNSUBSCRIBE_TAG_LEN					12
+#define KPI_QUERY_FAIL						-2
 #define _getSubscriptionProtocols()			_protocols
 #define _getSubscriptionProtocolName()		_protocols[0].name
 #define _getSubscriptionCallback()			_protocols[0].sepa_subscription_callback
@@ -50,6 +54,11 @@ typedef struct sepa_subscriber {
 	int closing_subscription_code;
 } SEPA_subscriber,*pSEPA_subscriber;
 
+typedef struct query_json {
+	size_t size;
+	char *json;
+} QueryJson;
+
 int sepa_subscriber_init();
 int sepa_subscriber_destroy();
 pSEPA_subscription_params * getSubscriptionList();
@@ -59,6 +68,6 @@ void sepa_setSubscriptionHandlers(SubscriptionHandler subhandler,UnsubscriptionH
 int sepa_subscription_builder(char * sparql_subscription,char * server_address,pSEPA_subscription_params subscription);
 int kpSubscribe(pSEPA_subscription_params params);
 int kpUnsubscribe(pSEPA_subscription_params params);
-char * kpQuery(const char * sparql_query,const char * sparql_address);
+char * kpQuery(const char * sparql_query,const char * http_server);
 
 #endif // SEPA_CONSUMER

@@ -32,7 +32,7 @@ long kpProduce(const char * update_string,const char * http_server) {
 	FILE *nullFile;
 	int protocol_used = KPI_PRODUCE_FAIL;
 	
-	if ((update_string==NULL) && (http_server==NULL)) {
+	if ((update_string==NULL) || (http_server==NULL)) {
 		logE("NullPointerException in kpProduce.\n");
 		return KPI_PRODUCE_FAIL;
 	}
@@ -56,7 +56,7 @@ long kpProduce(const char * update_string,const char * http_server) {
 		curl_easy_setopt(curl, CURLOPT_URL, http_server);
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, update_string);
 		
-		list = curl_slist_append(list, "\"Content-Type: application/sparql-update\"");
+		list = curl_slist_append(list, "Content-Type: application/sparql-update");
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
 		
 		nullFile = fopen("/dev/null","w");

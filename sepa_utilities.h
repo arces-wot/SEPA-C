@@ -48,13 +48,8 @@
 #define UNSUBSCRIBE_CONFIRM		-104
 #define IDENTIFIER_ARRAY_LEN	38
 #define IDENTIFIER_LAST_INDEX	37
+#define IDENTIFIER_STRING_LEN	"%36s"
 #define _initSepaNode()			{.bindingName=NULL,.type=UNKNOWN,.value=NULL}
-
-#define IDLEPOINT			0
-#define NOTIFICATION		1
-#define SEQUENCE			2
-#define OBJECTNAME			3
-#define BINDINGS			4
 
 #define BINDING_LEN			6
 #define BINDING_NAME		2
@@ -86,7 +81,7 @@ void fprintfSepaNodes(FILE * outstream,sepaNode * nodeArray,int arraylen,const c
 void freeSepaNodes(sepaNode * nodeArray,int arraylen);
 sepaNode buildSepaNode(char * node_bindingName,char * node_type,char * node_value);
 int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * addedlen,sepaNode ** removedNodes,int * removedlen,notifyProperty * data);
-int queryResultsParser(const char * jsonResults,sepaNode * results,int * resultlen);
+int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen);
 int checkReceivedJson(char * myjson);
 sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen);
 
