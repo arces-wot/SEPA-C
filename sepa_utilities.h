@@ -82,7 +82,7 @@ typedef struct notification_properties {
 } notifyProperty;
 
 int getJsonItem(char * json,jsmntok_t token,char ** destination);
-void fprintfSepaNodes(FILE * outstream,sepaNode * nodeArray,int arraylen);
+void fprintfSepaNodes(FILE * outstream,sepaNode * nodeArray,int arraylen,const char * prefix);
 void freeSepaNodes(sepaNode * nodeArray,int arraylen);
 sepaNode buildSepaNode(char * node_bindingName,char * node_type,char * node_value);
 int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * addedlen,sepaNode ** removedNodes,int * removedlen,notifyProperty * data);

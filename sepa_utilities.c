@@ -33,14 +33,14 @@ int getJsonItem(char * json,jsmntok_t token,char ** destination) {
 	return EXIT_SUCCESS;
 }
 
-void fprintfSepaNodes(FILE * outstream,sepaNode * nodeArray,int arraylen) {
+void fprintfSepaNodes(FILE * outstream,sepaNode * nodeArray,int arraylen,const char * prefix) {
 	int i;
 	if (outstream!=NULL) {
-		if ((nodeArray==NULL) || (arraylen==0)) fprintf(outstream,"Empty data\n");
+		if ((nodeArray==NULL) || (arraylen==0)) fprintf(outstream,"%s Empty data\n",prefix);
 		else {
 			for (i=0; i<arraylen; i++) {
-				if (nodeArray[i].bindingName!=NULL) fprintf(outstream,"#%d Binding = %s; ",i+1,nodeArray[i].bindingName);
-				else fprintf(outstream,"#%d Binding = None; ",i+1);
+				if (nodeArray[i].bindingName!=NULL) fprintf(outstream,"%s #%d Binding = %s; ",prefix,i+1,nodeArray[i].bindingName);
+				else fprintf(outstream,"%s #%d Binding = None; ",prefix,i+1);
 				switch (nodeArray[i].type) {
 					case URI:
 						fprintf(outstream,"Field type = URI; ");
@@ -96,7 +96,7 @@ sepaNode buildSepaNode(char * node_bindingName,char * node_type,char * node_valu
 int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * addedlen,sepaNode ** removedNodes,int * removedlen,notifyProperty * data) {
 	jsmn_parser parser;
 	jsmntok_t *jstokens;
-	int parsing_result,jstok_dim,i,seqflag=0,notflag=0;
+	int parsing_result,jstok_dim,i,seqflag=0,notflag=0,a,b;
 	char *js_buffer=NULL,*checkA,*checkB,*checkC;
 	
 	if (jsonResults==NULL) {
@@ -137,33 +137,33 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 			// notification to subscription case
 			parsing_result = EXIT_SUCCESS;
 			for (i=0; (i<jstok_dim) && (parsing_result==EXIT_SUCCESS); i++) {
-				switch (jstokens[i].type) {
-					case JSMN_OBJECT:
-						parsing_result = getJsonItem(jsonResults,jstokens[i+1],&js_buffer);
-						if (jstokens[i+1].type==JSMN_STRING) {
-							if (parsing_result==EXIT_SUCCESS) {
-								if (!strcmp(js_buffer,"addedresults")) *addedNodes = getResultBindings(jsonResults,&(jstokens[i+4]),addedlen);
-								if (!strcmp(js_buffer,"removedresults")) *removedNodes = getResultBindings(jsonResults,&(jstokens[i+4]),removedlen);
+				if (jstokens[i].type==JSMN_STRING) {
+					parsing_result = getJsonItem(jsonResults,jstokens[i],&js_buffer);
+					if (parsing_result==EXIT_SUCCESS) {
+						if (!strcmp(js_buffer,"addedresults")) {
+							logI("Building added results...\n");
+							*addedNodes = getResultBindings(jsonResults,&(jstokens[i+3]),addedlen);
+						}
+						else {
+							if (!strcmp(js_buffer,"removedresults")) {
+								logI("Building removed results...\n");
+								*removedNodes = getResultBindings(jsonResults,&(jstokens[i+3]),removedlen);
+							}
+							else {
+								if (!strcmp(js_buffer,"sequence")) {
+									parsing_result = getJsonItem(jsonResults,jstokens[i+1],&js_buffer);
+									if (parsing_result==EXIT_SUCCESS) sscanf(js_buffer,"%d",&(data->sequence));
+								}
+								else {
+									if (!strcmp(js_buffer,"notification")) {
+										parsing_result = getJsonItem(jsonResults,jstokens[i+1],&js_buffer);
+										if (parsing_result==EXIT_SUCCESS) strcpy(data->identifier,js_buffer);
+									}
+								}
 							}
 						}
-						break;
-					case JSMN_STRING:
-						parsing_result = getJsonItem(jsonResults,jstokens[i],&js_buffer);
-						if (parsing_result==EXIT_SUCCESS) {
-							if (!seqflag) {
-								seqflag = !strcmp(js_buffer,"sequence");
-								parsing_result = getJsonItem(jsonResults,jstokens[i+1],&js_buffer);
-								if ((parsing_result==EXIT_SUCCESS) && (seqflag)) sscanf(js_buffer,"%d",&(data->sequence));
-							}
-							if (!notflag) {
-								notflag = !strcmp(js_buffer,"notification");
-								parsing_result = getJsonItem(jsonResults,jstokens[i+1],&js_buffer);
-								if ((parsing_result==EXIT_SUCCESS) && (notflag)) strcpy(data->identifier,js_buffer);
-							}
-						}
-						break;
-					default:
-						break;
+					}
+					else logE("Error while looking for strings in json\n");
 				}
 			}
 			free(js_buffer);
@@ -231,12 +231,13 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 	char *js_buffer = NULL;
 #endif
 	char *bindingName=NULL,*bindingType=NULL,*bindingValue=NULL;
-	sepaNode *result;
+	sepaNode *result = NULL;
 	
 	if (json==NULL) {
 		logE("NullpointerException in getResultBindings\n");
 		return NULL;
 	}
+	*outlen = 0;
 	logD("%s\n",json);
 	if (tokens[0].type==JSMN_ARRAY) {
 		*outlen = tokens[0].size*tokens[1].size;

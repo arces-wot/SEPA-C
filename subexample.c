@@ -26,32 +26,54 @@
 #include "sepa_consumer.h"
 
 void mySubscriptionNotification(sepaNode * added,int addedlen,sepaNode * removed,int removedlen);
+void anotherSubscriptionNotification(sepaNode * added,int addedlen,sepaNode * removed,int removedlen);
 void myUnsubscriptionNotification();
 
 int main(int argc, char **argv) {
 	SEPA_subscription_params this_subscription = _initSubscription();
+	SEPA_subscription_params another_subscription = _initSubscription();
 	int a;
 	sepa_subscriber_init();
 	sepa_subscription_builder("SELECT ?a ?b ?c WHERE {<http://francesco> ?a <http://pingpong>. <http://pingpong> ?b ?c}","ws://mml.arces.unibo.it:9000/sparql",&this_subscription);
+	sepa_subscription_builder("SELECT ?x ?y WHERE {?x ?y <http://pingpong>}","ws://mml.arces.unibo.it:9000/sparql",&another_subscription);
 	sepa_setSubscriptionHandlers(mySubscriptionNotification,myUnsubscriptionNotification,&this_subscription);
+	sepa_setSubscriptionHandlers(anotherSubscriptionNotification,NULL,&another_subscription);
 	fprintfSubscriptionParams(stdout,this_subscription);
-	printf("Exit code = %d\n",kpSubscribe(&this_subscription));
+	fprintfSubscriptionParams(stdout,another_subscription);
+	printf("mysubscription Exit code = %d\n",kpSubscribe(&this_subscription));
+	printf("anothersubscription Exit code = %d\n",kpSubscribe(&another_subscription));
 	printf("insert a number to continue: "); scanf("%d",&a);
 	
 	kpUnsubscribe(&this_subscription);
+	kpUnsubscribe(&another_subscription);
 	
 	sepa_subscriber_destroy();
 	return 0;
 }
 
+void anotherSubscriptionNotification(sepaNode * added,int addedlen,sepaNode * removed,int removedlen) {
+	printf("---This is another subscription notification!\n\n");
+	if (added!=NULL) {
+		printf("---Added %d items:\n",addedlen);
+		fprintfSepaNodes(stdout,added,addedlen,"---");
+	}
+	if (removed!=NULL) {
+		printf("---Removed %d items:\n",removedlen);
+		fprintfSepaNodes(stdout,removed,removedlen,"---");
+	}
+	printf("---\n");
+}
+
 void mySubscriptionNotification(sepaNode * added,int addedlen,sepaNode * removed,int removedlen) {
 	int i;
-	printf("This is a subscription notification!\n");
-	printf("\nAdded %d items:\n",addedlen);
-	fprintfSepaNodes(stdout,added,addedlen);
+	printf("This is my subscription notification!\n\n");
+	if (added!=NULL) {
+		printf("Added %d items:\n",addedlen);
+		fprintfSepaNodes(stdout,added,addedlen,"");
+	}
 	if (removed!=NULL) {
 		printf("Removed %d items:\n",removedlen);
-		fprintfSepaNodes(stdout,removed,removedlen);
+		fprintfSepaNodes(stdout,removed,removedlen,"");
 	}
 	printf("\n");
 }

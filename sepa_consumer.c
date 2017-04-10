@@ -109,14 +109,14 @@ static int sepa_subscription_callback(	struct lws *wsi,
 					parse_result = subscriptionResultsParser(raisedSubscription->resultBuffer,&added,&addedLen,&removed,&removedLen,&n_properties);
 					switch (parse_result) {
 						case JSMN_ERROR_INVAL:
-							logW("Sepa Callback Client received error - Invalid JSON Received!\n");
+							logW("Sepa Callback Client received error - Invalid JSON Received [id=%s]\n",raisedSubscription->identifier);
 							strcpy(raisedSubscription->resultBuffer,"");
 							break;
 						case JSMN_ERROR_PART:
-							logI("Sepa Callback Client received partial JSON...\n");
+							logI("Sepa Callback Client received partial JSON [id=%s]...\n",raisedSubscription->identifier);
 							break;
 						case PARSING_ERROR:
-							logE("Sepa Callback Client received parsing error: aborting this read\n");
+							logE("Sepa Callback Client received parsing error: aborting this read [id=%s]\n",raisedSubscription->identifier);
 							strcpy(raisedSubscription->resultBuffer,"");
 							break;
 						case PING_JSON:
@@ -131,10 +131,11 @@ static int sepa_subscription_callback(	struct lws *wsi,
 							(raisedSubscription->subHandler)(added,addedLen,removed,removedLen);
 							break;
 						case UNSUBSCRIBE_CONFIRM:
-							logI("Sepa Callback Client unsubscribe confirm received [%s]\n",raisedSubscription->identifier);
+							logI("Sepa Callback Client unsubscribe confirm received [id=%s]\n",raisedSubscription->identifier);
+							sepa_session.closing_subscription_code = raisedSubscription->subscription_code;
 							break;
 						default:
-							logW("Sepa Callback Client unknown parsing code: %d\n",parse_result);
+							logW("Sepa Callback Client unknown parsing code: %d [id=%s]\n",parse_result,raisedSubscription->identifier);
 							break;
 					}
 				}
@@ -301,9 +302,6 @@ int kpUnsubscribe(pSEPA_subscription_params params) {
 		}
 	}
 	
-	pthread_mutex_lock(&(sepa_session.subscription_mutex));
-	sepa_session.closing_subscription_code = params->subscription_code;
-	pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 	pthread_join(params->subscription_task,NULL);
 
 	pthread_mutex_lock(&(sepa_session.subscription_mutex));
