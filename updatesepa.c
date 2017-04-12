@@ -20,19 +20,28 @@
  * 
  * 
  */
-
+ 
+/**
+ * @brief Example of code used to create a consumer
+ * @file updatesepa.c
+ * @author Francesco Antoniazzi <francesco.antoniazzi@unibo.it>
+ * @date 12 Apr 2017
+ * @example
+ */
+ 
+ 
 #include "sepa_producer.h"
 
 #define COMMAND_NAME		argv[0]
+#define SEPA_ADDRESS		argv[1]
+#define SPARQL_UPDATE		argv[2]
 
 void printUsage() {
-	printf("USAGE:\nno argument or 'help': prints this.\n'prompt' asks for url and update interactively.\n<url> <update> performs update directly\n");
+	fprintf(stderr,"USAGE:\nno argument or 'help': prints this.\n./updatesepa [<url>] [<update>] performs update.\n");
 }
 
 int main(int argc, char **argv) {
 	long outCode;
-	char sepaAddress[100];
-	char update[300];
 	switch (argc) {
 	case 1:
 		printUsage();
@@ -43,21 +52,12 @@ int main(int argc, char **argv) {
 			return EXIT_SUCCESS;
 		}
 		else {
-			if (!strcmp("prompt",argv[1])) {
-				printf("Insert SEPA address: "); scanf("%s%*c",sepaAddress);
-				printf("Insert one line update: "); gets(update);
-				outCode = kpProduce(update,sepaAddress);
-				printf("Http post output code=%ld\n",outCode);
-				return (int) outCode;
-			}
-			else {
-				fprintf(stderr,"%s Missing parameter.\n",COMMAND_NAME);
-				printUsage();
-				return EXIT_FAILURE;
-			}
+			fprintf(stderr,"Unrecognized parameter %s\n",argv[1]);
+			printUsage();
+			return EXIT_FAILURE;
 		}
 	case 3:
-		outCode = kpProduce(argv[2],argv[1]);
+		outCode = kpProduce(SPARQL_UPDATE,SEPA_ADDRESS);
 		printf("Http post output code=%ld\n",outCode);
 		return (int) outCode;
 	default:

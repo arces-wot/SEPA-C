@@ -21,36 +21,59 @@
  * 
  */
 
+/**
+ * @brief Example of code used to make a subscription to SEPA
+ * @file subexample.c
+ * @author Francesco Antoniazzi <francesco.antoniazzi@unibo.it>
+ * @date 12 Apr 2017
+ * @example
+ */
+ 
 #define SEPA_LOGGER_ERROR
 #include <stdio.h>
 #include "sepa_consumer.h"
 
+// declare your handlers
 void mySubscriptionNotification(sepaNode * added,int addedlen,sepaNode * removed,int removedlen);
 void anotherSubscriptionNotification(sepaNode * added,int addedlen,sepaNode * removed,int removedlen);
 void myUnsubscriptionNotification();
 
 int main(int argc, char **argv) {
+	// initialize subscriptions
 	SEPA_subscription_params this_subscription = _initSubscription();
 	SEPA_subscription_params another_subscription = _initSubscription();
 	int a;
+	
+	// initialize subscription client engine
 	sepa_subscriber_init();
+	
+	// create subscriptions and set the respective handlers
 	sepa_subscription_builder("SELECT ?a ?b ?c WHERE {<http://francesco> ?a <http://pingpong>. <http://pingpong> ?b ?c}","ws://mml.arces.unibo.it:9000/sparql",&this_subscription);
 	sepa_subscription_builder("SELECT ?x ?y WHERE {?x ?y <http://pingpong>}","ws://mml.arces.unibo.it:9000/sparql",&another_subscription);
 	sepa_setSubscriptionHandlers(mySubscriptionNotification,myUnsubscriptionNotification,&this_subscription);
 	sepa_setSubscriptionHandlers(anotherSubscriptionNotification,NULL,&another_subscription);
+	
+	// check if it is correct
 	fprintfSubscriptionParams(stdout,this_subscription);
 	fprintfSubscriptionParams(stdout,another_subscription);
-	printf("mysubscription Exit code = %d\n",kpSubscribe(&this_subscription));
-	printf("anothersubscription Exit code = %d\n",kpSubscribe(&another_subscription));
+	
+	// subscribe
+	kpSubscribe(&this_subscription);
+	kpSubscribe(&another_subscription);
+	
+	// prompt user to stop
 	printf("insert a number to continue: "); scanf("%d",&a);
 	
+	// unsubscribe
 	kpUnsubscribe(&this_subscription);
 	kpUnsubscribe(&another_subscription);
 	
+	// close subscription client engine
 	sepa_subscriber_destroy();
 	return 0;
 }
 
+// write your handlers
 void anotherSubscriptionNotification(sepaNode * added,int addedlen,sepaNode * removed,int removedlen) {
 	printf("---This is another subscription notification!\n\n");
 	if (added!=NULL) {

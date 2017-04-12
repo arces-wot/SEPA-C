@@ -78,11 +78,11 @@ sepaNode buildSepaNode(char * node_bindingName,char * node_type,char * node_valu
 	if ((node_bindingName==NULL) || (node_type==NULL) || (node_value==NULL)) logE("NullpointerException in buildSepaNode");
 	else {
 		result.bindingName = strdup(node_bindingName);
-		if (!strcmp(node_type,"uri")) result.type = URI;
+		if (!strcmp(node_type,URI_STRING)) result.type = URI;
 		else {
-			if (!strcmp(node_type,"literal")) result.type = LITERAL;
+			if (!strcmp(node_type,LITERAL_STRING)) result.type = LITERAL;
 			else {
-				if (!strcmp(node_type,"bnode")) result.type = BNODE;
+				if (!strcmp(node_type,BNODE_STRING)) result.type = BNODE;
 				else result.type = UNKNOWN;
 			}
 		}

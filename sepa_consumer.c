@@ -162,6 +162,7 @@ int sepa_subscriber_init() {
 			break;
 		case 0:
 			pthread_mutex_unlock(&(sepa_session.subscription_mutex));
+			logW("sepa_subscriber_init: already initialized?\n");
 			break;
 		default:
 			logE("Error in sepa_subscriber_init mutex.\n");
