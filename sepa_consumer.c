@@ -473,6 +473,14 @@ char * kpQuery(const char * sparql_query,const char * http_server) {
 	}
 	curl = curl_easy_init();
 	if (curl) {
+		switch (protocol_used) {
+			case HTTP:
+				break;
+			case HTTPS:
+				break;
+			default:
+				break;
+		}
 		curl_easy_setopt(curl, CURLOPT_URL, http_server);
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, sparql_query);
 		
