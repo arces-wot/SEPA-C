@@ -1,6 +1,10 @@
 var NAVTREE =
 [
   [ "SEPA-API", "index.html", [
+    [ "Introduction", "index.html", [
+      [ "Clone from git", "index.html#git-clone", null ],
+      [ "Compile programs", "index.html#program-compilation", null ]
+    ] ],
     [ "Todo List", "todo.html", null ],
     [ "Data Structures", null, [
       [ "Data Structures", "annotated.html", "annotated" ],

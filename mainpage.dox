@@ -1,0 +1,22 @@
+/**
+\mainpage Introduction
+\author Francesco Antoniazzi <francesco.antoniazzi@unibo.it>
+
+\tableofcontents
+
+\todo Apt-get install section
+
+\section git-clone Clone from git
+You can clone the repository using the following command:
+\code
+git clone https://github.com/fr4ncidir/sepa-C-kpi.git
+\endcode
+
+\todo Compile library section
+
+\section program-compilation Compile programs
+You can compile a project using this library with the following command 
+\code
+gcc jsmn.c sepa_utilities.c sepa_consumer.c myprogram.c -o myprogram -L/usr/local/lib -pthread -lwebsockets -lcurl
+\endcode
+ */
