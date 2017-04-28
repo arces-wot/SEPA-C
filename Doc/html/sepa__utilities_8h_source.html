@@ -219,16 +219,16 @@ $(document).ready(function(){initNavTree('sepa__utilities_8h_source.html','');})
 <div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;</div>
 <div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;<span class="keywordtype">void</span> <a class="code" href="sepa__utilities_8h.html#af5f734d1fb6c4546778cff05841f11d8">freeSepaNodes</a>(<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> * nodeArray,<span class="keywordtype">int</span> arraylen);</div>
 <div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> <a class="code" href="sepa__utilities_8h.html#a6fb42e44cec49d3bb124b44d97e620ab">buildSepaNode</a>(<span class="keywordtype">char</span> * node_bindingName,<span class="keywordtype">char</span> * node_type,<span class="keywordtype">char</span> * node_value);</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;<span class="keywordtype">int</span> <a class="code" href="sepa__utilities_8h.html#ab3afcca383f250f5cac56ad6632a30c8">subscriptionResultsParser</a>(<span class="keywordtype">char</span> * jsonResults,<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> ** addedNodes,<span class="keywordtype">int</span> * addedlen,<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> ** removedNodes,<span class="keywordtype">int</span> * removedlen,<a class="code" href="structnotification__properties.html">notifyProperty</a> * data);</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;<span class="keywordtype">int</span> <a class="code" href="sepa__utilities_8h.html#a24bc647dd5e52c7f18f489eb326f3def">queryResultsParser</a>(<span class="keywordtype">char</span> * jsonResults,<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> ** results,<span class="keywordtype">int</span> * resultlen);</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="comment">//int checkReceivedJson(char * myjson);</span></div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> * <a class="code" href="sepa__utilities_8h.html#a906448d7ced234b1614f4510c6c4d5b4">getResultBindings</a>(<span class="keywordtype">char</span> * json,jsmntok_t * tokens,<span class="keywordtype">int</span> * outlen);</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;<span class="preprocessor">#endif </span></div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> <a class="code" href="sepa__utilities_8h.html#a6fb42e44cec49d3bb124b44d97e620ab">buildSepaNode</a>(<span class="keywordtype">char</span> * node_bindingName,<span class="keywordtype">char</span> * node_type,<span class="keywordtype">char</span> * node_value);</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;<span class="keywordtype">int</span> <a class="code" href="sepa__utilities_8h.html#ab3afcca383f250f5cac56ad6632a30c8">subscriptionResultsParser</a>(<span class="keywordtype">char</span> * jsonResults,<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> ** addedNodes,<span class="keywordtype">int</span> * addedlen,<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> ** removedNodes,<span class="keywordtype">int</span> * removedlen,<a class="code" href="structnotification__properties.html">notifyProperty</a> * data);</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="keywordtype">int</span> <a class="code" href="sepa__utilities_8h.html#a24bc647dd5e52c7f18f489eb326f3def">queryResultsParser</a>(<span class="keywordtype">char</span> * jsonResults,<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> ** results,<span class="keywordtype">int</span> * resultlen);</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="comment">//int checkReceivedJson(char * myjson);</span></div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> * <a class="code" href="sepa__utilities_8h.html#a906448d7ced234b1614f4510c6c4d5b4">getResultBindings</a>(<span class="keywordtype">char</span> * json,jsmntok_t * tokens,<span class="keywordtype">int</span> * outlen);</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="preprocessor">#endif </span></div>
 <div class="ttc" id="sepa__utilities_8h_html_af5f734d1fb6c4546778cff05841f11d8"><div class="ttname"><a href="sepa__utilities_8h.html#af5f734d1fb6c4546778cff05841f11d8">freeSepaNodes</a></div><div class="ttdeci">void freeSepaNodes(sepaNode *nodeArray, int arraylen)</div><div class="ttdoc">Free memory utility. </div><div class="ttdef"><b>Definition:</b> sepa_utilities.c:65</div></div>
 <div class="ttc" id="struct_s_e_p_a___node_html_a4e9aec275e566b978a3ccb4e043d8c61"><div class="ttname"><a href="struct_s_e_p_a___node.html#a4e9aec275e566b978a3ccb4e043d8c61">SEPA_Node::value</a></div><div class="ttdeci">char * value</div><div class="ttdef"><b>Definition:</b> sepa_utilities.h:112</div></div>
 <div class="ttc" id="structnotification__properties_html_acc80722d9dd9349cbba06c72d6fb5972"><div class="ttname"><a href="structnotification__properties.html#acc80722d9dd9349cbba06c72d6fb5972">notification_properties::sequence</a></div><div class="ttdeci">int sequence</div><div class="ttdef"><b>Definition:</b> sepa_utilities.h:119</div></div>
@@ -253,7 +253,7 @@ $(document).ready(function(){initNavTree('sepa__utilities_8h_source.html','');})
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="sepa__utilities_8h.html">sepa_utilities.h</a></li>
-    <li class="footer">Generated on Wed Apr 26 2017 15:03:00 for SEPA-API by
+    <li class="footer">Generated on Fri Apr 28 2017 09:44:00 for SEPA-API by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.7 </li>
   </ul>

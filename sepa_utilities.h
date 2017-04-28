@@ -156,6 +156,7 @@ void freeSepaNodes(sepaNode * nodeArray,int arraylen);
  * @param node_type: string between (URI_STRING)"uri",(LITERAL_STRING)"literal" or (BNODE_STRING)"bnode"
  * @param node_value: current value of the node
  * @return the sepaNode formed
+ * @see FieldType
  */
 sepaNode buildSepaNode(char * node_bindingName,char * node_type,char * node_value);
 
@@ -185,6 +186,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
  * @param results: a pointer to an array of sepaNode, in which to store bindings
  * @param resultlen: a pointer to int, in which to store results length
  * @return PARSING_ERROR, or JSMN_ERROR_PART, JSMN_ERROR_INVAL (see jsmn documentation) upon failure; otherwise EXIT_SUCCESS;
+ * @see http://zserge.com/jsmn.html error codes
  */
 int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen);
 //int checkReceivedJson(char * myjson);
