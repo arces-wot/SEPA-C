@@ -71,17 +71,18 @@
 	#endif
 #endif
 
-#define COMPLETE_JSON			1
-#define INCOMPLETE_JSON			0
-#define PARSING_ERROR			-100
-#define PING_JSON				-101
-#define SUBSCRIPTION_ID_JSON	-102
-#define NOTIFICATION_JSON		-103
-#define UNSUBSCRIBE_CONFIRM		-104
-#define IDENTIFIER_ARRAY_LEN	38
-#define IDENTIFIER_LAST_INDEX	37
-#define IDENTIFIER_STRING_LEN	"%36s"
-#define _initSepaNode()			{.bindingName=NULL,.type=UNKNOWN,.value=NULL}
+#define COMPLETE_JSON					1
+#define INCOMPLETE_JSON					0
+#define PARSING_ERROR					-100
+#define PING_JSON						-101
+#define SUBSCRIPTION_ID_JSON			-102
+#define NOTIFICATION_JSON				-103
+#define UNSUBSCRIBE_CONFIRM				-104
+#define IDENTIFIER_ARRAY_LEN			58
+#define IDENTIFIER_LAST_INDEX			57
+#define IDENTIFIER_STRING_LEN			"%56s"
+#define SUBSCRIPTION_ID_PREAMBLE_LEN	20
+#define _initSepaNode()					{.bindingName=NULL,.type=UNKNOWN,.value=NULL}
 
 #define BINDING_LEN			6
 #define BINDING_NAME		2

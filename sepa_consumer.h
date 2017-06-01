@@ -48,6 +48,9 @@
 
 #define HTTP								0
 #define HTTPS								1
+#define INVALID_SECURITY_DEFINITION			-1
+#define WSS_SECURE							1
+#define WS_NOT_SECURE						0
 #define QUERY_START_BUFFER					512
 #define PATH_ADDRESS_LEN					100
 #define PROTOCOL_LEN						10
@@ -57,12 +60,13 @@
 #define UNSUBSCRIBE_TAG						"unsubscribe="
 #define UNSUBSCRIBE_TAG_LEN					12
 #define KPI_QUERY_FAIL						-2
+#define SUBSCRIPTION_AUTH_TOKEN_LEN			0
 #define _getSubscriptionProtocols()			_protocols
 #define _getSubscriptionProtocolName()		_protocols[0].name
 #define _getSubscriptionCallback()			_protocols[0].sepa_subscription_callback
 #define _getSubscriptionDataSize()			_protocols[0].per_session_data_size
 #define _getSubscriptionRxBufferSize()		_protocols[0].rx_buffer_size
-#define _initSubscription()					{.use_ssl=-1,.subscription_code=-1,.identifier="",.protocol="",.address="",.path="",.port=-1}
+#define _initSubscription()					{.subscription_alias=NULL,.subscription_authToken="",.use_ssl=-1,.subscription_code=-1,.identifier="",.protocol="",.address="",.path="",.port=-1}
 
 /**
  * @brief Prototype for subscription notification handler
@@ -96,6 +100,8 @@ typedef void (*UnsubscriptionHandler)(void);
  */ 
 typedef struct subscription_params {
 	char *subscription_sparql; /**< Char array containing the SPARQL of the subscription */
+	char subscription_authToken[SUBSCRIPTION_AUTH_TOKEN_LEN];
+	char *subscription_alias;
 	int use_ssl; /**< 0, if connection is not secure; 1 otherwise */
 	int subscription_code; /**< Reserved internal identifier of the subscription. Do <b>not</b> modify. */
 	char identifier[IDENTIFIER_ARRAY_LEN]; /**< SEPA-given uuid identifier of the subscription. */
@@ -181,7 +187,7 @@ void sepa_setSubscriptionHandlers(SubscriptionHandler subhandler,UnsubscriptionH
  * @param subscription: pointer to the subscription object; must be non null
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
-int sepa_subscription_builder(char * sparql_subscription,char * server_address,pSEPA_subscription_params subscription);
+int sepa_subscription_builder(char * sparql_subscription,char * subscription_alias,char * auth_token,char * server_address,pSEPA_subscription_params subscription);
 
 /**
  * @brief Starts the subscription task.

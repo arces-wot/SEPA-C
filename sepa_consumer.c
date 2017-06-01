@@ -67,8 +67,8 @@ static int sepa_subscription_callback(	struct lws *wsi,
 										void *user, 
 										void *in, 
 										size_t len) {
-	char *sparql_buffer,*receive_buffer;
-	int sparql_length,addedLen,removedLen,parse_result;
+	char *sparql_buffer,*packet_buffer,*receive_buffer;
+	int sub_packet_length=50,addedLen,removedLen,parse_result;
 	pSEPA_subscription_params raisedSubscription;
 	sepaNode *added,*removed;
 	notifyProperty n_properties;
@@ -77,18 +77,25 @@ static int sepa_subscription_callback(	struct lws *wsi,
 	if (raisedSubscription!=NULL) {
 		switch (reason) {
 			case LWS_CALLBACK_CLIENT_ESTABLISHED:
-				logI("Sepa Callback: Connect with server success.\n");
 				pthread_mutex_lock(&(sepa_session.subscription_mutex));
-				sparql_length = strlen(raisedSubscription->subscription_sparql)+strlen(SUBSCRIPTION_TAG);
-				sparql_buffer = (char *) malloc((LWS_PRE+sparql_length)*sizeof(char));
-				if (sparql_buffer!=NULL) {
-					strcpy(sparql_buffer+LWS_PRE,SUBSCRIPTION_TAG);
-					strcat(sparql_buffer+LWS_PRE,raisedSubscription->subscription_sparql);
-					lws_write(wsi,sparql_buffer+LWS_PRE,sparql_length,LWS_WRITE_TEXT);
-					free(sparql_buffer);
+				if (raisedSubscription->use_ssl==WSS_SECURE) sub_packet_length += SUBSCRIPTION_AUTH_TOKEN_LEN;
+				if (raisedSubscription->subscription_alias!=NULL) sub_packet_length += strlen(raisedSubscription->subscription_alias);
+				sub_packet_length += strlen(raisedSubscription->subscription_sparql);
+				
+				packet_buffer = (char *) malloc((LWS_PRE+sub_packet_length)*sizeof(char));
+				if (packet_buffer!=NULL) {
+					sparql_buffer = packet_buffer+LWS_PRE;
+					sprintf(sparql_buffer,"{\"subscribe\":\"%s\"",raisedSubscription->subscription_sparql);
+					if (raisedSubscription->subscription_alias!=NULL) sprintf(sparql_buffer+strlen(sparql_buffer)+1,",\"alias\":\"%s\"",raisedSubscription->subscription_alias);
+					if (raisedSubscription->use_ssl==WSS_SECURE) sprintf(sparql_buffer+strlen(sparql_buffer)+1,",\"authorization\":\"%s\"",raisedSubscription->subscription_authToken);
+					strcat(sparql_buffer,"}");
+					logD("%s",sparql_buffer);
+					lws_write(wsi,sparql_buffer,strlen(sparql_buffer),LWS_WRITE_TEXT);
+					free(packet_buffer);
 				}
 				else logE("Malloc error in sepa_subscription_callback LWS_CALLBACK_CLIENT_ESTABLISHED\n");
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
+				logI("Sepa Callback: Connect with server success.\n");
 				break;
 			case LWS_CALLBACK_CLIENT_CONNECTION_ERROR:
 				logE("Sepa Callback: Connect with server error.\n");
@@ -121,11 +128,11 @@ static int sepa_subscription_callback(	struct lws *wsi,
 							logI("Sepa Callback Client received a ping from SEPA\n");
 							break;
 						case SUBSCRIPTION_ID_JSON:
-							strcpy(raisedSubscription->identifier,n_properties.identifier);
+							strcpy(raisedSubscription->identifier,(n_properties.identifier)+SUBSCRIPTION_ID_PREAMBLE_LEN);
 							logI("Sepa Callback Client received subscription confirmation #%s\n",raisedSubscription->identifier);
 							break;
 						case NOTIFICATION_JSON:
-							logI("Sepa Callback Client notification packet received [sequence=%d, id=%s]\n",n_properties.sequence,n_properties.identifier);
+							logI("Sepa Callback Client notification packet received [sequence=%d, id=%s]\n",n_properties.sequence,(n_properties.identifier)+SUBSCRIPTION_ID_PREAMBLE_LEN);
 							(raisedSubscription->subHandler)(added,addedLen,removed,removedLen);
 							break;
 						case UNSUBSCRIBE_CONFIRM:
@@ -180,7 +187,7 @@ int sepa_subscriber_destroy() {
 	return EXIT_FAILURE;
 }
 
-int sepa_subscription_builder(char * sparql_subscription,char * server_address,pSEPA_subscription_params subscription) {
+int sepa_subscription_builder(char * sparql_subscription,char * subscription_alias,char * auth_token,char * server_address,pSEPA_subscription_params subscription) {
 	const char *p;
 	const char *sub_address;
 	const char *sub_protocol;
@@ -207,10 +214,19 @@ int sepa_subscription_builder(char * sparql_subscription,char * server_address,p
 	strncpy(subscription->path+1,p,sizeof(subscription->path)-2);
 	(subscription->path)[sizeof(subscription->path)-1]='\0';
 
-	subscription->use_ssl = -1;
-	if (!strcmp(subscription->protocol,"ws")) subscription->use_ssl=0;
+	subscription->subscription_alias = subscription_alias;
+
+	subscription->use_ssl = INVALID_SECURITY_DEFINITION;
+	if (!strcmp(subscription->protocol,"ws")) subscription->use_ssl=WS_NOT_SECURE;
 	else {
-		if (!strcmp(subscription->protocol,"wss")) subscription->use_ssl=1;
+		if (!strcmp(subscription->protocol,"wss")) {
+			subscription->use_ssl=WSS_SECURE;
+			if (auth_token==NULL) {
+				logE("Fatal NullPointerException in auth_token field during secure subscription constuction");
+				return EXIT_FAILURE;
+			}
+			else strcpy(subscription->subscription_authToken,auth_token);
+		}
 		else {
 			logE("Requested protocol %s error: must be ws or wss.\n",subscription->protocol);
 			return EXIT_FAILURE;

@@ -62,7 +62,7 @@ void fprintfSepaNodes(FILE * outstream,sepaNode * nodeArray,int arraylen,const c
 
 void freeSepaNodes(sepaNode * nodeArray,int arraylen) {
 	int i;
-	if (nodeArray!=NULL) {
+	if ((nodeArray!=NULL) && (arraylen>0)){
 		for (i=0; i<arraylen; i++) {
 			free(nodeArray[i].bindingName);
 			free(nodeArray[i].value);
@@ -156,7 +156,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 									completed++;
 								}
 								else {
-									if (!strcmp(js_buffer,"notification")) {
+									if (!strcmp(js_buffer,"spuid")) {
 										parsing_result = getJsonItem(jsonResults,jstokens[i+1],&js_buffer);
 										if (parsing_result==EXIT_SUCCESS) strcpy(data->identifier,js_buffer);
 										completed++;
