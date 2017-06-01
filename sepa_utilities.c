@@ -331,3 +331,21 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 	}
 	return result;
 }
+
+size_t queryResultAccumulator(void * ptr, size_t size, size_t nmemb, HttpJsonResult * data) {
+	size_t index = data->size;
+    size_t n = (size * nmemb);
+    char* tmp;
+    data->size += (size * nmemb);
+    tmp = realloc(data->json, data->size + 1); // +1 for '\0'
+    if (tmp!=NULL) data->json = tmp;
+    else {
+        if (data->json!=NULL) free(data->json);
+        logE("Failed to allocate memory.\n");
+        return 0;
+    }
+
+    memcpy((data->json + index), ptr, n);
+    data->json[data->size] = '\0';
+    return size * nmemb;
+}

@@ -51,7 +51,6 @@
 #define INVALID_SECURITY_DEFINITION			-1
 #define WSS_SECURE							1
 #define WS_NOT_SECURE						0
-#define QUERY_START_BUFFER					512
 #define PATH_ADDRESS_LEN					100
 #define PROTOCOL_LEN						10
 #define WS_ADDRESS_LEN						100
@@ -100,8 +99,8 @@ typedef void (*UnsubscriptionHandler)(void);
  */ 
 typedef struct subscription_params {
 	char *subscription_sparql; /**< Char array containing the SPARQL of the subscription */
-	char subscription_authToken[SUBSCRIPTION_AUTH_TOKEN_LEN];
-	char *subscription_alias;
+	char subscription_authToken[SUBSCRIPTION_AUTH_TOKEN_LEN]; /**< Char array contanining authorization token for secure communication with SEPA */
+	char *subscription_alias; /**< Char array containing the subscription alias */
 	int use_ssl; /**< 0, if connection is not secure; 1 otherwise */
 	int subscription_code; /**< Reserved internal identifier of the subscription. Do <b>not</b> modify. */
 	char identifier[IDENTIFIER_ARRAY_LEN]; /**< SEPA-given uuid identifier of the subscription. */
@@ -129,14 +128,6 @@ typedef struct sepa_subscriber {
 	pthread_mutex_t subscription_mutex; /**< General mutex used to modify this structure. */
 	int closing_subscription_code; /**< Reserved. Do <b>not</b> use. */
 } SEPA_subscriber,*pSEPA_subscriber;
-
-/**
- * @brief Structure useful for receiving json data with libcurl.
- */
-typedef struct query_json {
-	size_t size; /**< Json number of characters */
-	char *json; /**< Json received */
-} QueryJson;
 
 /**
  * @brief Initialization function for the subscription client engine.
@@ -183,6 +174,8 @@ void sepa_setSubscriptionHandlers(SubscriptionHandler subhandler,UnsubscriptionH
 /**
  * @brief Set-up parameters for the subscription
  * @param sparql_subscription: string containing the sparql; must be non null
+ * @param subscription_alias: can be either NULL, either an alias for the subscription
+ * @param auth_token: can be either NULL, for non secure subscriptions, or the token for secure subscriptions.
  * @param server_address: for example "ws://sepa.org:1234/sparql"; must be non null
  * @param subscription: pointer to the subscription object; must be non null
  * @return EXIT_SUCCESS or EXIT_FAILURE

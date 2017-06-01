@@ -432,32 +432,13 @@ void fprintfSubscriptionParams(FILE * outstream,SEPA_subscription_params params)
 	}
 }
 
-static size_t queryResultAccumulator(void * ptr, size_t size, size_t nmemb, QueryJson * data) {
-	size_t index = data->size;
-    size_t n = (size * nmemb);
-    char* tmp;
-    data->size += (size * nmemb);
-    tmp = realloc(data->json, data->size + 1); // +1 for '\0'
-    if (tmp!=NULL) data->json = tmp;
-    else {
-        if (data->json!=NULL) free(data->json);
-        logE("Failed to allocate memory.\n");
-        return 0;
-    }
-
-    memcpy((data->json + index), ptr, n);
-    data->json[data->size] = '\0';
-    return size * nmemb;
-}
-
 char * kpQuery(const char * sparql_query,const char * http_server) {
 	CURL *curl;
 	CURLcode result;
 	struct curl_slist *list = NULL;
 	long response_code;
-	FILE *nullFile;
 	int protocol_used = KPI_QUERY_FAIL;
-	QueryJson data;
+	HttpJsonResult data;
 	
 	if ((sparql_query==NULL) || (http_server==NULL)) {
 		logE("NullPointerException in kpProduce.\n");
@@ -476,7 +457,7 @@ char * kpQuery(const char * sparql_query,const char * http_server) {
 	data.size = 0;
 	data.json = (char *) malloc(QUERY_START_BUFFER*sizeof(char));
 	if (data.json==NULL) {
-		logE("strdup error in kpQuery.\n");
+		logE("malloc error in kpQuery.\n");
 		return NULL;
 	}
 	

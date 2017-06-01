@@ -78,6 +78,7 @@
 #define SUBSCRIPTION_ID_JSON			-102
 #define NOTIFICATION_JSON				-103
 #define UNSUBSCRIBE_CONFIRM				-104
+#define QUERY_START_BUFFER				512
 #define IDENTIFIER_ARRAY_LEN			58
 #define IDENTIFIER_LAST_INDEX			57
 #define IDENTIFIER_STRING_LEN			"%56s"
@@ -119,6 +120,14 @@ typedef struct notification_properties {
 	char identifier[IDENTIFIER_ARRAY_LEN]; /**< The subscription identifier */
 	// head:vars?
 } notifyProperty;
+
+/**
+ * @brief Structure useful for receiving json data with libcurl.
+ */
+typedef struct http_json_result {
+	size_t size; /**< Json number of characters */
+	char *json; /**< Json received */
+} HttpJsonResult;
 
 /**
  * @brief Transforms to string the json token.
@@ -200,5 +209,7 @@ int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen);
  * @return a sepaNode array containing all the bindings
  */
 sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen);
+
+size_t queryResultAccumulator(void * ptr, size_t size, size_t nmemb, HttpJsonResult * data);
 
 #endif 
