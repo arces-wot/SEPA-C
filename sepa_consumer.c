@@ -283,7 +283,7 @@ int kpSubscribe(pSEPA_subscription_params params) {
 
 int kpUnsubscribe(pSEPA_subscription_params params) {
 	int result=EXIT_FAILURE,i=0,code_index=-1;
-	char unsubscribeRequest[LWS_PRE+UNSUBSCRIBE_TAG_LEN+IDENTIFIER_LAST_INDEX];
+	char unsubscribeRequest[LWS_PRE+IDENTIFIER_LAST_INDEX+30];
 	if (params==NULL) {
 		logE("kpUnsubscribe error: null params request\n");
 		return EXIT_FAILURE;
@@ -305,9 +305,9 @@ int kpUnsubscribe(pSEPA_subscription_params params) {
 			}
 			else {
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
-				strcpy(unsubscribeRequest+LWS_PRE,UNSUBSCRIBE_TAG);
-				strcat(unsubscribeRequest+LWS_PRE,params->identifier);
-				lws_write(params->ws_identifier,unsubscribeRequest+LWS_PRE,UNSUBSCRIBE_TAG_LEN+IDENTIFIER_LAST_INDEX-1,LWS_WRITE_TEXT);
+				sprintf(unsubscribeRequest+LWS_PRE,"{\"unsubscribe\":\"sepa://subscription/%s\"}",params->identifier);
+				logD("%s",unsubscribeRequest+LWS_PRE);
+				lws_write(params->ws_identifier,unsubscribeRequest+LWS_PRE,strlen(unsubscribeRequest+LWS_PRE),LWS_WRITE_TEXT);
 				logI("Sent unsubscription packet...\n");
 			}
 		}
