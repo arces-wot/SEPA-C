@@ -32,6 +32,7 @@
 #define SEPA_LOGGER_ERROR
 #include <stdio.h>
 #include "../sepa_consumer.h"
+#include "../sepa_secure.h"
 
 // declare your handlers
 void mySubscriptionNotification(sepaNode * added,int addedlen,sepaNode * removed,int removedlen);
@@ -41,28 +42,32 @@ int main(int argc, char **argv) {
 	// initialize subscriptions
 	SEPA_subscription_params this_subscription = _initSubscription();
 	int a;
+	sClient authorizationData;
+	
+	authorizationData = registerClient("08:00:27:78:c5:4e","https://10.0.2.15:8443/oauth/register");
+	fprintfSecureClientData(stdout,authorizationData);
 	
 	// initialize subscription client engine
-	sepa_subscriber_init();
+	//sepa_subscriber_init();
 	
-	// create subscriptions and set the respective handlers
-	sepa_subscription_builder("SELECT ?a ?b ?c WHERE {?a ?b ?c}",NULL,NULL,"ws://10.0.2.15:9000/sparql",&this_subscription);
-	sepa_setSubscriptionHandlers(mySubscriptionNotification,myUnsubscriptionNotification,&this_subscription);
+	//// create subscriptions and set the respective handlers
+	//sepa_subscription_builder("SELECT ?a ?b ?c WHERE {?a ?b ?c}",NULL,NULL,"ws://10.0.2.15:9000/sparql",&this_subscription);
+	//sepa_setSubscriptionHandlers(mySubscriptionNotification,myUnsubscriptionNotification,&this_subscription);
 	
-	// check if it is correct
-	fprintfSubscriptionParams(stdout,this_subscription);
+	//// check if it is correct
+	//fprintfSubscriptionParams(stdout,this_subscription);
 	
-	// subscribe
-	kpSubscribe(&this_subscription);
+	//// subscribe
+	//kpSubscribe(&this_subscription);
 	
-	// prompt user to stop
-	printf("insert a number to continue: "); scanf("%d",&a);
+	//// prompt user to stop
+	//printf("insert a number to continue: "); scanf("%d",&a);
 	
-	// unsubscribe
-	kpUnsubscribe(&this_subscription);
+	//// unsubscribe
+	//kpUnsubscribe(&this_subscription);
 	
-	// close subscription client engine
-	sepa_subscriber_destroy();
+	//// close subscription client engine
+	//sepa_subscriber_destroy();
 	return 0;
 }
 

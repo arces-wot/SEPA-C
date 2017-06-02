@@ -36,6 +36,6 @@ typedef struct secure_client {
 } sClient;
 
 sClient registerClient(const char * identity,const char * registrationAddress);
-
+void fprintfSecureClientData(FILE * outstream,sClient client_data);
 
 #endif
