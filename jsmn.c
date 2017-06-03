@@ -154,11 +154,10 @@ int jsmn_parse(jsmn_parser *parser, const char *js, size_t len,
 	int i;
 	jsmntok_t *token;
 	int count = parser->toknext;
-
+	
 	for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++) {
 		char c;
 		jsmntype_t type;
-
 		c = js[parser->pos];
 		switch (c) {
 			case '{': case '[':
@@ -289,7 +288,6 @@ int jsmn_parse(jsmn_parser *parser, const char *js, size_t len,
 #endif
 		}
 	}
-
 	if (tokens != NULL) {
 		for (i = parser->toknext - 1; i >= 0; i--) {
 			/* Unmatched opened object or array */
@@ -298,7 +296,6 @@ int jsmn_parse(jsmn_parser *parser, const char *js, size_t len,
 			}
 		}
 	}
-
 	return count;
 }
 

@@ -157,6 +157,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 int sepa_subscriber_init() {
 	int lockResult,result=EXIT_FAILURE;
 	lockResult = pthread_mutex_lock(&(sepa_session.subscription_mutex));
+	printf("lockResult=%d\n",lockResult);
 	switch (lockResult) {
 		case EINVAL:
 			sepa_session.closing_subscription_code = 0;
@@ -480,7 +481,7 @@ char * kpQuery(const char * sparql_query,const char * http_server) {
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, sparql_query);
 		
 		list = curl_slist_append(list, "Content-Type: application/sparql-query");
-		list = curl_slist_append(list, "Accept: application/json");
+		list = curl_slist_append(list, "Accept: application/sparql-results+json");
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, queryResultAccumulator);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);

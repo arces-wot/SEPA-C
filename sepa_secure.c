@@ -22,22 +22,23 @@
  #include "sepa_secure.h"
  
  void fprintfSecureClientData(FILE * outstream,sClient client_data) {
-	if ((outstream!=NULL) && (client_data.client_id!=NULL) && (client_data.client_secret!=NULL)) {
+	if (outstream!=NULL) {
 		fprintf(outstream,"Client id: %s\nClient secret: %s\n\n",client_data.client_id,client_data.client_secret);
 	}
  }
  
- sClient registerClient(const char * identity,const char * registrationAddress) {
+sClient registerClient(const char * identity,const char * registrationAddress) {
 	CURL *curl;
 	CURLcode result;
 	struct curl_slist *list = NULL;
 	long response_code;
-	char *request,*js_buffer;
+	char *request,*js_buffer=NULL,*data_buffer=NULL;
 	HttpJsonResult data;
 	sClient resultClientData = _init_sClient();
 	jsmn_parser parser;
 	jsmntok_t *jstokens;
 	int jstok_dim,i,completed=0,parsing_result;
+	char *resultJson;
 	
 	if ((identity==NULL) || (registrationAddress==NULL)) {
 		logE("NullPointerException in registerClient.\n");
@@ -78,53 +79,50 @@
 			}
 			else {
 				curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
+				resultJson = strdup(data.json);
+				if (resultJson==NULL) {
+					logE("registerClient strdup error %s\n",data.json);
+				}
+				free(data.json);
 				logI("registerClient Response code is %ld\n",response_code);
-				if (response_code==200) {
+				if (response_code==HTTP_CREATED) {
+					free(request);
 					jsmn_init(&parser);
-					jstok_dim = jsmn_parse(&parser, data.json, data.size, NULL, 0);
-					logD("registerClient results=%s - jstok_dim=%d\n",data.json,jstok_dim);
-					if (jstok_dim<0) {
-						if (jstok_dim==JSMN_ERROR_PART) logD("registerClient Result dimension parsing gave %d\n",jstok_dim);
-						else logE("registerClient Result dimension parsing gave %d\n",jstok_dim);
-					}
+					jstok_dim = jsmn_parse(&parser, resultJson, data.size, NULL, 0);
+					logD("registerClient results=%s - jstok_dim=%d\n",resultJson,jstok_dim);
+					if (jstok_dim<0) logE("registerClient Result dimension parsing (1) gave %d\n",jstok_dim);
 					else {
 						jstokens = (jsmntok_t *) malloc(jstok_dim*sizeof(jsmntok_t));
-						if (jstokens==NULL) {
-							logE("registerClient Malloc error in json parsing!\n");
-						}
+						if (jstokens==NULL) logE("registerClient Malloc error in json parsing\n");
 						else {
 							jsmn_init(&parser);
-							parsing_result = jsmn_parse(&parser, data.json, data.size, jstokens, jstok_dim);
-							if (parsing_result<0) {
-								logE("registerClient Result dimension parsing gave %d\n",parsing_result);
-							}
+							parsing_result = jsmn_parse(&parser, resultJson, data.size, jstokens, jstok_dim);
+							if (parsing_result<0) logE("registerClient Result dimension parsing (2) gave %d\n",parsing_result);
 							else {
 								for (i=0; (i<jstok_dim) && (completed<2); i++) {
 									if (jstokens[i].type==JSMN_STRING) {
-										parsing_result = getJsonItem(data.json,jstokens[i],&js_buffer);
-										if (parsing_result==EXIT_SUCCESS) {
+										parsing_result = getJsonItem(resultJson,jstokens[i],&js_buffer);
+										if ((!strcmp(js_buffer,"client_id")) || (!strcmp(js_buffer,"client_secret"))) {
+											completed++;
+											parsing_result = getJsonItem(resultJson,jstokens[i+1],&data_buffer);
 											if (!strcmp(js_buffer,"client_id")) {
-												logI("registerClient Registration client id: %s",js_buffer);
-												resultClientData.client_id = strdup(js_buffer);
-												completed++;
+												logD("registerClient Registration client id: %s\n",data_buffer);
+												resultClientData.client_id = strdup(data_buffer);
 											}
-											if (!strcmp(js_buffer,"client_secret")) {
-												logI("registerClient Registration client secret: %s",js_buffer);
-												resultClientData.client_secret = strdup(js_buffer);
-												completed++;
+											else {
+												logD("registerClient Registration client secret: %s\n",data_buffer);
+												resultClientData.client_secret = strdup(data_buffer);
 											}
 										}
-										free(js_buffer);
 									}
 								}
-								if ((completed<2) || (resultClientData.client_id==NULL) || (resultClientData.client_secret==NULL)) {
-									logE("registerClient Error: client_id/client_secret could not be assessed");
-								}
+								free(js_buffer);
+								if (completed<2) logE("registerClient Error: client_id/client_secret could not be assessed\n");
 							}
-							free(jstokens);
 						}
+						free(jstokens);
 					}
-					free(request);
+					free(resultJson);
 				}
 			}
 		}

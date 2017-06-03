@@ -48,8 +48,8 @@ int main(int argc, char **argv) {
 	sepa_subscriber_init();
 	
 	// create subscriptions and set the respective handlers
-	sepa_subscription_builder("SELECT ?a ?b ?c WHERE {<http://francesco> ?a <http://pingpong>. <http://pingpong> ?b ?c}","ws://mml.arces.unibo.it:9000/sparql",&this_subscription);
-	sepa_subscription_builder("SELECT ?x ?y WHERE {?x ?y <http://pingpong>}","ws://mml.arces.unibo.it:9000/sparql",&another_subscription);
+	sepa_subscription_builder("SELECT ?a ?b ?c WHERE {?a ?b ?c}",NULL,NULL,"ws://10.0.2.15:9000/sparql",&this_subscription);
+	sepa_subscription_builder("SELECT ?x ?y WHERE {?x ?y <http://pingpong>}",NULL,NULL,"ws://10.0.2.15:9000/sparql",&another_subscription);
 	sepa_setSubscriptionHandlers(mySubscriptionNotification,myUnsubscriptionNotification,&this_subscription);
 	sepa_setSubscriptionHandlers(anotherSubscriptionNotification,NULL,&another_subscription);
 	

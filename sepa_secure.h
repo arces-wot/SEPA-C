@@ -28,6 +28,7 @@
 #include <curl/curl.h>
 #include "sepa_utilities.h"
 
+#define HTTP_CREATED		201
 #define _init_sClient()		{.client_id=NULL,.client_secret=NULL}
 
 typedef struct secure_client {
