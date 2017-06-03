@@ -157,7 +157,6 @@ static int sepa_subscription_callback(	struct lws *wsi,
 int sepa_subscriber_init() {
 	int lockResult,result=EXIT_FAILURE;
 	lockResult = pthread_mutex_lock(&(sepa_session.subscription_mutex));
-	printf("lockResult=%d\n",lockResult);
 	switch (lockResult) {
 		case EINVAL:
 			sepa_session.closing_subscription_code = 0;

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['json',['json',['../structquery__json.html#ab9fe5820ba8505faef30e8a07c86ae87',1,'query_json']]]
+  ['identifier',['identifier',['../structsubscription__params.html#afce6a8b12fa7da8db8f838926fbe49fd',1,'subscription_params::identifier()'],['../structnotification__properties.html#afce6a8b12fa7da8db8f838926fbe49fd',1,'notification_properties::identifier()']]],
+  ['introduction',['Introduction',['../index.html',1,'']]]
 ];

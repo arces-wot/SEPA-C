@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['unsubhandler',['unsubHandler',['../structsubscription__params.html#a778e51f04a5adc358942d8a4f5df3291',1,'subscription_params']]],
-  ['unsubscriptionhandler',['UnsubscriptionHandler',['../sepa__consumer_8h.html#a961b68c49fed1ee2f0bab057df655726',1,'sepa_consumer.h']]],
-  ['updatesepa_2ec',['updatesepa.c',['../updatesepa_8c.html',1,'']]],
-  ['use_5fssl',['use_ssl',['../structsubscription__params.html#af8f2d7fa6511db9cf490b81cbe39ab31',1,'subscription_params']]]
+  ['todo_20list',['Todo List',['../todo.html',1,'']]],
+  ['type',['type',['../struct_s_e_p_a___node.html#a7b816c8a27ed4e0e4dfb2f4727b6b341',1,'SEPA_Node']]]
 ];

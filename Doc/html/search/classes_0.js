@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['notification_5fproperties',['notification_properties',['../structnotification__properties.html',1,'']]]
+  ['http_5fjson_5fresult',['http_json_result',['../structhttp__json__result.html',1,'']]]
 ];

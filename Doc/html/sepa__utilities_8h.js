@@ -2,6 +2,7 @@ var sepa__utilities_8h =
 [
     [ "SEPA_Node", "struct_s_e_p_a___node.html", "struct_s_e_p_a___node" ],
     [ "notification_properties", "structnotification__properties.html", "structnotification__properties" ],
+    [ "http_json_result", "structhttp__json__result.html", "structhttp__json__result" ],
     [ "_initSepaNode", "sepa__utilities_8h.html#a80b3d458c08f1353506b5d7d548f846a", null ],
     [ "BINDING_LEN", "sepa__utilities_8h.html#a64692935dab69e15d6e8ac5aef7f851f", null ],
     [ "BINDING_NAME", "sepa__utilities_8h.html#a8af1851c17f22e2a37dc03b0ab2ba1b1", null ],
@@ -22,11 +23,14 @@ var sepa__utilities_8h =
     [ "NOTIFICATION_JSON", "sepa__utilities_8h.html#aa705d124310d81dafa986b28cd44e1d3", null ],
     [ "PARSING_ERROR", "sepa__utilities_8h.html#ad95da581a5e1feab264640272b7396a6", null ],
     [ "PING_JSON", "sepa__utilities_8h.html#a08698497dae760780f01904e511e9eef", null ],
+    [ "QUERY_START_BUFFER", "sepa__utilities_8h.html#aba415b8509eb062f1e689193f47424be", null ],
     [ "SEPA_LOGGER_INFO", "sepa__utilities_8h.html#a9cf4447643de475a6b6c1325ea7e2520", null ],
     [ "SUBSCRIPTION_ID_JSON", "sepa__utilities_8h.html#aaff8ca6ab496fbc4782183e682fa0368", null ],
+    [ "SUBSCRIPTION_ID_PREAMBLE_LEN", "sepa__utilities_8h.html#a888652be152795ed0d5a1a643bb9b965", null ],
     [ "UNSUBSCRIBE_CONFIRM", "sepa__utilities_8h.html#ae1ee5d9b2d74107cd03957445bfa15d5", null ],
     [ "URI_STRING", "sepa__utilities_8h.html#a4d7c3d267b153b017103982e0b42585c", null ],
     [ "FieldType", "sepa__utilities_8h.html#a56c8da7451bdf82a4d938a9eea0e4678", null ],
+    [ "HttpJsonResult", "sepa__utilities_8h.html#af1a92cf55c2ed88ed16a6ede49dc27d8", null ],
     [ "notifyProperty", "sepa__utilities_8h.html#afa4db7bb7aebefccb906cfbe41cb188a", null ],
     [ "sepaNode", "sepa__utilities_8h.html#ac9f11e41bfa83f657220e9ada86167a8", null ],
     [ "field_type", "sepa__utilities_8h.html#af4e6ca114114786cc23f3d5a1f8d14bf", [
@@ -40,6 +44,7 @@ var sepa__utilities_8h =
     [ "freeSepaNodes", "sepa__utilities_8h.html#af5f734d1fb6c4546778cff05841f11d8", null ],
     [ "getJsonItem", "sepa__utilities_8h.html#a400de567678ee94049fddfa3460cfd16", null ],
     [ "getResultBindings", "sepa__utilities_8h.html#a906448d7ced234b1614f4510c6c4d5b4", null ],
+    [ "queryResultAccumulator", "sepa__utilities_8h.html#aeb97964b80777ded243480696200567b", null ],
     [ "queryResultsParser", "sepa__utilities_8h.html#a24bc647dd5e52c7f18f489eb326f3def", null ],
     [ "subscriptionResultsParser", "sepa__utilities_8h.html#ab3afcca383f250f5cac56ad6632a30c8", null ]
 ];

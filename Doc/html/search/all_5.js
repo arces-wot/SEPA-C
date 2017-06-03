@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['identifier',['identifier',['../structsubscription__params.html#afce6a8b12fa7da8db8f838926fbe49fd',1,'subscription_params::identifier()'],['../structnotification__properties.html#afce6a8b12fa7da8db8f838926fbe49fd',1,'notification_properties::identifier()']]],
-  ['introduction',['Introduction',['../index.html',1,'']]]
+  ['http_5fjson_5fresult',['http_json_result',['../structhttp__json__result.html',1,'']]],
+  ['httpjsonresult',['HttpJsonResult',['../sepa__utilities_8h.html#af1a92cf55c2ed88ed16a6ede49dc27d8',1,'sepa_utilities.h']]]
 ];

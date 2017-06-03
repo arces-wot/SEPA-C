@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['notifyproperty',['notifyProperty',['../sepa__utilities_8h.html#afa4db7bb7aebefccb906cfbe41cb188a',1,'sepa_utilities.h']]]
+  ['httpjsonresult',['HttpJsonResult',['../sepa__utilities_8h.html#af1a92cf55c2ed88ed16a6ede49dc27d8',1,'sepa_utilities.h']]]
 ];

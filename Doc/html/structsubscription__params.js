@@ -7,6 +7,8 @@ var structsubscription__params =
     [ "protocol", "structsubscription__params.html#a9aaae510a187daa1cac427ce3cf6d487", null ],
     [ "resultBuffer", "structsubscription__params.html#a9148977095b5803b3823a299faad5ea9", null ],
     [ "subHandler", "structsubscription__params.html#aed012aca9ca11f07f5201970ae35fc0b", null ],
+    [ "subscription_alias", "structsubscription__params.html#a1e90c335f0a139063c3eeb738ff0537c", null ],
+    [ "subscription_authToken", "structsubscription__params.html#a45e5cf37de4fa6f3abd163009eecb2d4", null ],
     [ "subscription_code", "structsubscription__params.html#ad8038950c4cf456af3d52d0e001da5e9", null ],
     [ "subscription_sparql", "structsubscription__params.html#a525b383b890c291d87db07a3c065a5cf", null ],
     [ "subscription_task", "structsubscription__params.html#a63d391c691ee41b43df21ef0459cfffd", null ],

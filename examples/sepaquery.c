@@ -57,7 +57,6 @@ int main(int argc, char **argv) {
 			}
 		case 3:
 			json = kpQuery(SPARQL_QUERY,SEPA_ADDRESS);
-			printf("%s\n",json);
 			if (json!=NULL) {
 				r = queryResultsParser(json,&results,&resultsLen);
 				if (r!=EXIT_SUCCESS) return EXIT_FAILURE;

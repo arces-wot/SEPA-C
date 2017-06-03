@@ -22,7 +22,7 @@
  */
 
 /**
- * @brief Example of code used to make a subscription to SEPA
+ * @brief Example of code used to make a secure registration to SEPA
  * @file secure_apis.c
  * @author Francesco Antoniazzi <francesco.antoniazzi@unibo.it>
  * @date 3 jun 2017
@@ -36,7 +36,7 @@
 int main(int argc, char **argv) {
 	sClient authorizationData;
 	
-	authorizationData = registerClient("08:00:11:22:33:44:55:66:77","https://10.0.2.15:8443/oauth/register");
+	registerClient("08:00:11:22:33:44:55:66:77","https://10.0.2.15:8443/oauth/register",&authorizationData);
 	fprintfSecureClientData(stdout,authorizationData);
 	return 0;
 }

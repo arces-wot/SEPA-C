@@ -210,6 +210,11 @@ int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen);
  */
 sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen);
 
+/**
+ * @brief internal useful routine that accumulates in parameter 'data' the output coming from an http call made with libcurl.
+ * @see https://curl.haxx.se/libcurl/
+ * @see HttpJsonResult
+ */
 size_t queryResultAccumulator(void * ptr, size_t size, size_t nmemb, HttpJsonResult * data);
 
 #endif 
