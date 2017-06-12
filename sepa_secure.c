@@ -39,7 +39,7 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 	int jstok_dim,i,completed=0,parsing_result;
 	char *resultJson;
 	
-	if ((identity==NULL) || (registrationAddress==NULL)) {
+	if ((identity==NULL) || (registrationAddress==NULL) || (clientData==NULL)) {
 		logE("NullPointerException in registerClient.\n");
 		return EXIT_FAILURE;
 	}
@@ -160,3 +160,65 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 	curl_global_cleanup();
 	return EXIT_SUCCESS;
  }
+
+int tokenRequest(sClient * client,const char * requestAddress) {
+	CURL *curl;
+	CURLcode result;
+	struct curl_slist *list = NULL;
+	long response_code;
+	gchar *base64_key;
+	char *ascii_key;
+	
+	if ((client==NULL) || (requestAddress==NULL)) {
+		logE("NullPointerException in tokenRequest\n");
+		return EXIT_FAILURE;
+	}
+	
+	ascii_key = (char *) malloc((strlen(client->client_id)+strlen(client->client_secret)+1)*sizeof(char));
+	if (ascii_key==NULL) {
+		logE("Malloc error in tokenRequest\n");
+		return EXIT_FAILURE;
+	}
+	sprintf(ascii_key,"%s:%s",client->client_id,client->client_secret);
+	base64_key = g_base64_encode((guchar *) ascii_key,strlen(ascii_key));
+	logI("base64(%s)=%s\n",ascii_key,base64_key);
+	free(ascii_key);
+	
+	result = curl_global_init(CURL_GLOBAL_ALL); // TODO ce ne dovrebbe essere uno solo per processo!
+	if (result) {
+		logE("curl_global_init() failed.\n");
+		g_free(base64_key);
+		return EXIT_FAILURE;
+	}
+	curl = curl_easy_init();
+	if (curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, requestAddress);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0); // TODO this is not good -2
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0); // TODO this is not good as well -2
+		
+		ascii_key = (char *) malloc((strlen(base64_key)+21)*sizeof(char));
+		if (ascii_key==NULL) {
+			logE("Malloc error in tokenRequest (2)\n");
+			g_free(base64_key);
+			return EXIT_FAILURE;
+		}
+		sprintf(ascii_key,"Authorization: Basic %s",base64_key);
+		list = curl_slist_append(list, "Content-Type: application/json");
+		list = curl_slist_append(list, "Accept: application/json");
+		list = curl_slist_append(list, ascii_key);
+		free(ascii_key);
+		g_free(base64_key);
+		
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, queryResultAccumulator);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
+		result = curl_easy_perform(curl);
+		if (result!=CURLE_OK) {
+			logE("registerClient curl_easy_perform() failed: %s\n",curl_easy_strerror(result));
+			return EXIT_FAILURE;
+		}
+		curl_easy_cleanup(curl);
+	}
+	curl_global_cleanup();
+	return EXIT_SUCCESS;
+}

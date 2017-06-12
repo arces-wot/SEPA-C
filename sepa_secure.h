@@ -29,6 +29,7 @@
  * @see https://curl.haxx.se/libcurl/
  * @see http://zserge.com/jsmn.html
  * @todo Support for authenticity certificates
+ * @todo Verify Json Web Token
  */
 
 #ifndef SEPA_SECURE
@@ -38,15 +39,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
+#include <glib.h>
 #include "sepa_utilities.h"
 
 #define HTTP_CREATED		201
-#define _init_sClient()		{.client_id=NULL,.client_secret=NULL}
+#define _init_sClient()		{.client_id=NULL,.client_secret=NULL,.JWT=NULL}
 
 typedef struct secure_client {
 	char *client_id; /**< Here we store the client id after registration */
 	char *client_secret; /**< Here we store the client secret key after registration */
+	char *JWT;
 } sClient;
+
+/**
+ * @brief fprintf for sClient
+ * 
+ * Prints to stream the content of a secure client
+ * @param outstream: FILE* to which write
+ * @param client_data: sClient structure to be printed
+ */
+void fprintfSecureClientData(FILE * outstream,sClient client_data);
 
 /**
  * @brief Registers the client for secure communication with SEPA
@@ -58,12 +70,10 @@ typedef struct secure_client {
 int registerClient(const char * identity,const char * registrationAddress,sClient * clientData);
 
 /**
- * @brief fprintf for sClient
- * 
- * Prints to stream the content of a secure client
- * @param outstream: FILE* to which write
- * @param client_data: sClient structure to be printed
+ * @brief Requests for a JWT given the client_id and the client_secret.
+ * @param client: the sClient structure where are stored client_id and client_secret. The JWT will be stored as a result here as well
+ * @param requestAddress: the http address to which ask for the JWT
+ * @return EXIT_SUCCESS, or EXIT_FAILURE
  */
-void fprintfSecureClientData(FILE * outstream,sClient client_data);
-
+int tokenRequest(sClient * client,const char * requestAddress);
 #endif
