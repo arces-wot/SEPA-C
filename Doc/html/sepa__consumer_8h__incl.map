@@ -1,3 +1,4 @@
 <map id="sepa&#45;C&#45;kpi/sepa_consumer.h" name="sepa&#45;C&#45;kpi/sepa_consumer.h">
-<area shape="rect" id="node8" href="$sepa__utilities_8h.html" title="Header file defining json&#45;parsing&#45;related routines useful for communication with SEPA. " alt="" coords="151,87,260,114"/>
+<area shape="rect" id="node8" href="$sepa__utilities_8h.html" title="Header file defining json&#45;parsing&#45;related routines useful for communication with SEPA. " alt="" coords="175,171,284,197"/>
+<area shape="rect" id="node10" href="$sepa__secure_8h.html" title="Header file defining C secure mechanisms for SEPA. " alt="" coords="228,88,335,115"/>
 </map>

@@ -1,4 +1,4 @@
 <map id="sepa_subscriber" name="sepa_subscriber">
-<area shape="rect" id="node2" href="$structsubscription__params.html" title="This structure contains the parameters of the subscription. " alt="" coords="5,95,148,121"/>
-<area shape="rect" id="node3" href="$struct_s_e_p_a___node.html" title="a sepaNode is association of the binding name, the type and the current value. " alt="" coords="29,5,125,32"/>
+<area shape="rect" id="node2" href="$structsubscription__params.html" title="This structure contains the parameters of the subscription. " alt="" coords="5,96,147,123"/>
+<area shape="rect" id="node3" href="$struct_s_e_p_a___node.html" title="a sepaNode is association of the binding name, the type and the current value. " alt="" coords="28,5,124,32"/>
 </map>

@@ -18,6 +18,6 @@ git clone https://github.com/fr4ncidir/sepa-C-kpi.git
 \section program-compilation Compile programs
 You can compile a project using this library with the following command 
 \code
-gcc jsmn.c sepa_utilities.c sepa_consumer.c myprogram.c -o myprogram -L/usr/local/lib -pthread -lwebsockets -lcurl
+gcc myprogram.c sepa_utilities.c sepa_consumer.c sepa_secure.c jsmn.c -o myprogram -pthread -lcurl `pkg-config --cflags --libs glib-2.0 libwebsockets`
 \endcode
  */

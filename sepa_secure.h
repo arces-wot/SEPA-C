@@ -28,6 +28,7 @@
  * This file contains the functions useful to communicate in a secure way with the SEPA. Requires libcurl and sepa_utilities. 
  * @see https://curl.haxx.se/libcurl/
  * @see http://zserge.com/jsmn.html
+ * @see https://developer.gnome.org/glib/
  * @todo Support for authenticity certificates
  * @todo Verify Json Web Token
  */
@@ -42,14 +43,31 @@
 #include <glib.h>
 #include "sepa_utilities.h"
 
-#define HTTP_CREATED		201
-#define _init_sClient()		{.client_id=NULL,.client_secret=NULL,.JWT=NULL}
+#define REGISTRATION_BUFFER_LEN		1024
+#define TOKEN_JSON_SIZE				7
+#define HTTP_TOKEN_HEADER_SIZE		22
+#define _init_sClient()		{.client_id=NULL,.client_secret=NULL,.JWT=NULL,.JWTtype=NULL,.expires_in=0}
 
+/**
+ * struct secure_client (aka sClient) is the data structure we use to store sepa registration items for a client.
+ * You shouldn't modify its content, though it is possible that you need to read it. In particular, you might need the 
+ * JSON Web Token which is stored as a string within the field JWT.
+ * @see https://tools.ietf.org/html/rfc7519
+ */
 typedef struct secure_client {
 	char *client_id; /**< Here we store the client id after registration */
 	char *client_secret; /**< Here we store the client secret key after registration */
-	char *JWT;
+	char *JWT; /**< Here we store the java web token */
+	char *JWTtype; /**< Here we store the java web token type*/
+	int expires_in; /**< Here we store the expiration time of the java web token */
 } sClient;
+
+/**
+ * @brief frees memory occupied by a well-built sClient (i.e. after a successful tokenRequest)
+ * @param client: the sClient to be freed
+ * @see sClient
+ */
+void sClient_free(sClient * client);
 
 /**
  * @brief fprintf for sClient

@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['unsubhandler',['unsubHandler',['../structsubscription__params.html#a778e51f04a5adc358942d8a4f5df3291',1,'subscription_params']]],
-  ['use_5fssl',['use_ssl',['../structsubscription__params.html#af8f2d7fa6511db9cf490b81cbe39ab31',1,'subscription_params']]]
+  ['type',['type',['../struct_s_e_p_a___node.html#a7b816c8a27ed4e0e4dfb2f4727b6b341',1,'SEPA_Node']]]
 ];

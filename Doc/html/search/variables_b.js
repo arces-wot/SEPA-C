@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ws_5fidentifier',['ws_identifier',['../structsubscription__params.html#ae4ebccb674341fd07ea63751bbedbbbb',1,'subscription_params']]]
+  ['value',['value',['../struct_s_e_p_a___node.html#a4e9aec275e566b978a3ccb4e043d8c61',1,'SEPA_Node']]]
 ];

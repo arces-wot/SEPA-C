@@ -31,11 +31,11 @@ var sepa__consumer_8h =
     [ "fprintfSubscriptionParams", "sepa__consumer_8h.html#aab4a036f5f8257ad74bcb6c1e9e66959", null ],
     [ "getActiveSubscriptions", "sepa__consumer_8h.html#a0d55b65bec6f4c93915ac52b75ba5596", null ],
     [ "getSubscriptionList", "sepa__consumer_8h.html#a101ae6921df4171b913820a766c12909", null ],
-    [ "kpQuery", "sepa__consumer_8h.html#a4e4690beb9e6793ebca6cae7cd1cd6fe", null ],
+    [ "kpQuery", "sepa__consumer_8h.html#a6a5bb6a71883df1b9f914ee152b3497e", null ],
     [ "kpSubscribe", "sepa__consumer_8h.html#a9f64db4ca07a201621235514724cc2fe", null ],
     [ "kpUnsubscribe", "sepa__consumer_8h.html#a0b04be1cab854996d2f58283020d572a", null ],
     [ "sepa_setSubscriptionHandlers", "sepa__consumer_8h.html#af5871fed763f8affb07d1b490bcda4c5", null ],
     [ "sepa_subscriber_destroy", "sepa__consumer_8h.html#abedaa83b98deaedb21932a74ea3d2723", null ],
     [ "sepa_subscriber_init", "sepa__consumer_8h.html#a84049c5cdb0fed7c765a1726d8cc82a2", null ],
-    [ "sepa_subscription_builder", "sepa__consumer_8h.html#a5590e05304d2315c6ffd02f722658afa", null ]
+    [ "sepa_subscription_builder", "sepa__consumer_8h.html#ab682bc9e02952d1f7b2c2a2d85bb2c24", null ]
 ];

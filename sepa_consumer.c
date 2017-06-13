@@ -187,7 +187,7 @@ int sepa_subscriber_destroy() {
 	return EXIT_FAILURE;
 }
 
-int sepa_subscription_builder(char * sparql_subscription,char * subscription_alias,char * auth_token,char * server_address,pSEPA_subscription_params subscription) {
+int sepa_subscription_builder(char * sparql_subscription,char * subscription_alias,sClient * auth_token,char * server_address,pSEPA_subscription_params subscription) {
 	const char *p;
 	const char *sub_address;
 	const char *sub_protocol;
@@ -225,7 +225,7 @@ int sepa_subscription_builder(char * sparql_subscription,char * subscription_ali
 				logE("Fatal NullPointerException in auth_token field during secure subscription constuction");
 				return EXIT_FAILURE;
 			}
-			else strcpy(subscription->subscription_authToken,auth_token);
+			else strcpy(subscription->subscription_authToken,auth_token->JWT);
 		}
 		else {
 			logE("Requested protocol %s error: must be ws or wss.\n",subscription->protocol);
@@ -432,13 +432,14 @@ void fprintfSubscriptionParams(FILE * outstream,SEPA_subscription_params params)
 	}
 }
 
-char * kpQuery(const char * sparql_query,const char * http_server) {
+char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt) {
 	CURL *curl;
 	CURLcode result;
 	struct curl_slist *list = NULL;
 	long response_code;
 	int protocol_used = KPI_QUERY_FAIL;
 	HttpJsonResult data;
+	char * request;
 	
 	if ((sparql_query==NULL) || (http_server==NULL)) {
 		logE("NullPointerException in kpProduce.\n");
@@ -447,7 +448,13 @@ char * kpQuery(const char * sparql_query,const char * http_server) {
 	
 	if (strstr(http_server,"http:")!=NULL) protocol_used = HTTP;
 	else {
-		if (strstr(http_server,"https:")!=NULL) protocol_used = HTTPS;
+		if (strstr(http_server,"https:")!=NULL) {
+			protocol_used = HTTPS;
+			if (jwt==NULL) {
+				logE("NullPointerException in JWT with https query request\n");
+				return NULL;
+			}
+		}
 		else {
 			logE("%s protocol error in kpProduce: only http and https are accepted.\n",http_server);
 			return NULL; 
@@ -457,30 +464,38 @@ char * kpQuery(const char * sparql_query,const char * http_server) {
 	data.size = 0;
 	data.json = (char *) malloc(QUERY_START_BUFFER*sizeof(char));
 	if (data.json==NULL) {
-		logE("malloc error in kpQuery.\n");
+		logE("malloc error in kpQuery (1).\n");
 		return NULL;
 	}
 	
-	result = curl_global_init(CURL_GLOBAL_ALL);
-	if (result) {
-		logE("curl_global_init() failed.\n");
-		return NULL;
-	}
+	//result = curl_global_init(CURL_GLOBAL_ALL);
+	//if (result) {
+		//logE("curl_global_init() failed.\n");
+		//return NULL;
+	//}
+	if (http_client_init()==EXIT_FAILURE) return NULL;
+	
 	curl = curl_easy_init();
 	if (curl) {
-		switch (protocol_used) {
-			case HTTP:
-				break;
-			case HTTPS:
-				break;
-			default:
-				break;
-		}
 		curl_easy_setopt(curl, CURLOPT_URL, http_server);
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, sparql_query);
-		
+		if (protocol_used==HTTPS) {
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0); // TODO this is not good
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0); // TODO this is not good as well
+			
+			request = (char *) malloc((HTTP_TOKEN_HEADER_SIZE+strlen(jwt->JWT))*sizeof(char));
+			if (request==NULL) {
+				logE("malloc error in kpQuery. (2)\n");
+				curl_easy_cleanup(curl);
+				http_client_free();
+				return NULL;
+			}
+			sprintf(request,"Authorization: Bearer %s",jwt->JWT);
+			list = curl_slist_append(list, request);
+		}
 		list = curl_slist_append(list, "Content-Type: application/sparql-query");
 		list = curl_slist_append(list, "Accept: application/sparql-results+json");
+		
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, queryResultAccumulator);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
@@ -492,14 +507,17 @@ char * kpQuery(const char * sparql_query,const char * http_server) {
 		else {
 			curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
 			logI("Response code is %ld\n",response_code);
+			if (response_code!=HTTP_200_OK) response_code = KPI_QUERY_FAIL;
 		}
 		curl_easy_cleanup(curl);
+		if (protocol_used==HTTPS) free(request);
 	}
 	else {
 		logE("curl_easy_init() failed.\n");
 		response_code = KPI_QUERY_FAIL;
 	}
-	curl_global_cleanup();
+	//curl_global_cleanup();
+	http_client_free();
 	if (response_code==KPI_QUERY_FAIL) return NULL;
 	else return data.json;
 }

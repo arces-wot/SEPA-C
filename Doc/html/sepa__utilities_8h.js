@@ -10,6 +10,8 @@ var sepa__utilities_8h =
     [ "BINDING_VALUE", "sepa__utilities_8h.html#a040eb840db63451723b77ccb24aa354d", null ],
     [ "BNODE_STRING", "sepa__utilities_8h.html#a8ff9fdda21079366c59972faf692b956", null ],
     [ "COMPLETE_JSON", "sepa__utilities_8h.html#aeaf8d4cffdb18da766622681e2e638f8", null ],
+    [ "HTTP_200_OK", "sepa__utilities_8h.html#a58c69ff21edc6fb32ca1bc085e3e2abb", null ],
+    [ "HTTP_CREATED", "sepa__utilities_8h.html#ac19a79fb4cf575d20efd0633c1669ed9", null ],
     [ "IDENTIFIER_ARRAY_LEN", "sepa__utilities_8h.html#ab17af6a5d317348850ed8ea444009fe7", null ],
     [ "IDENTIFIER_LAST_INDEX", "sepa__utilities_8h.html#abd8f40624db8441fbfaff35ee19d0373", null ],
     [ "IDENTIFIER_STRING_LEN", "sepa__utilities_8h.html#a4b95e6530cced32452c851dd39ecb3a2", null ],
@@ -44,6 +46,8 @@ var sepa__utilities_8h =
     [ "freeSepaNodes", "sepa__utilities_8h.html#af5f734d1fb6c4546778cff05841f11d8", null ],
     [ "getJsonItem", "sepa__utilities_8h.html#a400de567678ee94049fddfa3460cfd16", null ],
     [ "getResultBindings", "sepa__utilities_8h.html#a906448d7ced234b1614f4510c6c4d5b4", null ],
+    [ "http_client_free", "sepa__utilities_8h.html#ac7482b3013505ee29c51b5106a2e2a83", null ],
+    [ "http_client_init", "sepa__utilities_8h.html#a8d0477cd258025612c75f29dbb514808", null ],
     [ "queryResultAccumulator", "sepa__utilities_8h.html#aeb97964b80777ded243480696200567b", null ],
     [ "queryResultsParser", "sepa__utilities_8h.html#a24bc647dd5e52c7f18f489eb326f3def", null ],
     [ "subscriptionResultsParser", "sepa__utilities_8h.html#ab3afcca383f250f5cac56ad6632a30c8", null ]

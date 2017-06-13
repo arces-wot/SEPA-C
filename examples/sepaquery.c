@@ -41,6 +41,10 @@ int main(int argc, char **argv) {
 	sepaNode *results;
 	int resultsLen,r;
 	char *json;
+	sClient jwt;
+	
+	jwt.JWT = strdup("eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJTRVBBVGVzdCIsImF1ZCI6WyJodHRwczpcL1wvd290LmFyY2VzLnVuaWJvLml0Ojg0NDNcL3NwYXJxbCIsIndzczpcL1wvd290LmFyY2VzLnVuaWJvLml0Ojk0NDNcL3NwYXJxbCJdLCJuYmYiOjE0OTczNTA3MzQsImlzcyI6Imh0dHBzOlwvXC93b3QuYXJjZXMudW5pYm8uaXQ6ODQ0M1wvb2F1dGhcL3Rva2VuIiwiZXhwIjoxNDk3MzUwNzQwLCJpYXQiOjE0OTczNTA3MzUsImp0aSI6IjM4ZWI2ZWFhLTU3NDQtNDFhZC1hZTQ5LTEyNGZiYmFjZGNkYjpiNmNkNDYwYS0xOTA3LTQ3MzMtODYwMi03OTkzOGRiNTU0OTUifQ.Sx6jwsz9_FBgZEwREHpDt8p8dmDmm-KfxtnhBYsp0yzWxHfcZLHNQOmBM6RSXhWd-pIGlvkz2eyu_pRxTW10oAzPTX6OeugYps44vbMAGQyE0H7PMRD-EUuswd_IkScz123kY6h5G7jzXUJtaZrhsYyEYxbQE0JK7Fg33EFNxmU");
+	
 	switch (argc) {
 		case 1:
 			printUsage();
@@ -56,17 +60,22 @@ int main(int argc, char **argv) {
 				return EXIT_FAILURE;
 			}
 		case 3:
-			json = kpQuery(SPARQL_QUERY,SEPA_ADDRESS);
+			if (http_client_init()==EXIT_FAILURE) return EXIT_FAILURE;
+			json = kpQuery(SPARQL_QUERY,SEPA_ADDRESS,&jwt);
+			http_client_free();
 			if (json!=NULL) {
 				r = queryResultsParser(json,&results,&resultsLen);
-				if (r!=EXIT_SUCCESS) return EXIT_FAILURE;
+				if (r!=EXIT_SUCCESS) {
+					logE("queryResultsParser failed\n");
+					return EXIT_FAILURE;
+				}
 				fprintfSepaNodes(stdout,results,resultsLen,"");
 				freeSepaNodes(results,resultsLen);
 				free(json);
 				return EXIT_SUCCESS;
 			}
 			else {
-				fprintf(stderr,"NullpointerException!\n");
+				fprintf(stderr,"NullpointerException in sepaquery!\n");
 				return EXIT_FAILURE;
 			}
 		default:

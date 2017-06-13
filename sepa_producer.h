@@ -43,6 +43,7 @@
 #include <string.h>
 #include <curl/curl.h>
 #include "sepa_utilities.h"
+#include "sepa_secure.h"
 
 #define KPI_PRODUCE_FAIL		-1
 #define HTTP					0

@@ -124,7 +124,7 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_documents_2_work_2
 <div class="line"><span class="comment"> * </span></div>
 <div class="line"><span class="comment"> */</span></div>
 <div class="line"></div>
-<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="sepa__consumer_8h.html">sepa_consumer.h</a>&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;../sepa_consumer.h&quot;</span></div>
 <div class="line"></div>
 <div class="line"><span class="preprocessor">#define COMMAND_NAME        argv[0]</span></div>
 <div class="line"><span class="preprocessor">#define SEPA_ADDRESS        argv[1]</span></div>
@@ -138,6 +138,10 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_documents_2_work_2
 <div class="line">    <a name="_a0"></a><a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> *results;</div>
 <div class="line">    <span class="keywordtype">int</span> resultsLen,r;</div>
 <div class="line">    <span class="keywordtype">char</span> *json;</div>
+<div class="line">    <a name="_a1"></a><a class="code" href="structsecure__client.html">sClient</a> jwt;</div>
+<div class="line">    </div>
+<div class="line">    jwt.<a name="a2"></a><a class="code" href="structsecure__client.html#a8205506304796d7f8bd2d0da46bf2958">JWT</a> = strdup(<span class="stringliteral">&quot;eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJTRVBBVGVzdCIsImF1ZCI6WyJodHRwczpcL1wvd290LmFyY2VzLnVuaWJvLml0Ojg0NDNcL3NwYXJxbCIsIndzczpcL1wvd290LmFyY2VzLnVuaWJvLml0Ojk0NDNcL3NwYXJxbCJdLCJuYmYiOjE0OTczNTA3MzQsImlzcyI6Imh0dHBzOlwvXC93b3QuYXJjZXMudW5pYm8uaXQ6ODQ0M1wvb2F1dGhcL3Rva2VuIiwiZXhwIjoxNDk3MzUwNzQwLCJpYXQiOjE0OTczNTA3MzUsImp0aSI6IjM4ZWI2ZWFhLTU3NDQtNDFhZC1hZTQ5LTEyNGZiYmFjZGNkYjpiNmNkNDYwYS0xOTA3LTQ3MzMtODYwMi03OTkzOGRiNTU0OTUifQ.Sx6jwsz9_FBgZEwREHpDt8p8dmDmm-KfxtnhBYsp0yzWxHfcZLHNQOmBM6RSXhWd-pIGlvkz2eyu_pRxTW10oAzPTX6OeugYps44vbMAGQyE0H7PMRD-EUuswd_IkScz123kY6h5G7jzXUJtaZrhsYyEYxbQE0JK7Fg33EFNxmU&quot;</span>);</div>
+<div class="line">    </div>
 <div class="line">    <span class="keywordflow">switch</span> (argc) {</div>
 <div class="line">        <span class="keywordflow">case</span> 1:</div>
 <div class="line">            printUsage();</div>
@@ -153,17 +157,22 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_documents_2_work_2
 <div class="line">                <span class="keywordflow">return</span> EXIT_FAILURE;</div>
 <div class="line">            }</div>
 <div class="line">        <span class="keywordflow">case</span> 3:</div>
-<div class="line">            json = <a name="a1"></a><a class="code" href="sepa__consumer_8h.html#a4e4690beb9e6793ebca6cae7cd1cd6fe">kpQuery</a>(SPARQL_QUERY,SEPA_ADDRESS);</div>
+<div class="line">            <span class="keywordflow">if</span> (<a name="a3"></a><a class="code" href="sepa__utilities_8h.html#a8d0477cd258025612c75f29dbb514808">http_client_init</a>()==EXIT_FAILURE) <span class="keywordflow">return</span> EXIT_FAILURE;</div>
+<div class="line">            json = <a name="a4"></a><a class="code" href="sepa__consumer_8h.html#a6a5bb6a71883df1b9f914ee152b3497e">kpQuery</a>(SPARQL_QUERY,SEPA_ADDRESS,&amp;jwt);</div>
+<div class="line">            <a name="a5"></a><a class="code" href="sepa__utilities_8h.html#ac7482b3013505ee29c51b5106a2e2a83">http_client_free</a>();</div>
 <div class="line">            <span class="keywordflow">if</span> (json!=NULL) {</div>
-<div class="line">                r = <a name="a2"></a><a class="code" href="sepa__utilities_8h.html#a24bc647dd5e52c7f18f489eb326f3def">queryResultsParser</a>(json,&amp;results,&amp;resultsLen);</div>
-<div class="line">                <span class="keywordflow">if</span> (r!=EXIT_SUCCESS) <span class="keywordflow">return</span> EXIT_FAILURE;</div>
-<div class="line">                <a name="a3"></a><a class="code" href="sepa__utilities_8h.html#acffae880b6800c17bbc060d236d0dda2">fprintfSepaNodes</a>(stdout,results,resultsLen,<span class="stringliteral">&quot;&quot;</span>);</div>
-<div class="line">                <a name="a4"></a><a class="code" href="sepa__utilities_8h.html#af5f734d1fb6c4546778cff05841f11d8">freeSepaNodes</a>(results,resultsLen);</div>
+<div class="line">                r = <a name="a6"></a><a class="code" href="sepa__utilities_8h.html#a24bc647dd5e52c7f18f489eb326f3def">queryResultsParser</a>(json,&amp;results,&amp;resultsLen);</div>
+<div class="line">                <span class="keywordflow">if</span> (r!=EXIT_SUCCESS) {</div>
+<div class="line">                    logE(<span class="stringliteral">&quot;queryResultsParser failed\n&quot;</span>);</div>
+<div class="line">                    <span class="keywordflow">return</span> EXIT_FAILURE;</div>
+<div class="line">                }</div>
+<div class="line">                <a name="a7"></a><a class="code" href="sepa__utilities_8h.html#acffae880b6800c17bbc060d236d0dda2">fprintfSepaNodes</a>(stdout,results,resultsLen,<span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line">                <a name="a8"></a><a class="code" href="sepa__utilities_8h.html#af5f734d1fb6c4546778cff05841f11d8">freeSepaNodes</a>(results,resultsLen);</div>
 <div class="line">                free(json);</div>
 <div class="line">                <span class="keywordflow">return</span> EXIT_SUCCESS;</div>
 <div class="line">            }</div>
 <div class="line">            <span class="keywordflow">else</span> {</div>
-<div class="line">                fprintf(stderr,<span class="stringliteral">&quot;NullpointerException!\n&quot;</span>);</div>
+<div class="line">                fprintf(stderr,<span class="stringliteral">&quot;NullpointerException in sepaquery!\n&quot;</span>);</div>
 <div class="line">                <span class="keywordflow">return</span> EXIT_FAILURE;</div>
 <div class="line">            }</div>
 <div class="line">        <span class="keywordflow">default</span>:</div>
@@ -179,7 +188,7 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_documents_2_work_2
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Wed May 3 2017 16:16:39 for SEPA-API by
+    <li class="footer">Generated on Tue Jun 13 2017 16:41:58 for SEPA-API by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.7 </li>
   </ul>

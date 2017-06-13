@@ -32,16 +32,23 @@
 #define SEPA_LOGGER_ERROR
 #include <stdio.h>
 #include "../sepa_secure.h"
-
 int main(int argc, char **argv) {
 	// compile with 
-	// $ gcc ./examples/secure_apis.c sepa_utilities.c sepa_consumer.c sepa_secure.c jsmn.c -o secure_apis -lwebsockets -pthread -lcurl `pkg-config --cflags --libs glib-2.0`
+	// $ gcc ./examples/secure_apis.c sepa_utilities.c sepa_consumer.c sepa_secure.c jsmn.c -o secure_apis -lwebsockets -pthread -lcurl `pkg-config --cflags --libs glib-2.0` -L/usr/local/lib
 	sClient authorizationData = _init_sClient();
 	
-	//registerClient("08:00:11:22:33:44:55:66:77","https://10.0.2.15:8443/oauth/register",&authorizationData);
-	//fprintfSecureClientData(stdout,authorizationData);
-	authorizationData.client_id = strdup("5b60a155-bada-4499-bc6f-26b4d37bc1ef");
-	authorizationData.client_secret = strdup("40e18d77-421c-48ce-a44a-14da1238e923");
-	tokenRequest(&authorizationData,"https://10.0.2.15:8443/oauth/token");
+	http_client_init();
+	if (registerClient("aabb","https://10.143.20.1:8443/oauth/register",&authorizationData)==EXIT_SUCCESS) {
+		fprintfSecureClientData(stdout,authorizationData);
+		//authorizationData.client_id = strdup("e4f9123f-44c7-49c8-b549-9499c26d9897");
+		//authorizationData.client_secret = strdup("91eedc36-c379-431f-bc87-6fcd4e5707fc");
+		if (tokenRequest(&authorizationData,"https://10.143.20.1:8443/oauth/token")==EXIT_SUCCESS) {
+			fprintfSecureClientData(stdout,authorizationData);
+			sClient_free(&authorizationData);
+		}
+		else printf("Token request was rejected from sepa\n");
+	}
+	else printf("Registration was rejected from sepa\n");
+	http_client_free();
 	return 0;
 }

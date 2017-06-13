@@ -33,6 +33,7 @@
  * @see https://libwebsockets.org/
  * @see http://zserge.com/jsmn.html
  * @todo support for https and wss
+ * @todo reduce to one unique websocket
  */
 
 #ifndef SEPA_CONSUMER
@@ -45,6 +46,7 @@
 #include <curl/curl.h>
 #include "/usr/local/include/libwebsockets.h"
 #include "sepa_utilities.h"
+#include "sepa_secure.h"
 
 #define HTTP								0
 #define HTTPS								1
@@ -180,7 +182,7 @@ void sepa_setSubscriptionHandlers(SubscriptionHandler subhandler,UnsubscriptionH
  * @param subscription: pointer to the subscription object; must be non null
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
-int sepa_subscription_builder(char * sparql_subscription,char * subscription_alias,char * auth_token,char * server_address,pSEPA_subscription_params subscription);
+int sepa_subscription_builder(char * sparql_subscription,char * subscription_alias,sClient * auth_token,char * server_address,pSEPA_subscription_params subscription);
 
 /**
  * @brief Starts the subscription task.
@@ -199,12 +201,14 @@ int kpUnsubscribe(pSEPA_subscription_params params);
 /**
  * @brief Queries the SEPA.
  * 
- * After calling this, you usually call a json parser.
+ * After calling this, you usually call a json parser. 'jwt' param may be NULL, if you want to use http protocol and query in an unsecure way.
  * @param sparql_query: the sparql containing the query to be sent to SEPA
  * @param http_server: the address of the SEPA engine, for example "http://sepa.org:1234/sparql"
+ * @param jwt: pointer to sClient structure containing a JSON web token. May be NULL for unsecure communication.
  * @return a string containing the json response or NULL
  * @see queryResultsParser
+ * @see sClient
  */
-char * kpQuery(const char * sparql_query,const char * http_server);
+char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt);
 
 #endif // SEPA_CONSUMER

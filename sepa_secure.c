@@ -21,9 +21,20 @@
  
  #include "sepa_secure.h"
  
+void sClient_free(sClient * client) {
+	free(client->client_id);
+	free(client->client_secret);
+	free(client->JWT);
+	free(client->JWTtype);
+}
+ 
  void fprintfSecureClientData(FILE * outstream,sClient client_data) {
 	if (outstream!=NULL) {
-		fprintf(outstream,"Client id: %s\nClient secret: %s\n\n",client_data.client_id,client_data.client_secret);
+		fprintf(outstream,"Client id: %s\nClient secret: %s\nJWT=%s\nJWT type=%s\nJWT_expiration=%d\n",client_data.client_id,
+					client_data.client_secret,
+					client_data.JWT,
+					client_data.JWTtype,
+					client_data.expires_in);
 	}
  }
  
@@ -45,17 +56,19 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 	}
 	
 	data.size = 0;
-	data.json = (char *) malloc(QUERY_START_BUFFER*sizeof(char));
+	data.json = (char *) malloc(REGISTRATION_BUFFER_LEN*sizeof(char));
 	if (data.json==NULL) {
 		logE("malloc error in registerClient.\n");
 		return EXIT_FAILURE;
 	}
 	
-	result = curl_global_init(CURL_GLOBAL_ALL);
-	if (result) {
-		logE("curl_global_init() failed.\n");
-		return EXIT_FAILURE;
-	}
+	//result = curl_global_init(CURL_GLOBAL_ALL);
+	//if (result) {
+		//logE("curl_global_init() failed.\n");
+		//return EXIT_FAILURE;
+	//}
+	if (http_client_init()==EXIT_FAILURE) return EXIT_FAILURE;
+	
 	curl = curl_easy_init();
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, registrationAddress);
@@ -81,6 +94,8 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 		}
 		curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
 		logI("registerClient Response code is %ld\n",response_code);
+		curl_easy_cleanup(curl);
+		http_client_free();
 		if (response_code!=HTTP_CREATED) return EXIT_FAILURE;
 
 		resultJson = strdup(data.json);
@@ -154,10 +169,11 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 			logE("registerClient Error: client_id/client_secret could not be assessed\n");
 			return EXIT_FAILURE;
 		}
-		curl_easy_cleanup(curl);
 	}
-	else logE("curl_easy_init() failed.\n");
-	curl_global_cleanup();
+	else {
+		logE("curl_easy_init() failed.\n");
+		http_client_free();
+	}
 	return EXIT_SUCCESS;
  }
 
@@ -167,7 +183,11 @@ int tokenRequest(sClient * client,const char * requestAddress) {
 	struct curl_slist *list = NULL;
 	long response_code;
 	gchar *base64_key;
-	char *ascii_key;
+	char *ascii_key,*jsonItem=NULL;
+	HttpJsonResult data;
+	jsmn_parser parser;
+	jsmntok_t *jstokens;
+	int i,completed=0,parsing_result;
 	
 	if ((client==NULL) || (requestAddress==NULL)) {
 		logE("NullPointerException in tokenRequest\n");
@@ -184,12 +204,14 @@ int tokenRequest(sClient * client,const char * requestAddress) {
 	logI("base64(%s)=%s\n",ascii_key,base64_key);
 	free(ascii_key);
 	
-	result = curl_global_init(CURL_GLOBAL_ALL); // TODO ce ne dovrebbe essere uno solo per processo!
-	if (result) {
-		logE("curl_global_init() failed.\n");
-		g_free(base64_key);
-		return EXIT_FAILURE;
-	}
+	//result = curl_global_init(CURL_GLOBAL_ALL); // TODO ce ne dovrebbe essere uno solo per processo!
+	//if (result) {
+		//logE("curl_global_init() failed.\n");
+		//g_free(base64_key);
+		//return EXIT_FAILURE;
+	//}
+	if (http_client_init()==EXIT_FAILURE) return EXIT_FAILURE;
+	
 	curl = curl_easy_init();
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, requestAddress);
@@ -209,16 +231,80 @@ int tokenRequest(sClient * client,const char * requestAddress) {
 		free(ascii_key);
 		g_free(base64_key);
 		
+		data.size = 0;
+		data.json = (char *) malloc(REGISTRATION_BUFFER_LEN*sizeof(char));
+		if (data.json==NULL) {
+			logE("malloc error in tokenRequest.\n");
+			return EXIT_FAILURE;
+		}
+		
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, queryResultAccumulator);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
 		result = curl_easy_perform(curl);
 		if (result!=CURLE_OK) {
 			logE("registerClient curl_easy_perform() failed: %s\n",curl_easy_strerror(result));
+			free(data.json);
 			return EXIT_FAILURE;
 		}
+		curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
+		logI("registerClient Response code is %ld\n",response_code);
 		curl_easy_cleanup(curl);
 	}
-	curl_global_cleanup();
+	//curl_global_cleanup();
+	http_client_free();
+	if (response_code!=HTTP_200_OK) return EXIT_FAILURE;
+	
+	jsmn_init(&parser);
+	jstokens = (jsmntok_t *) malloc(TOKEN_JSON_SIZE*sizeof(jsmntok_t));
+	if (jstokens==NULL) {
+		logE("tokenRequest malloc error in json parsing\n");
+		free(data.json);
+		http_client_free();
+		return EXIT_FAILURE;
+	}
+	parsing_result = jsmn_parse(&parser, data.json, data.size, jstokens, TOKEN_JSON_SIZE);
+	if (parsing_result<0) {
+		free(jstokens);
+		logE("Result dimension parsing gave %d\n",parsing_result);
+		return EXIT_FAILURE;
+	}
+	
+	for (i=1; i<TOKEN_JSON_SIZE; i++) {
+		if (getJsonItem(data.json,jstokens[i],&jsonItem)==EXIT_SUCCESS) {
+			if (!strcmp(jsonItem,"access_token")) {
+				getJsonItem(data.json,jstokens[i+1],&(client->JWT));
+				completed++;
+			}
+			else {
+				if (!strcmp(jsonItem,"token_type")) {
+					getJsonItem(data.json,jstokens[i+1],&(client->JWTtype));
+					completed++;
+				}
+				else {
+					if (!strcmp(jsonItem,"expires_in")) {
+						getJsonItem(data.json,jstokens[i+1],&jsonItem);
+						sscanf(jsonItem,"%d",&(client->expires_in));
+						completed++;
+					}
+				}
+			}
+		}
+		else {
+			logE("tokenRequest getJsonItem error!\n");
+			free(data.json);
+			free(jstokens);
+			return EXIT_FAILURE;
+		}
+	}
+	if (completed!=3) {
+		logE("tokenRequest received a bad token confirmation json\n");
+		free(data.json);
+		free(jstokens);
+		return EXIT_FAILURE;
+	}
+	free(jsonItem);	
+	free(data.json);
+	free(jstokens);
 	return EXIT_SUCCESS;
 }

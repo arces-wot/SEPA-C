@@ -28,6 +28,7 @@
  * This file contains functions necessary in the various parts of the sepa apis in C. It requires jsmn, and
  * performs json parsing, json interpretation and information retrieval.
  * @see http://zserge.com/jsmn.html
+ * @see https://curl.haxx.se/libcurl/
  */
 
 #ifndef SEPA_UTILITIES
@@ -37,6 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <curl/curl.h>
 #include "jsmn.h"
 
 #define SEPA_LOGGER_INFO
@@ -93,6 +95,9 @@
 #define URI_STRING			"uri"
 #define LITERAL_STRING		"literal"
 #define BNODE_STRING		"bnode"
+
+#define HTTP_200_OK					200
+#define HTTP_CREATED				201
 /**
  * @brief sepaNode type: URI, LITERAL, BNODE, or unknown upon initialization or error
  */
@@ -128,6 +133,24 @@ typedef struct http_json_result {
 	size_t size; /**< Json number of characters */
 	char *json; /**< Json received */
 } HttpJsonResult;
+
+/**
+ * @brief inits curl libraries.
+ * You may want to call this function if you are using the secure mode, or if you are
+ * doing queries. This function just inhibits useless multiple calls 'curl_global_init'
+ * @see http_client_free
+ * @see curl_global_init documentation
+ */ 
+int http_client_init();
+
+/**
+ * @brief frees curl-allocated memory.
+ * You may want to call this function if you are using the secure mode, or if you are
+ * doing queries. This function just inhibits useless multiple calls 'curl_global_init' and 'curl_global_cleanup'
+ * @see http_client_free
+ * @see curl_global_init documentation
+ */ 
+void http_client_free();
 
 /**
  * @brief Transforms to string the json token.

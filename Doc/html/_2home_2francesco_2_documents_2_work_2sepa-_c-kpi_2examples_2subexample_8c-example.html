@@ -128,7 +128,7 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_documents_2_work_2
 <div class="line"></div>
 <div class="line"><span class="preprocessor">#define SEPA_LOGGER_ERROR</span></div>
 <div class="line"><span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
-<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="sepa__consumer_8h.html">sepa_consumer.h</a>&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;../sepa_consumer.h&quot;</span></div>
 <div class="line"></div>
 <div class="line"><span class="comment">// declare your handlers</span></div>
 <div class="line"><span class="keywordtype">void</span> mySubscriptionNotification(<a name="_a0"></a><a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> * added,<span class="keywordtype">int</span> addedlen,<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> * removed,<span class="keywordtype">int</span> removedlen);</div>
@@ -145,8 +145,8 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_documents_2_work_2
 <div class="line">    <a name="a2"></a><a class="code" href="sepa__consumer_8h.html#a84049c5cdb0fed7c765a1726d8cc82a2">sepa_subscriber_init</a>();</div>
 <div class="line">    </div>
 <div class="line">    <span class="comment">// create subscriptions and set the respective handlers</span></div>
-<div class="line">    <a name="a3"></a><a class="code" href="sepa__consumer_8h.html#a8df5633fd9375b2e5f518daf8f52708e">sepa_subscription_builder</a>(<span class="stringliteral">&quot;SELECT ?a ?b ?c WHERE {&lt;http://francesco&gt; ?a &lt;http://pingpong&gt;. &lt;http://pingpong&gt; ?b ?c}&quot;</span>,<span class="stringliteral">&quot;ws://mml.arces.unibo.it:9000/sparql&quot;</span>,&amp;this_subscription);</div>
-<div class="line">    <a class="code" href="sepa__consumer_8h.html#a8df5633fd9375b2e5f518daf8f52708e">sepa_subscription_builder</a>(<span class="stringliteral">&quot;SELECT ?x ?y WHERE {?x ?y &lt;http://pingpong&gt;}&quot;</span>,<span class="stringliteral">&quot;ws://mml.arces.unibo.it:9000/sparql&quot;</span>,&amp;another_subscription);</div>
+<div class="line">    <a name="a3"></a><a class="code" href="sepa__consumer_8h.html#ab682bc9e02952d1f7b2c2a2d85bb2c24">sepa_subscription_builder</a>(<span class="stringliteral">&quot;SELECT ?a ?b ?c WHERE {?a ?b ?c}&quot;</span>,NULL,NULL,<span class="stringliteral">&quot;ws://10.0.2.15:9000/sparql&quot;</span>,&amp;this_subscription);</div>
+<div class="line">    <a class="code" href="sepa__consumer_8h.html#ab682bc9e02952d1f7b2c2a2d85bb2c24">sepa_subscription_builder</a>(<span class="stringliteral">&quot;SELECT ?x ?y WHERE {?x ?y &lt;http://pingpong&gt;}&quot;</span>,NULL,NULL,<span class="stringliteral">&quot;ws://10.0.2.15:9000/sparql&quot;</span>,&amp;another_subscription);</div>
 <div class="line">    <a name="a4"></a><a class="code" href="sepa__consumer_8h.html#af5871fed763f8affb07d1b490bcda4c5">sepa_setSubscriptionHandlers</a>(mySubscriptionNotification,myUnsubscriptionNotification,&amp;this_subscription);</div>
 <div class="line">    <a class="code" href="sepa__consumer_8h.html#af5871fed763f8affb07d1b490bcda4c5">sepa_setSubscriptionHandlers</a>(anotherSubscriptionNotification,NULL,&amp;another_subscription);</div>
 <div class="line">    </div>
@@ -210,7 +210,7 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_documents_2_work_2
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Wed May 3 2017 16:16:39 for SEPA-API by
+    <li class="footer">Generated on Tue Jun 13 2017 16:41:58 for SEPA-API by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.7 </li>
   </ul>

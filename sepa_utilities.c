@@ -21,6 +21,36 @@
 
 #include "sepa_utilities.h"
 
+// This variable is the 'client counter' for CURL. It's used in http_client_init and in 'http_client_free'.
+// Please don't touch it!
+static int CURL_INITIALIZATION = 0;
+
+int http_client_init() {
+	// TODO this function might need access control when used by very complex clients
+	CURLcode result;
+	if (CURL_INITIALIZATION>=0) {
+		if (CURL_INITIALIZATION==0) {
+			result = curl_global_init(CURL_GLOBAL_ALL);
+			if (result) {
+				logE("curl_global_init() failed.\n");
+				return EXIT_FAILURE;
+			}	
+		}
+		CURL_INITIALIZATION++;
+		logI("curl_global_init() completed successfully: %d active clients\n",CURL_INITIALIZATION);
+	}
+	return EXIT_SUCCESS;
+}
+
+void http_client_free() {
+	// TODO this function might need access control when used by very complex clients
+	if (CURL_INITIALIZATION>0) {
+		if (CURL_INITIALIZATION==1) curl_global_cleanup();
+		CURL_INITIALIZATION--;
+		logI("curl_global_cleanup() completed successfully: %d active clients\n",CURL_INITIALIZATION);
+	}
+}
+
 int getJsonItem(char * json,jsmntok_t token,char ** destination) {
 	if (*destination!=NULL) free(*destination);
 	*destination = strndup(json+token.start,token.end-token.start);
@@ -244,32 +274,8 @@ int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen) {
 	
 	if (js_buffer!=NULL) free(js_buffer);
 	free(jstokens);
-	return *resultlen;
+	return parsing_result;
 }
-
-/*int checkReceivedJson(char * myjson) {
-	char *jsoncopy,*index;
-	int started_tag=0,opened=0,closed=0;
-	
-	jsoncopy = strdup(myjson);
-	for (index=jsoncopy; *index!='\0'; index++) {
-		if (started_tag) {
-			if (*index!='"') *index=' ';
-			else started_tag = 0;
-		}
-		else {
-			if (*index=='"') started_tag = 1;
-		}
-	}
-	for (index=jsoncopy; *index!='\0'; index++) {
-		if (*index=='{') opened++;
-		if (*index=='}') closed++;
-	}
-	free(jsoncopy);
-	if (opened==closed) return COMPLETE_JSON;
-	else return INCOMPLETE_JSON;
-}*/
-
 
 sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 	/*
