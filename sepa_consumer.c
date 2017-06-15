@@ -114,18 +114,22 @@ static int sepa_subscription_callback(	struct lws *wsi,
 									printf("3b\n");
 								}
 							}
-							if (CHUNK_MAX_SIZE<strlen(chunk_buffer)) {
+							if (strlen(chunk_buffer)>CHUNK_MAX_SIZE) {
+								
 								i=lws_write(wsi,chunk_buffer,CHUNK_MAX_SIZE,writeFlag);
-								printf("4a %s %d\n",chunk_buffer,i);
+								printf("4a %s %d\n",&chunk_buffer[i],i);
 							}
 							else {
-								printf("4b %s\n",chunk_buffer);
+								
 								i=lws_write(wsi,chunk_buffer,strlen(chunk_buffer),writeFlag);
+								printf("4b %s %d\n",&chunk_buffer[i],i);
 							}
-							chunk_buffer = chunk_buffer + i;
-						} while (CHUNK_MAX_SIZE<strlen(chunk_buffer));
+							chunk_buffer = &chunk_buffer[i];
+							printf("write was done! %d\n",(int)strlen(chunk_buffer));
+						} while (writeFlag!=LWS_WRITE_CONTINUATION);
+						printf("We exited while loop!\n");
 					}
-					printf("%s\n",sparql_buffer);
+					//printf("%s\n",sparql_buffer);
 					
 					free(packet_buffer);
 				}

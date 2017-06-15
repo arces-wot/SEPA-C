@@ -42,32 +42,32 @@ void myUnsubscriptionNotification();
 int main(int argc, char **argv) {
 	// initialize subscriptions
 	SEPA_subscription_params this_subscription = _initSubscription();
-	SEPA_subscription_params another_subscription = _initSubscription();
+	//SEPA_subscription_params another_subscription = _initSubscription();
 	int a;
 	
 	// initialize subscription client engine
 	sepa_subscriber_init();
 	
 	// create subscriptions and set the respective handlers
-	sepa_subscription_builder(sub,NULL,NULL,"ws://192.168.1.1:9000/sparql",&this_subscription);
-	sepa_subscription_builder("SELECT ?x ?y WHERE {?x ?y <http://pingpong>}",NULL,NULL,"ws://10.0.2.15:9000/sparql",&another_subscription);
+	sepa_subscription_builder(sub,NULL,NULL,"ws://10.0.2.15:9000/sparql",&this_subscription);
+	//sepa_subscription_builder("SELECT ?x ?y WHERE {?x ?y <http://pingpong>}",NULL,NULL,"ws://10.0.2.15:9000/sparql",&another_subscription);
 	sepa_setSubscriptionHandlers(mySubscriptionNotification,myUnsubscriptionNotification,&this_subscription);
-	sepa_setSubscriptionHandlers(anotherSubscriptionNotification,NULL,&another_subscription);
+	//sepa_setSubscriptionHandlers(anotherSubscriptionNotification,NULL,&another_subscription);
 	
 	// check if it is correct
 	fprintfSubscriptionParams(stdout,this_subscription);
-	fprintfSubscriptionParams(stdout,another_subscription);
+	//fprintfSubscriptionParams(stdout,another_subscription);
 	
 	// subscribe
 	kpSubscribe(&this_subscription);
-	kpSubscribe(&another_subscription);
+	//kpSubscribe(&another_subscription);
 	
 	// prompt user to stop
 	printf("insert a number to continue: "); scanf("%d",&a);
 	
 	// unsubscribe
 	kpUnsubscribe(&this_subscription);
-	kpUnsubscribe(&another_subscription);
+	//kpUnsubscribe(&another_subscription);
 	
 	// close subscription client engine
 	sepa_subscriber_destroy();
