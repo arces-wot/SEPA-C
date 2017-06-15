@@ -73,10 +73,15 @@ static int sepa_subscription_callback(	struct lws *wsi,
 	sepaNode *added,*removed;
 	notifyProperty n_properties;
 	
+	enum lws_write_protocol writeFlag;
+	char *chunk_buffer;
+	int i;
+	
 	raisedSubscription = getRaisedSubscription(wsi);
 	if (raisedSubscription!=NULL) {
 		switch (reason) {
 			case LWS_CALLBACK_CLIENT_ESTABLISHED:
+			
 				pthread_mutex_lock(&(sepa_session.subscription_mutex));
 				if (raisedSubscription->use_ssl==WSS_SECURE) sub_packet_length += SUBSCRIPTION_AUTH_TOKEN_LEN;
 				if (raisedSubscription->subscription_alias!=NULL) sub_packet_length += strlen(raisedSubscription->subscription_alias);
@@ -89,8 +94,39 @@ static int sepa_subscription_callback(	struct lws *wsi,
 					if (raisedSubscription->subscription_alias!=NULL) sprintf(sparql_buffer+strlen(sparql_buffer)+1,",\"alias\":\"%s\"",raisedSubscription->subscription_alias);
 					if (raisedSubscription->use_ssl==WSS_SECURE) sprintf(sparql_buffer+strlen(sparql_buffer)+1,",\"authorization\":\"%s\"",raisedSubscription->subscription_authToken);
 					strcat(sparql_buffer,"}");
-					logD("%s",sparql_buffer);
-					lws_write(wsi,sparql_buffer,strlen(sparql_buffer),LWS_WRITE_TEXT);
+					
+					if (strlen(sparql_buffer)<=CHUNK_MAX_SIZE) {
+						lws_write(wsi,sparql_buffer,strlen(sparql_buffer),LWS_WRITE_TEXT);
+					}
+					else {
+						printf("1\n");
+						chunk_buffer = sparql_buffer;
+						do {
+							printf("2\n");
+							if (chunk_buffer==sparql_buffer) writeFlag = LWS_WRITE_TEXT | LWS_WRITE_NO_FIN;
+							else {
+								if (strlen(chunk_buffer)>CHUNK_MAX_SIZE) {
+									writeFlag = LWS_WRITE_CONTINUATION | LWS_WRITE_NO_FIN;
+									printf("3a\n");
+								}
+								else {
+									writeFlag = LWS_WRITE_CONTINUATION;
+									printf("3b\n");
+								}
+							}
+							if (CHUNK_MAX_SIZE<strlen(chunk_buffer)) {
+								i=lws_write(wsi,chunk_buffer,CHUNK_MAX_SIZE,writeFlag);
+								printf("4a %s %d\n",chunk_buffer,i);
+							}
+							else {
+								printf("4b %s\n",chunk_buffer);
+								i=lws_write(wsi,chunk_buffer,strlen(chunk_buffer),writeFlag);
+							}
+							chunk_buffer = chunk_buffer + i;
+						} while (CHUNK_MAX_SIZE<strlen(chunk_buffer));
+					}
+					printf("%s\n",sparql_buffer);
+					
 					free(packet_buffer);
 				}
 				else logE("Malloc error in sepa_subscription_callback LWS_CALLBACK_CLIENT_ESTABLISHED\n");

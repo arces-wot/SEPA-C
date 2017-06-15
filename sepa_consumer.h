@@ -62,6 +62,7 @@
 #define UNSUBSCRIBE_TAG_LEN					12
 #define KPI_QUERY_FAIL						-2
 #define SUBSCRIPTION_AUTH_TOKEN_LEN			0
+#define CHUNK_MAX_SIZE						50
 #define _getSubscriptionProtocols()			_protocols
 #define _getSubscriptionProtocolName()		_protocols[0].name
 #define _getSubscriptionCallback()			_protocols[0].sepa_subscription_callback
