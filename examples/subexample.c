@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 	// subscribe
 	kpSubscribe(&this_subscription);
 	//kpSubscribe(&another_subscription);
-	
+
 	// prompt user to stop
 	printf("insert a number to continue: "); scanf("%d",&a);
 	

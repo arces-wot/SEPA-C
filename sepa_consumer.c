@@ -26,7 +26,7 @@ SEPA_subscriber sepa_session;
 
 static int exit_success = EXIT_SUCCESS;
 static int exit_failure = EXIT_FAILURE;
-int counter = 0;
+static pthread_once_t one_initialization = PTHREAD_ONCE_INIT;
 
 static void * subscription_thread(void * parameters);
 static int sepa_subscription_callback(	struct lws *wsi,
@@ -194,26 +194,16 @@ static int sepa_subscription_callback(	struct lws *wsi,
 	return 0;
 }
 
-int sepa_subscriber_init() {
-	int lockResult,result=EXIT_FAILURE;
-	lockResult = pthread_mutex_lock(&(sepa_session.subscription_mutex));
-	switch (lockResult) {
-		case EINVAL:
-			sepa_session.closing_subscription_code = 0;
-			sepa_session.active_subscriptions = 0;
-			sepa_session.subscription_list = NULL;
-			pthread_mutex_init(&(sepa_session.subscription_mutex),NULL);
-			result = EXIT_SUCCESS;
-			break;
-		case 0:
-			pthread_mutex_unlock(&(sepa_session.subscription_mutex));
-			logW("sepa_subscriber_init: already initialized?\n");
-			break;
-		default:
-			logE("Error in sepa_subscriber_init mutex.\n");
-			break;
-	}
-	return result;
+static void __sepa_subscriber_init() {
+	sepa_session.closing_subscription_code = 0;
+	sepa_session.active_subscriptions = 0;
+	sepa_session.subscription_list = NULL;
+	pthread_mutex_init(&(sepa_session.subscription_mutex),NULL);
+	logI("Subscription engine initialized!\n");
+}
+
+void sepa_subscriber_init() {
+	pthread_once(&one_initialization, __sepa_subscriber_init);
 }
 
 int sepa_subscriber_destroy() {

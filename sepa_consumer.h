@@ -137,9 +137,8 @@ typedef struct sepa_subscriber {
  * 
  * Usually this is the first function called when you want to create subscriptions.
  * It initializes internal structures, like the shared mutex.
- * @return EXIT_SUCCESS or EXIT_FAILURE if already initialized or other problems.
  */
-int sepa_subscriber_init();
+void sepa_subscriber_init();
 
 /**
  * @brief Frees memory when subscriptions are not needed anymore.
