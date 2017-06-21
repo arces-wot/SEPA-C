@@ -99,38 +99,24 @@ static int sepa_subscription_callback(	struct lws *wsi,
 						lws_write(wsi,sparql_buffer,strlen(sparql_buffer),LWS_WRITE_TEXT);
 					}
 					else {
-						printf("1\n");
 						chunk_buffer = sparql_buffer;
 						do {
-							printf("2\n");
 							if (chunk_buffer==sparql_buffer) writeFlag = LWS_WRITE_TEXT | LWS_WRITE_NO_FIN;
 							else {
-								if (strlen(chunk_buffer)>CHUNK_MAX_SIZE) {
-									writeFlag = LWS_WRITE_CONTINUATION | LWS_WRITE_NO_FIN;
-									printf("3a\n");
-								}
-								else {
-									writeFlag = LWS_WRITE_CONTINUATION;
-									printf("3b\n");
-								}
+								if (strlen(chunk_buffer)>CHUNK_MAX_SIZE) writeFlag = LWS_WRITE_CONTINUATION | LWS_WRITE_NO_FIN;
+								else writeFlag = LWS_WRITE_CONTINUATION;
 							}
 							if (strlen(chunk_buffer)>CHUNK_MAX_SIZE) {
-								
+								logI("Writing websocket chunk...\n");
 								i=lws_write(wsi,chunk_buffer,CHUNK_MAX_SIZE,writeFlag);
-								printf("4a %s %d\n",&chunk_buffer[i],i);
 							}
 							else {
-								
+								logI("Sending websocket frame...\n");
 								i=lws_write(wsi,chunk_buffer,strlen(chunk_buffer),writeFlag);
-								printf("4b %s %d\n",&chunk_buffer[i],i);
 							}
 							chunk_buffer = &chunk_buffer[i];
-							printf("write was done! %d\n",(int)strlen(chunk_buffer));
 						} while (writeFlag!=LWS_WRITE_CONTINUATION);
-						printf("We exited while loop!\n");
 					}
-					//printf("%s\n",sparql_buffer);
-					
 					free(packet_buffer);
 				}
 				else logE("Malloc error in sepa_subscription_callback LWS_CALLBACK_CLIENT_ESTABLISHED\n");

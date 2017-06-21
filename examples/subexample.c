@@ -33,7 +33,8 @@
 #include <stdio.h>
 #include "../sepa_consumer.h"
 
-#define sub "SELECT ?input ?value WHERE {?input <http://hasDataValue.org> ?value}"
+#define sub					"PREFIX wot:<http://www.arces.unibo.it/wot#> PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX td:<http://w3c.github.io/wot/w3c-wot-td-ontology.owl#> PREFIX dul:<http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> SELECT ?instance ?input ?value WHERE {wot:RaspiLCD rdf:type td:Action. wot:RaspiLCD wot:hasInstance ?instance. ?instance rdf:type wot:ActionInstance. OPTIONAL {?instance td:hasInput ?input. ?input dul:hasDataValue ?value}}"
+//#define sub "SELECT ?input ?value WHERE {?input <http://hasDataValue.org> ?value}"
 // declare your handlers
 void mySubscriptionNotification(sepaNode * added,int addedlen,sepaNode * removed,int removedlen);
 void anotherSubscriptionNotification(sepaNode * added,int addedlen,sepaNode * removed,int removedlen);
@@ -49,7 +50,7 @@ int main(int argc, char **argv) {
 	sepa_subscriber_init();
 	
 	// create subscriptions and set the respective handlers
-	sepa_subscription_builder(sub,NULL,NULL,"ws://192.168.1.1:9000/sparql",&this_subscription);
+	sepa_subscription_builder(sub,NULL,NULL,"ws://127.0.1.1:9000/subscribe",&this_subscription);
 	//sepa_subscription_builder("SELECT ?x ?y WHERE {?x ?y <http://pingpong>}",NULL,NULL,"ws://10.0.2.15:9000/sparql",&another_subscription);
 	sepa_setSubscriptionHandlers(mySubscriptionNotification,myUnsubscriptionNotification,&this_subscription);
 	//sepa_setSubscriptionHandlers(anotherSubscriptionNotification,NULL,&another_subscription);
