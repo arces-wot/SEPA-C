@@ -27,6 +27,7 @@ SEPA_subscriber sepa_session;
 static int exit_success = EXIT_SUCCESS;
 static int exit_failure = EXIT_FAILURE;
 static pthread_once_t one_initialization = PTHREAD_ONCE_INIT;
+static int CHUNK_MAX_SIZE = _DEFAULT_CHUNK_MAX_SIZE;
 
 static void * subscription_thread(void * parameters);
 static int sepa_subscription_callback(	struct lws *wsi,
@@ -81,7 +82,6 @@ static int sepa_subscription_callback(	struct lws *wsi,
 	if (raisedSubscription!=NULL) {
 		switch (reason) {
 			case LWS_CALLBACK_CLIENT_ESTABLISHED:
-			
 				pthread_mutex_lock(&(sepa_session.subscription_mutex));
 				if (raisedSubscription->use_ssl==WSS_SECURE) sub_packet_length += SUBSCRIPTION_AUTH_TOKEN_LEN;
 				if (raisedSubscription->subscription_alias!=NULL) sub_packet_length += strlen(raisedSubscription->subscription_alias);
@@ -94,13 +94,15 @@ static int sepa_subscription_callback(	struct lws *wsi,
 					if (raisedSubscription->subscription_alias!=NULL) sprintf(sparql_buffer+strlen(sparql_buffer)+1,",\"alias\":\"%s\"",raisedSubscription->subscription_alias);
 					if (raisedSubscription->use_ssl==WSS_SECURE) sprintf(sparql_buffer+strlen(sparql_buffer)+1,",\"authorization\":\"%s\"",raisedSubscription->subscription_authToken);
 					strcat(sparql_buffer,"}");
-					
+
 					if (strlen(sparql_buffer)<=CHUNK_MAX_SIZE) {
+						while (lws_send_pipe_choked(wsi));
 						lws_write(wsi,sparql_buffer,strlen(sparql_buffer),LWS_WRITE_TEXT);
 					}
 					else {
 						chunk_buffer = sparql_buffer;
 						do {
+							while (lws_send_pipe_choked(wsi));
 							if (chunk_buffer==sparql_buffer) writeFlag = LWS_WRITE_TEXT | LWS_WRITE_NO_FIN;
 							else {
 								if (strlen(chunk_buffer)>CHUNK_MAX_SIZE) writeFlag = LWS_WRITE_CONTINUATION | LWS_WRITE_NO_FIN;
@@ -178,6 +180,11 @@ static int sepa_subscription_callback(	struct lws *wsi,
 		}
 	}
 	return 0;
+}
+
+void _set_chunk_max_size(int size) {
+	CHUNK_MAX_SIZE = size;
+	logW("CHUNK_MAX_SIZE setted to %d\n",size);
 }
 
 static void __sepa_subscriber_init() {
@@ -323,6 +330,7 @@ int kpUnsubscribe(pSEPA_subscription_params params) {
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 				sprintf(unsubscribeRequest+LWS_PRE,"{\"unsubscribe\":\"sepa://subscription/%s\"}",params->identifier);
 				logD("%s",unsubscribeRequest+LWS_PRE);
+				while (lws_send_pipe_choked(params->ws_identifier));
 				lws_write(params->ws_identifier,unsubscribeRequest+LWS_PRE,strlen(unsubscribeRequest+LWS_PRE),LWS_WRITE_TEXT);
 				logI("Sent unsubscription packet...\n");
 			}
@@ -424,7 +432,7 @@ static void * subscription_thread(void * parameters) {
 	logD("Subscription %d wsi=%p\n",params->subscription_code,params->ws_identifier);
 	
 	while (!force_exit) {
-		lws_service(ws_context, 50);
+		lws_service(ws_context, 0);
 		
 		pthread_mutex_lock(&(sepa_session.subscription_mutex));
 		force_exit = (params->subscription_code==sepa_session.closing_subscription_code);

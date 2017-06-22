@@ -57,12 +57,10 @@
 #define PROTOCOL_LEN						10
 #define WS_ADDRESS_LEN						100
 #define RX_BUFFER_SIZE						100
-#define SUBSCRIPTION_TAG					"subscribe="
-#define UNSUBSCRIBE_TAG						"unsubscribe="
 #define UNSUBSCRIBE_TAG_LEN					12
 #define KPI_QUERY_FAIL						-2
 #define SUBSCRIPTION_AUTH_TOKEN_LEN			0
-#define CHUNK_MAX_SIZE						50
+#define _DEFAULT_CHUNK_MAX_SIZE				64 /**< Default dimension of websocket output buffer */
 #define _getSubscriptionProtocols()			_protocols
 #define _getSubscriptionProtocolName()		_protocols[0].name
 #define _getSubscriptionCallback()			_protocols[0].sepa_subscription_callback
@@ -131,6 +129,12 @@ typedef struct sepa_subscriber {
 	pthread_mutex_t subscription_mutex; /**< General mutex used to modify this structure. */
 	int closing_subscription_code; /**< Reserved. Do <b>not</b> use. */
 } SEPA_subscriber,*pSEPA_subscriber;
+
+/**
+ * @brief Sets the websocket output buffer max size. Default is located in _DEFAULT_CHUNK_MAX_SIZE macro. Careful use recommended.
+ * @param size: the new dimension
+ */
+void _set_chunk_max_size(int size);
 
 /**
  * @brief Initialization function for the subscription client engine.
