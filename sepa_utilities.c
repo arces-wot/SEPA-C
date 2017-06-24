@@ -1,8 +1,8 @@
 /*
  * sepa_utilities.c
- * 
+ *
  * Copyright 2017 Francesco Antoniazzi <francesco.antoniazzi@unibo.it>
- * 
+ *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -15,8 +15,8 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * 
+ *
+ *
  */
 
 #include "sepa_utilities.h"
@@ -27,27 +27,33 @@ static int CURL_INITIALIZATION = 0;
 
 int http_client_init() {
 	// TODO this function might need access control when used by very complex clients
+	char executed[15]="(Nothing done)";
 	CURLcode result;
 	if (CURL_INITIALIZATION>=0) {
 		if (CURL_INITIALIZATION==0) {
+            strcpy(executed,"(curl init)");
 			result = curl_global_init(CURL_GLOBAL_ALL);
 			if (result) {
 				logE("curl_global_init() failed.\n");
 				return EXIT_FAILURE;
-			}	
+			}
 		}
 		CURL_INITIALIZATION++;
-		logI("curl_global_init() completed successfully: %d active clients\n",CURL_INITIALIZATION);
+		logI("http_client_init() completed successfully: %d active clients %s\n",CURL_INITIALIZATION,executed);
 	}
 	return EXIT_SUCCESS;
 }
 
 void http_client_free() {
 	// TODO this function might need access control when used by very complex clients
+	char executed[15]="(Nothing done)";
 	if (CURL_INITIALIZATION>0) {
-		if (CURL_INITIALIZATION==1) curl_global_cleanup();
+		if (CURL_INITIALIZATION==1) {
+            strcpy(executed,"(curl ended)");
+            curl_global_cleanup();
+		}
 		CURL_INITIALIZATION--;
-		logI("curl_global_cleanup() completed successfully: %d active clients\n",CURL_INITIALIZATION);
+		logI("http_client_free() completed successfully: %d active clients %s\n",CURL_INITIALIZATION,executed);
 	}
 }
 
@@ -126,7 +132,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 	jsmntok_t *jstokens;
 	int parsing_result,jstok_dim,i,completed=0;
 	char *js_buffer=NULL,*checkA,*checkB,*checkC;
-	
+
 	if (jsonResults==NULL) {
 		logE("NullpointerException in subscriptionResultParser.\n");
 		return PARSING_ERROR;
@@ -140,7 +146,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 		else logE("Result dimension parsing gave %d\n",jstok_dim);
 		return jstok_dim;
 	}
-	
+
 	if (strstr(jsonResults,"{\"ping\":")!=NULL) {
 		strcpy(jsonResults,"");
 		return PING_JSON;
@@ -160,7 +166,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 			else logE("Result dimension parsing gave %d\n",parsing_result);
 			return parsing_result;
 		}
-		
+
 		if (jstok_dim>3) {
 			// notification to subscription case
 			parsing_result = EXIT_SUCCESS;
@@ -222,8 +228,8 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 		}
 		free(jstokens);
 	}
-	strcpy(jsonResults,"");		
-	return parsing_result;	
+	strcpy(jsonResults,"");
+	return parsing_result;
 }
 
 int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen) {
@@ -231,12 +237,12 @@ int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen) {
 	jsmntok_t *jstokens;
 	int jstok_dim,completed=0,parsing_result,i;
 	char *js_buffer = NULL;
-	
+
 	if (jsonResults==NULL) {
 		logE("NullpointerException in queryResultParser.\n");
 		return PARSING_ERROR;
 	}
-	
+
 	jsmn_init(&parser);
 	jstok_dim = jsmn_parse(&parser, jsonResults, strlen(jsonResults), NULL, 0);
 	logD("results=%s - jstok_dim=%d\n",jsonResults,jstok_dim);
@@ -245,7 +251,7 @@ int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen) {
 		else logE("Result dimension parsing gave %d\n",jstok_dim);
 		return jstok_dim;
 	}
-	
+
 	jstokens = (jsmntok_t *) malloc(jstok_dim*sizeof(jsmntok_t));
 	if (jstokens==NULL) {
 		logE("Malloc error in json parsing!\n");
@@ -259,7 +265,7 @@ int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen) {
 		logE("Result dimension parsing gave %d\n",parsing_result);
 		return parsing_result;
 	}
-	
+
 	parsing_result = EXIT_SUCCESS;
 	for (i=0; (i<jstok_dim) && (parsing_result==EXIT_SUCCESS) && (!completed); i++) {
 		if (jstokens[i].type==JSMN_STRING) {
@@ -271,7 +277,7 @@ int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen) {
 			}
 		}
 	}
-	
+
 	if (js_buffer!=NULL) free(js_buffer);
 	free(jstokens);
 	return parsing_result;
@@ -287,7 +293,7 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 #endif
 	char *bindingName=NULL,*bindingType=NULL,*bindingValue=NULL;
 	sepaNode *result = NULL;
-	
+
 	if (json==NULL) {
 		logE("NullpointerException in getResultBindings\n");
 		return NULL;
