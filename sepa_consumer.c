@@ -74,9 +74,9 @@ static int sepa_subscription_callback(	struct lws *wsi,
 	sepaNode *added,*removed;
 	notifyProperty n_properties;
 	
-	enum lws_write_protocol writeFlag;
 	char *chunk_buffer;
 	int i;
+	size_t chunk_len;
 	
 	raisedSubscription = getRaisedSubscription(wsi);
 	if (raisedSubscription!=NULL) {
@@ -96,25 +96,28 @@ static int sepa_subscription_callback(	struct lws *wsi,
 					strcat(sparql_buffer,"}");
 
 					if (strlen(sparql_buffer)<=CHUNK_MAX_SIZE) {
+						logI("Sending websocket frame...\n");
 						while (lws_send_pipe_choked(wsi));
 						lws_write(wsi,sparql_buffer,strlen(sparql_buffer),LWS_WRITE_TEXT);
 					}
 					else {
 						chunk_buffer = sparql_buffer;
 						do {
+							chunk_len = strlen(chunk_buffer);
 							while (lws_send_pipe_choked(wsi));
-							if (chunk_buffer==sparql_buffer) writeFlag = LWS_WRITE_TEXT | LWS_WRITE_NO_FIN;
-							else {
-								if (strlen(chunk_buffer)>CHUNK_MAX_SIZE) writeFlag = LWS_WRITE_CONTINUATION | LWS_WRITE_NO_FIN;
-								else writeFlag = LWS_WRITE_CONTINUATION;
-							}
-							if (strlen(chunk_buffer)>CHUNK_MAX_SIZE) {
+							if (chunk_buffer==sparql_buffer) {
 								logI("Writing websocket chunk...\n");
-								i=lws_write(wsi,chunk_buffer,CHUNK_MAX_SIZE,writeFlag);
+								i=lws_write(wsi,chunk_buffer,CHUNK_MAX_SIZE,LWS_WRITE_TEXT | LWS_WRITE_NO_FIN);
 							}
 							else {
-								logI("Sending websocket frame...\n");
-								i=lws_write(wsi,chunk_buffer,strlen(chunk_buffer),writeFlag);
+								if (chunk_len>CHUNK_MAX_SIZE) {
+									logI("Writing websocket chunk...\n");
+									i=lws_write(wsi,chunk_buffer,CHUNK_MAX_SIZE,LWS_WRITE_CONTINUATION | LWS_WRITE_NO_FIN);
+								}
+								else {
+									logI("Sending websocket frame...\n");
+									i=lws_write(wsi,chunk_buffer,chunk_len,LWS_WRITE_CONTINUATION);
+								}
 							}
 							chunk_buffer = &chunk_buffer[i];
 						} while (writeFlag!=LWS_WRITE_CONTINUATION);
