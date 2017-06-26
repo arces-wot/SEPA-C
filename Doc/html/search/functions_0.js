@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['buildsepanode',['buildSepaNode',['../sepa__utilities_8h.html#a6fb42e44cec49d3bb124b44d97e620ab',1,'sepa_utilities.c']]]
+  ['_5fset_5fchunk_5fmax_5fsize',['_set_chunk_max_size',['../sepa__consumer_8h.html#a123c07305ff7572ca80aa5e802148ee2',1,'sepa_consumer.c']]]
 ];

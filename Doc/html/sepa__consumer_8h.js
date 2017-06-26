@@ -2,6 +2,7 @@ var sepa__consumer_8h =
 [
     [ "subscription_params", "structsubscription__params.html", "structsubscription__params" ],
     [ "sepa_subscriber", "structsepa__subscriber.html", "structsepa__subscriber" ],
+    [ "_DEFAULT_CHUNK_MAX_SIZE", "sepa__consumer_8h.html#ad83e866efae4893c9202213e1805c4d9", null ],
     [ "_getSubscriptionCallback", "sepa__consumer_8h.html#a6b169ef5eed385ee3140164d1e86bc03", null ],
     [ "_getSubscriptionDataSize", "sepa__consumer_8h.html#a350fa50576cd02029779127cd9bf7a7a", null ],
     [ "_getSubscriptionProtocolName", "sepa__consumer_8h.html#af6d0e8d54edeecb35424e30ecdd1e93b", null ],
@@ -16,8 +17,6 @@ var sepa__consumer_8h =
     [ "PROTOCOL_LEN", "sepa__consumer_8h.html#a5aaae58a8c2684a97b68a5439300d38a", null ],
     [ "RX_BUFFER_SIZE", "sepa__consumer_8h.html#a739a2a1a0047c98ac1b18ecd25dac092", null ],
     [ "SUBSCRIPTION_AUTH_TOKEN_LEN", "sepa__consumer_8h.html#a189946e032feb5ab007d7e03dbc9f6f6", null ],
-    [ "SUBSCRIPTION_TAG", "sepa__consumer_8h.html#ac8de7d58c1d2ec7ce6daebd6741de332", null ],
-    [ "UNSUBSCRIBE_TAG", "sepa__consumer_8h.html#a3fdbf6de9a24e7e480f789585884c9f3", null ],
     [ "UNSUBSCRIBE_TAG_LEN", "sepa__consumer_8h.html#a43ea10e92df8d275ed6fa014cd5ece2d", null ],
     [ "WS_ADDRESS_LEN", "sepa__consumer_8h.html#a0939e27e70b997592eaafbb12281e1f2", null ],
     [ "WS_NOT_SECURE", "sepa__consumer_8h.html#a438ab3d8b906ba625e3bcb5d2e2bad05", null ],
@@ -28,6 +27,7 @@ var sepa__consumer_8h =
     [ "SEPA_subscription_params", "sepa__consumer_8h.html#a923b981c60c2eede45dd1909a244ba8a", null ],
     [ "SubscriptionHandler", "sepa__consumer_8h.html#a4f610699196c5e346822729684553d01", null ],
     [ "UnsubscriptionHandler", "sepa__consumer_8h.html#a961b68c49fed1ee2f0bab057df655726", null ],
+    [ "_set_chunk_max_size", "sepa__consumer_8h.html#a123c07305ff7572ca80aa5e802148ee2", null ],
     [ "fprintfSubscriptionParams", "sepa__consumer_8h.html#aab4a036f5f8257ad74bcb6c1e9e66959", null ],
     [ "getActiveSubscriptions", "sepa__consumer_8h.html#a0d55b65bec6f4c93915ac52b75ba5596", null ],
     [ "getSubscriptionList", "sepa__consumer_8h.html#a101ae6921df4171b913820a766c12909", null ],
@@ -36,6 +36,6 @@ var sepa__consumer_8h =
     [ "kpUnsubscribe", "sepa__consumer_8h.html#a0b04be1cab854996d2f58283020d572a", null ],
     [ "sepa_setSubscriptionHandlers", "sepa__consumer_8h.html#af5871fed763f8affb07d1b490bcda4c5", null ],
     [ "sepa_subscriber_destroy", "sepa__consumer_8h.html#abedaa83b98deaedb21932a74ea3d2723", null ],
-    [ "sepa_subscriber_init", "sepa__consumer_8h.html#a84049c5cdb0fed7c765a1726d8cc82a2", null ],
+    [ "sepa_subscriber_init", "sepa__consumer_8h.html#a1f1881162b47554fcd43dd993d05cd85", null ],
     [ "sepa_subscription_builder", "sepa__consumer_8h.html#ab682bc9e02952d1f7b2c2a2d85bb2c24", null ]
 ];

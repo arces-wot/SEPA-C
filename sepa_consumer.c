@@ -75,7 +75,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 	notifyProperty n_properties;
 	
 	char *chunk_buffer;
-	int i;
+	int i,end=0;
 	size_t chunk_len;
 	
 	raisedSubscription = getRaisedSubscription(wsi);
@@ -117,10 +117,11 @@ static int sepa_subscription_callback(	struct lws *wsi,
 								else {
 									logI("Sending websocket frame...\n");
 									i=lws_write(wsi,chunk_buffer,chunk_len,LWS_WRITE_CONTINUATION);
+									end = 1;
 								}
 							}
 							chunk_buffer = &chunk_buffer[i];
-						} while (writeFlag!=LWS_WRITE_CONTINUATION);
+						} while (!end);
 					}
 					free(packet_buffer);
 				}

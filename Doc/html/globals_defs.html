@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.7"/>
-<title>SEPA-API: Introduction</title>
+<title>SEPA-API: Globals</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -46,10 +46,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </script>
   <div id="navrow1" class="tabs">
     <ul class="tablist">
-      <li class="current"><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Data&#160;Structures</span></a></li>
-      <li><a href="files.html"><span>Files</span></a></li>
+      <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li><a href="examples.html"><span>Examples</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -69,6 +69,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       </li>
     </ul>
   </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>File&#160;List</span></a></li>
+      <li class="current"><a href="globals.html"><span>Globals</span></a></li>
+    </ul>
+  </div>
+  <div id="navrow3" class="tabs2">
+    <ul class="tablist">
+      <li><a href="globals.html"><span>All</span></a></li>
+      <li><a href="globals_func.html"><span>Functions</span></a></li>
+      <li><a href="globals_type.html"><span>Typedefs</span></a></li>
+      <li><a href="globals_enum.html"><span>Enumerations</span></a></li>
+      <li class="current"><a href="globals_defs.html"><span>Macros</span></a></li>
+    </ul>
+  </div>
 </div><!-- top -->
 <div id="side-nav" class="ui-resizable side-nav-resizable">
   <div id="nav-tree">
@@ -81,7 +96,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('index.html','');});
+$(document).ready(function(){initNavTree('globals_defs.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -98,27 +113,13 @@ $(document).ready(function(){initNavTree('index.html','');});
 </iframe>
 </div>
 
-<div class="header">
-  <div class="headertitle">
-<div class="title">Introduction </div>  </div>
-</div><!--header-->
 <div class="contents">
-<div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#git-clone">Clone from git</a></li>
-<li class="level1"><a href="#program-compilation">Compile programs</a></li>
+&#160;<ul>
+<li>_DEFAULT_CHUNK_MAX_SIZE
+: <a class="el" href="sepa__consumer_8h.html#ad83e866efae4893c9202213e1805c4d9">sepa_consumer.h</a>
+</li>
 </ul>
-</div>
-<div class="textblock"><dl class="section author"><dt>Author</dt><dd>Francesco Antoniazzi &lt;<a href="#" onclick="location.href='mai'+'lto:'+'fra'+'nc'+'esc'+'o.'+'ant'+'on'+'iaz'+'zi'+'@un'+'ib'+'o.i'+'t'; return false;">franc<span style="display: none;">.nosp@m.</span>esco<span style="display: none;">.nosp@m.</span>.anto<span style="display: none;">.nosp@m.</span>niaz<span style="display: none;">.nosp@m.</span>zi@un<span style="display: none;">.nosp@m.</span>ibo.<span style="display: none;">.nosp@m.</span>it</a>&gt; </dd></dl>
-<dl class="section copyright"><dt>Copyright</dt><dd>LGPL v3.0 &lt;<a href="https://www.gnu.org/licenses/gpl-3.0.en.html">https://www.gnu.org/licenses/gpl-3.0.en.html</a>&gt;</dd></dl>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000001">Todo:</a></b></dt><dd>Apt-get install section</dd></dl>
-<h1><a class="anchor" id="git-clone"></a>
-Clone from git</h1>
-<p>You can clone the repository using the following command: </p><div class="fragment"><div class="line">git clone https:<span class="comment">//github.com/fr4ncidir/sepa-C-kpi.git</span></div>
-</div><!-- fragment --><dl class="todo"><dt><b><a class="el" href="todo.html#_todo000002">Todo:</a></b></dt><dd>Compile library section</dd></dl>
-<h1><a class="anchor" id="program-compilation"></a>
-Compile programs</h1>
-<p>You can compile a project using this library with the following command </p><div class="fragment"><div class="line">gcc myprogram.c sepa_utilities.c sepa_consumer.c sepa_secure.c jsmn.c -o myprogram -pthread -lcurl `pkg-config --cflags --libs glib-2.0 libwebsockets`</div>
-</div><!-- fragment --> </div></div><!-- contents -->
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
