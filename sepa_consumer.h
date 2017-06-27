@@ -138,11 +138,11 @@ void _set_chunk_max_size(int size);
 
 /**
  * @brief Initialization function for the subscription client engine.
- * 
+ * @return pointer to a SEPA_subscriber entity, which is a subscription engine client
  * Usually this is the first function called when you want to create subscriptions.
  * It initializes internal structures, like the shared mutex.
  */
-void sepa_subscriber_init();
+pSEPA_subscriber sepa_subscriber_init();
 
 /**
  * @brief Frees memory when subscriptions are not needed anymore.

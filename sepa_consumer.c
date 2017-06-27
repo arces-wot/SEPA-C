@@ -199,8 +199,9 @@ static void __sepa_subscriber_init() {
 	logI("Subscription engine initialized!\n");
 }
 
-void sepa_subscriber_init() {
+pSEPA_subscriber sepa_subscriber_init() {
 	pthread_once(&one_initialization, __sepa_subscriber_init);
+	return &sepa_session;
 }
 
 int sepa_subscriber_destroy() {
