@@ -301,6 +301,7 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 		logE("NullpointerException in getResultBindings\n");
 		return NULL;
 	}
+	printf("%s\n",json);
 	*outlen = 0;
 	logD("%s\n",json);
 	if (tokens[0].type==JSMN_ARRAY) {
