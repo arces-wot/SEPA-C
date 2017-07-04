@@ -327,7 +327,7 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 				logD("Binding Name %d=%s - size=%d\n",BINDING_NAME,bindingName,tokens[i+BINDING_NAME].size);
 				
 				if (getJsonItem(json,tokens[i+BINDING_TYPE-1],&bindingType)==PARSING_ERROR) return NULL;
-				if (!strcmp(bindingType,"datatype")) k=2;
+				if (!strcmp(bindingType,"datatype")) k=3;
 				else k=0;
 				
 				if (getJsonItem(json,tokens[i+BINDING_TYPE+k],&bindingType)==PARSING_ERROR) return NULL;
