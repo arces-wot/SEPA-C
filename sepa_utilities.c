@@ -330,7 +330,7 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 					if (getJsonItem(json,tokens[i+BINDING_VALUE+k],&bindingValue)==PARSING_ERROR) return NULL;
 					logD("Binding Value %d=%s - size=%d\n",BINDING_VALUE+k,bindingValue,tokens[i+BINDING_VALUE].size);
 					k++;
-				} while (!strcmp(bindingType,"datatype"));
+				} while ((!strcmp(bindingType,URI_STRING)) && (!strcmp(bindingType,LITERAL_STRING)) && (!strcmp(bindingType,BNODE_STRING)));
 				printf("name=%s type=%s value=%s\n",bindingName,bindingType,bindingValue);
 				result[res_index] = buildSepaNode(bindingName,bindingType,bindingValue);
 				res_index++;
