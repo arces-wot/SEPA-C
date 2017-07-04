@@ -169,6 +169,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 
 		if (jstok_dim>3) {
 			// notification to subscription case
+			printf("%s\n",jsonResults)
 			parsing_result = EXIT_SUCCESS;
 			for (i=0; (i<jstok_dim) && (parsing_result==EXIT_SUCCESS) && (completed<4); i++) {
 				if (jstokens[i].type==JSMN_STRING) {
