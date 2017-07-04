@@ -117,7 +117,10 @@ sepaNode buildSepaNode(char * node_bindingName,char * node_type,char * node_valu
 			if (!strcmp(node_type,LITERAL_STRING)) result.type = LITERAL;
 			else {
 				if (!strcmp(node_type,BNODE_STRING)) result.type = BNODE;
-				else result.type = UNKNOWN;
+				else {
+					logE("Detected strange node type: %s",node_type);
+					result.type = UNKNOWN;
+				}
 			}
 		}
 		result.value = strdup(node_value);
