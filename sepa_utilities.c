@@ -323,14 +323,14 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 				if (getJsonItem(json,tokens[i+BINDING_NAME],&bindingName)==PARSING_ERROR) return NULL;
 				logD("Binding Name %d=%s - size=%d\n",BINDING_NAME,bindingName,tokens[i+BINDING_NAME].size);
 				
-				k=0;
-				do {
-					if (getJsonItem(json,tokens[i+BINDING_TYPE+k],&bindingType)==PARSING_ERROR) return NULL;
-					logD("Binding Type %d=%s - size=%d\n",BINDING_TYPE+k,bindingType,tokens[i+BINDING_TYPE].size);
-					if (getJsonItem(json,tokens[i+BINDING_VALUE+k],&bindingValue)==PARSING_ERROR) return NULL;
-					logD("Binding Value %d=%s - size=%d\n",BINDING_VALUE+k,bindingValue,tokens[i+BINDING_VALUE].size);
-					k++;
-				} while ((!strcmp(bindingType,URI_STRING)) && (!strcmp(bindingType,LITERAL_STRING)) && (!strcmp(bindingType,BNODE_STRING)));
+				if (getJsonItem(json,tokens[i+BINDING_TYPE-1],&bindingType)==PARSING_ERROR) return NULL;
+				if (!strcmp(bindingType,"datatype")) k=2;
+				else k=0;
+				
+				if (getJsonItem(json,tokens[i+BINDING_TYPE+k],&bindingType)==PARSING_ERROR) return NULL;
+				logD("Binding Type %d=%s - size=%d\n",BINDING_TYPE+k,bindingType,tokens[i+BINDING_TYPE+k].size);
+				if (getJsonItem(json,tokens[i+BINDING_VALUE+k],&bindingValue)==PARSING_ERROR) return NULL;
+				logD("Binding Value %d=%s - size=%d\n",BINDING_VALUE+k,bindingValue,tokens[i+BINDING_VALUE+k].size);
 				printf("name=%s type=%s value=%s\n",bindingName,bindingType,bindingValue);
 				result[res_index] = buildSepaNode(bindingName,bindingType,bindingValue);
 				res_index++;
