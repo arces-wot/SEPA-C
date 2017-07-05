@@ -23,7 +23,7 @@
 
 // This variable is the 'client counter' for CURL. It's used in http_client_init and in 'http_client_free'.
 // Please don't touch it!
-static int CURL_INITIALIZATION = 0;
+static volatile int CURL_INITIALIZATION = 0;
 
 int http_client_init() {
 	// TODO this function might need access control when used by very complex clients
@@ -134,7 +134,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 	jsmn_parser parser;
 	jsmntok_t *jstokens;
 	int parsing_result,jstok_dim,i,completed=0;
-	char *js_buffer=NULL,*checkA,*checkB,*checkC;
+	char *js_buffer=NULL,*checkA,*checkC;
 
 	if (jsonResults==NULL) {
 		logE("NullpointerException in subscriptionResultParser.\n");
@@ -215,7 +215,6 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 			// (un)subscription confirm case
 			checkA = strstr(jsonResults,"{\"subscribed\":\"");
 			checkC = strstr(jsonResults,"{\"unsubscribed\":\"");
-			checkB = strstr(jsonResults,"\"}");
 			if (checkC!=NULL) parsing_result = UNSUBSCRIBE_CONFIRM;
 			else {
 				if (checkA!=NULL) {
@@ -288,7 +287,8 @@ int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen) {
 
 sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 	/*
-	 * See the file getResultBindings-explanation
+	 * See the file getResultBindings-explanation. 
+	 * This is pure magic
 	 */
 	int i,j,k=0,res_index=0;
 #ifdef SUPER_VERBOSITY
@@ -317,6 +317,7 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 		if (getJsonItem(json,tokens[0],&js_buffer)==PARSING_ERROR) return NULL;
 		logD("array=%s - size=%d\n",js_buffer,tokens[0].size);
 #endif
+		// here comes the wizard
 		i=0; j=0;
 		while (res_index<*outlen) {
 #ifdef SUPER_VERBOSITY
@@ -335,13 +336,11 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 				logD("Binding Type %d=%s - size=%d\n",BINDING_TYPE+k,bindingType,tokens[i+BINDING_TYPE+k].size);
 				if (getJsonItem(json,tokens[i+BINDING_VALUE+k],&bindingValue)==PARSING_ERROR) return NULL; // i+7+k
 				logD("Binding Value %d=%s - size=%d\n",BINDING_VALUE+k,bindingValue,tokens[i+BINDING_VALUE+k].size);
-				printf("name=%s type=%s value=%s\n",bindingName,bindingType,bindingValue);
+				//printf("name=%s type=%s value=%s\n",bindingName,bindingType,bindingValue);
 				result[res_index] = buildSepaNode(bindingName,bindingType,bindingValue);
 				res_index++;
-				//printf("res_index=%d;\n",res_index);
 			}
 			i++;
-			//printf("i=%d\n",i);
 			j=i;
 		}
 		free(bindingName);
@@ -350,6 +349,7 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 #ifdef SUPER_VERBOSITY
 		free(js_buffer);
 #endif
+		// here the magic ends
 	}
 	return result;
 }
