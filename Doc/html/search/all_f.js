@@ -12,7 +12,7 @@ var searchData=
   ['sepa_5fsetsubscriptionhandlers',['sepa_setSubscriptionHandlers',['../sepa__consumer_8h.html#af5871fed763f8affb07d1b490bcda4c5',1,'sepa_consumer.c']]],
   ['sepa_5fsubscriber',['sepa_subscriber',['../structsepa__subscriber.html',1,'sepa_subscriber'],['../sepa__consumer_8h.html#aeabf0e754172302cf181e487bffc350d',1,'SEPA_subscriber():&#160;sepa_consumer.h']]],
   ['sepa_5fsubscriber_5fdestroy',['sepa_subscriber_destroy',['../sepa__consumer_8h.html#abedaa83b98deaedb21932a74ea3d2723',1,'sepa_consumer.c']]],
-  ['sepa_5fsubscriber_5finit',['sepa_subscriber_init',['../sepa__consumer_8h.html#a1f1881162b47554fcd43dd993d05cd85',1,'sepa_consumer.c']]],
+  ['sepa_5fsubscriber_5finit',['sepa_subscriber_init',['../sepa__consumer_8h.html#aba67c0aff5bc2c6b181342ab45d3b5f9',1,'sepa_consumer.c']]],
   ['sepa_5fsubscription_5fbuilder',['sepa_subscription_builder',['../sepa__consumer_8h.html#ab682bc9e02952d1f7b2c2a2d85bb2c24',1,'sepa_consumer.c']]],
   ['sepa_5fsubscription_5fparams',['SEPA_subscription_params',['../sepa__consumer_8h.html#a923b981c60c2eede45dd1909a244ba8a',1,'sepa_consumer.h']]],
   ['sepa_5futilities_2eh',['sepa_utilities.h',['../sepa__utilities_8h.html',1,'']]],

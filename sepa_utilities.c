@@ -291,9 +291,11 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 	 * This is pure magic
 	 */
 	int i,j,k=0,res_index=0;
-#ifdef SUPER_VERBOSITY
+	
+	#ifdef SUPER_VERBOSITY
 	char *js_buffer = NULL;
-#endif
+	#endif
+	
 	char *bindingName=NULL,*bindingType=NULL,*bindingValue=NULL;
 	sepaNode *result = NULL;
 
@@ -301,7 +303,6 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 		logE("NullpointerException in getResultBindings\n");
 		return NULL;
 	}
-	printf("%s\n",json);
 	*outlen = 0;
 	logD("%s\n",json);
 	if (tokens[0].type==JSMN_ARRAY) {
@@ -313,17 +314,20 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 			logE("Malloc error in getResultBindings\n");
 			return NULL;
 		}
-#ifdef SUPER_VERBOSITY
+		
+		#ifdef SUPER_VERBOSITY
 		if (getJsonItem(json,tokens[0],&js_buffer)==PARSING_ERROR) return NULL;
-		logD("array=%s - size=%d\n",js_buffer,tokens[0].size);
-#endif
+		printf("array=%s - size=%d\n",js_buffer,tokens[0].size);
+		#endif
+		
 		// here comes the wizard
 		i=0; j=0;
 		while (res_index<*outlen) {
-#ifdef SUPER_VERBOSITY
+			#ifdef SUPER_VERBOSITY
 			if (getJsonItem(json,tokens[j+1],&js_buffer)==PARSING_ERROR) return NULL;
-			logD("token[%d]=%s - token[%d].size=%d\n",j+1,js_buffer,j+1,tokens[j+1].size);
-#endif
+			printf("token[%d]=%s - token[%d].size=%d\n",j+1,js_buffer,j+1,tokens[j+1].size);
+			#endif
+			
 			for (i; i<j+tokens[j+1].size*BINDING_LEN; i+=BINDING_LEN+k) {
 				if (getJsonItem(json,tokens[i+BINDING_NAME],&bindingName)==PARSING_ERROR) return NULL; // i+2
 				logD("Binding Name %d=%s - size=%d\n",BINDING_NAME,bindingName,tokens[i+BINDING_NAME].size);
@@ -336,7 +340,11 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 				logD("Binding Type %d=%s - size=%d\n",BINDING_TYPE+k,bindingType,tokens[i+BINDING_TYPE+k].size);
 				if (getJsonItem(json,tokens[i+BINDING_VALUE+k],&bindingValue)==PARSING_ERROR) return NULL; // i+7+k
 				logD("Binding Value %d=%s - size=%d\n",BINDING_VALUE+k,bindingValue,tokens[i+BINDING_VALUE+k].size);
-				//printf("name=%s type=%s value=%s\n",bindingName,bindingType,bindingValue);
+				
+				#ifdef SUPER_VERBOSITY
+				printf("name=%s type=%s value=%s\n",bindingName,bindingType,bindingValue);
+				#endif
+				
 				result[res_index] = buildSepaNode(bindingName,bindingType,bindingValue);
 				res_index++;
 			}
@@ -346,9 +354,10 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 		free(bindingName);
 		free(bindingType);
 		free(bindingValue);
-#ifdef SUPER_VERBOSITY
+		
+		#ifdef SUPER_VERBOSITY
 		free(js_buffer);
-#endif
+		#endif
 		// here the magic ends
 	}
 	return result;

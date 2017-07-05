@@ -36,6 +36,6 @@ var sepa__consumer_8h =
     [ "kpUnsubscribe", "sepa__consumer_8h.html#a0b04be1cab854996d2f58283020d572a", null ],
     [ "sepa_setSubscriptionHandlers", "sepa__consumer_8h.html#af5871fed763f8affb07d1b490bcda4c5", null ],
     [ "sepa_subscriber_destroy", "sepa__consumer_8h.html#abedaa83b98deaedb21932a74ea3d2723", null ],
-    [ "sepa_subscriber_init", "sepa__consumer_8h.html#a1f1881162b47554fcd43dd993d05cd85", null ],
+    [ "sepa_subscriber_init", "sepa__consumer_8h.html#aba67c0aff5bc2c6b181342ab45d3b5f9", null ],
     [ "sepa_subscription_builder", "sepa__consumer_8h.html#ab682bc9e02952d1f7b2c2a2d85bb2c24", null ]
 ];

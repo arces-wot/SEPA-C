@@ -237,9 +237,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a123c07305ff7572ca80aa5e802148ee2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sepa__consumer_8h.html#a123c07305ff7572ca80aa5e802148ee2">_set_chunk_max_size</a> (int size)</td></tr>
 <tr class="memdesc:a123c07305ff7572ca80aa5e802148ee2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the websocket output buffer max size. Default is located in _DEFAULT_CHUNK_MAX_SIZE macro. Careful use recommended.  <a href="#a123c07305ff7572ca80aa5e802148ee2">More...</a><br /></td></tr>
 <tr class="separator:a123c07305ff7572ca80aa5e802148ee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1f1881162b47554fcd43dd993d05cd85"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sepa__consumer_8h.html#a1f1881162b47554fcd43dd993d05cd85">sepa_subscriber_init</a> ()</td></tr>
-<tr class="memdesc:a1f1881162b47554fcd43dd993d05cd85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialization function for the subscription client engine.  <a href="#a1f1881162b47554fcd43dd993d05cd85">More...</a><br /></td></tr>
-<tr class="separator:a1f1881162b47554fcd43dd993d05cd85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba67c0aff5bc2c6b181342ab45d3b5f9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structsepa__subscriber.html">pSEPA_subscriber</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sepa__consumer_8h.html#aba67c0aff5bc2c6b181342ab45d3b5f9">sepa_subscriber_init</a> ()</td></tr>
+<tr class="memdesc:aba67c0aff5bc2c6b181342ab45d3b5f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialization function for the subscription client engine.  <a href="#aba67c0aff5bc2c6b181342ab45d3b5f9">More...</a><br /></td></tr>
+<tr class="separator:aba67c0aff5bc2c6b181342ab45d3b5f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abedaa83b98deaedb21932a74ea3d2723"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sepa__consumer_8h.html#abedaa83b98deaedb21932a74ea3d2723">sepa_subscriber_destroy</a> ()</td></tr>
 <tr class="memdesc:abedaa83b98deaedb21932a74ea3d2723"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees memory when subscriptions are not needed anymore.  <a href="#abedaa83b98deaedb21932a74ea3d2723">More...</a><br /></td></tr>
 <tr class="separator:abedaa83b98deaedb21932a74ea3d2723"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -322,7 +322,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>This structure contains the parameters of the subscription. </p>
-<p>You should definetly consider this as an opaque structure: appropriate functions are provided to setup the subscription. </p><dl class="section see"><dt>See also</dt><dd><a class="el" href="sepa__consumer_8h.html#a1f1881162b47554fcd43dd993d05cd85" title="Initialization function for the subscription client engine. ">sepa_subscriber_init()</a> </dd>
+<p>You should definetly consider this as an opaque structure: appropriate functions are provided to setup the subscription. </p><dl class="section see"><dt>See also</dt><dd><a class="el" href="sepa__consumer_8h.html#aba67c0aff5bc2c6b181342ab45d3b5f9" title="Initialization function for the subscription client engine. ">sepa_subscriber_init()</a> </dd>
 <dd>
 <a class="el" href="sepa__consumer_8h.html#ab682bc9e02952d1f7b2c2a2d85bb2c24" title="Set-up parameters for the subscription. ">sepa_subscription_builder()</a> </dd>
 <dd>
@@ -627,12 +627,12 @@ libwebsockets documentation </dd></dl>
 </dl>
 </div>
 </div>
-<a class="anchor" id="a1f1881162b47554fcd43dd993d05cd85"></a>
+<a class="anchor" id="aba67c0aff5bc2c6b181342ab45d3b5f9"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void sepa_subscriber_init </td>
+          <td class="memname"><a class="el" href="structsepa__subscriber.html">pSEPA_subscriber</a> sepa_subscriber_init </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -641,7 +641,7 @@ libwebsockets documentation </dd></dl>
 </div><div class="memdoc">
 
 <p>Initialization function for the subscription client engine. </p>
-<p>Usually this is the first function called when you want to create subscriptions. It initializes internal structures, like the shared mutex. </p>
+<dl class="section return"><dt>Returns</dt><dd>pointer to a SEPA_subscriber entity, which is a subscription engine client Usually this is the first function called when you want to create subscriptions. It initializes internal structures, like the shared mutex. </dd></dl>
 <dl><dt><b>Examples: </b></dt><dd><a class="el" href="_2home_2francesco_2_documents_2_work_2sepa-_c-kpi_2examples_2subexample_8c-example.html#a2">/home/francesco/Documents/Work/sepa-C-kpi/examples/subexample.c</a>.</dd>
 </dl>
 </div>
@@ -710,7 +710,7 @@ libwebsockets documentation </dd></dl>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_28fbb21f18e80e82db5d6037a867f13b.html">sepa-C-kpi</a></li><li class="navelem"><a class="el" href="sepa__consumer_8h.html">sepa_consumer.h</a></li>
-    <li class="footer">Generated on Thu Jun 22 2017 14:22:09 for SEPA-API by
+    <li class="footer">Generated on Wed Jul 5 2017 09:50:01 for SEPA-API by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.7 </li>
   </ul>

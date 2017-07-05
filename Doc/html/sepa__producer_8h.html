@@ -152,9 +152,9 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a73458c11cf6b525d98c7c5778627bff1"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sepa__producer_8h.html#a73458c11cf6b525d98c7c5778627bff1">kpProduce</a> (const char *update_string, const char *http_server)</td></tr>
-<tr class="memdesc:a73458c11cf6b525d98c7c5778627bff1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send update to SEPA.  <a href="#a73458c11cf6b525d98c7c5778627bff1">More...</a><br /></td></tr>
-<tr class="separator:a73458c11cf6b525d98c7c5778627bff1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70545f1ca926fbce78ec1460eee64e11"><td class="memItemLeft" align="right" valign="top">long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sepa__producer_8h.html#a70545f1ca926fbce78ec1460eee64e11">kpProduce</a> (const char *update_string, const char *http_server, <a class="el" href="sepa__secure_8h.html#a46d04d8b8853bebaecddbbcbb8297f91">sClient</a> *jwt)</td></tr>
+<tr class="memdesc:a70545f1ca926fbce78ec1460eee64e11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send update to SEPA.  <a href="#a70545f1ca926fbce78ec1460eee64e11">More...</a><br /></td></tr>
+<tr class="separator:a70545f1ca926fbce78ec1460eee64e11"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Header file defining C producer functions for SEPA. </p>
@@ -169,7 +169,7 @@ Functions</h2></td></tr>
 <a href="http://zserge.com/jsmn.html">http://zserge.com/jsmn.html</a> </dd></dl>
 <dl class="todo"><dt><b><a class="el" href="todo.html#_todo000004">Todo:</a></b></dt><dd>Support for https </dd></dl>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a73458c11cf6b525d98c7c5778627bff1"></a>
+<a class="anchor" id="a70545f1ca926fbce78ec1460eee64e11"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -183,7 +183,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>http_server</em>&#160;</td>
+          <td class="paramname"><em>http_server</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="sepa__secure_8h.html#a46d04d8b8853bebaecddbbcbb8297f91">sClient</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -212,7 +218,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_28fbb21f18e80e82db5d6037a867f13b.html">sepa-C-kpi</a></li><li class="navelem"><a class="el" href="sepa__producer_8h.html">sepa_producer.h</a></li>
-    <li class="footer">Generated on Thu Jun 22 2017 14:22:09 for SEPA-API by
+    <li class="footer">Generated on Wed Jul 5 2017 09:50:01 for SEPA-API by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.7 </li>
   </ul>
