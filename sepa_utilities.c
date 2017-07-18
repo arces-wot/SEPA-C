@@ -328,7 +328,7 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 			printf("token[%d]=%s - token[%d].size=%d\n",j+1,js_buffer,j+1,tokens[j+1].size);
 			#endif
 			
-			for (i; i<j+tokens[j+1].size*BINDING_LEN; i+=BINDING_LEN+k) {
+			for (; i<j+tokens[j+1].size*BINDING_LEN; i+=BINDING_LEN+k) {
 				if (getJsonItem(json,tokens[i+BINDING_NAME],&bindingName)==PARSING_ERROR) return NULL; // i+2
 				logD("Binding Name %d=%s - size=%d\n",BINDING_NAME,bindingName,tokens[i+BINDING_NAME].size);
 				
