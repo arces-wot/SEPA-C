@@ -294,7 +294,7 @@ int tokenRequest(sClient * client,const char * requestAddress) {
 		}
 	}
 	if (completed!=3) {
-		g_critical("tokenRequest received a bad token confirmation json\n");
+		g_critical("tokenRequest received a bad token confirmation json");
 		free(data.json);
 		free(jstokens);
 		return EXIT_FAILURE;
