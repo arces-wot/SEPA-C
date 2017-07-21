@@ -36,13 +36,6 @@
 #ifndef SEPA_SECURE
 #define SEPA_SECURE
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <curl/curl.h>
-#include <glib.h>
-#include "sepa_utilities.h"
-
 #define REGISTRATION_BUFFER_LEN		1024
 #define TOKEN_JSON_SIZE				7
 #define HTTP_TOKEN_HEADER_SIZE		22

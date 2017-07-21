@@ -19,8 +19,14 @@
  * 
  */
 
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <curl/curl.h>
 #include "sepa_consumer.h"
+
+#define G_LOG_DOMAIN "SepaConsumer"
+#include <glib.h>
 
 SEPA_subscriber sepa_session;
 
@@ -96,7 +102,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 					strcat(sparql_buffer,"}");
 
 					if (strlen(sparql_buffer)<=CHUNK_MAX_SIZE) {
-						logI("Sending websocket frame...\n");
+						g_message("Sending websocket frame...");
 						while (lws_send_pipe_choked(wsi));
 						lws_write(wsi,sparql_buffer,strlen(sparql_buffer),LWS_WRITE_TEXT);
 					}
@@ -106,16 +112,16 @@ static int sepa_subscription_callback(	struct lws *wsi,
 							chunk_len = strlen(chunk_buffer);
 							while (lws_send_pipe_choked(wsi));
 							if (chunk_buffer==sparql_buffer) {
-								logI("Writing websocket chunk...\n");
+								g_message("Writing websocket chunk...");
 								i=lws_write(wsi,chunk_buffer,CHUNK_MAX_SIZE,LWS_WRITE_TEXT | LWS_WRITE_NO_FIN);
 							}
 							else {
 								if (chunk_len>CHUNK_MAX_SIZE) {
-									logI("Writing websocket chunk...\n");
+									g_message("Writing websocket chunk...");
 									i=lws_write(wsi,chunk_buffer,CHUNK_MAX_SIZE,LWS_WRITE_CONTINUATION | LWS_WRITE_NO_FIN);
 								}
 								else {
-									logI("Sending websocket frame...\n");
+									g_message("Sending websocket frame...");
 									i=lws_write(wsi,chunk_buffer,chunk_len,LWS_WRITE_CONTINUATION);
 									end = 1;
 								}
@@ -125,16 +131,16 @@ static int sepa_subscription_callback(	struct lws *wsi,
 					}
 					free(packet_buffer);
 				}
-				else logE("Malloc error in sepa_subscription_callback LWS_CALLBACK_CLIENT_ESTABLISHED\n");
+				else g_critical("Malloc error in sepa_subscription_callback LWS_CALLBACK_CLIENT_ESTABLISHED");
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
-				logI("Sepa Callback: Connect with server success.\n");
+				g_info("Sepa Callback: Connect with server success.");
 				break;
 			case LWS_CALLBACK_CLIENT_CONNECTION_ERROR:
-				logE("Sepa Callback: Connect with server error.\n");
+				g_critical("Sepa Callback: Connect with server error.");
 				// maybe we need to unsubscribeAll or terminate application
 				break;
 			case LWS_CALLBACK_CLOSED:
-				logI("Sepa Callback: LWS_CALLBACK_CLOSED\n");
+				g_warning("Sepa Callback: LWS_CALLBACK_CLOSED");
 				// maybe we need to unsubscribeAll or terminate application
 				break;
 			case LWS_CALLBACK_CLIENT_RECEIVE:
@@ -146,37 +152,37 @@ static int sepa_subscription_callback(	struct lws *wsi,
 					parse_result = subscriptionResultsParser(raisedSubscription->resultBuffer,&added,&addedLen,&removed,&removedLen,&n_properties);
 					switch (parse_result) {
 						case JSMN_ERROR_INVAL:
-							logW("Sepa Callback Client received error - Invalid JSON Received [id=%s]\n",raisedSubscription->identifier);
+							g_warning("Sepa Callback Client received error - Invalid JSON Received [id=%s]",raisedSubscription->identifier);
 							strcpy(raisedSubscription->resultBuffer,"");
 							break;
 						case JSMN_ERROR_PART:
-							logI("Sepa Callback Client received partial JSON [id=%s]...\n",raisedSubscription->identifier);
+							g_info("Sepa Callback Client received partial JSON [id=%s]...",raisedSubscription->identifier);
 							break;
 						case PARSING_ERROR:
-							logE("Sepa Callback Client received parsing error: aborting this read [id=%s]\n",raisedSubscription->identifier);
+							g_critical("Sepa Callback Client received parsing error: aborting this read [id=%s]",raisedSubscription->identifier);
 							strcpy(raisedSubscription->resultBuffer,"");
 							break;
 						case PING_JSON:
-							logI("Sepa Callback Client received a ping from SEPA\n");
+							g_info("Sepa Callback Client received a ping from SEPA");
 							break;
 						case SUBSCRIPTION_ID_JSON:
 							strcpy(raisedSubscription->identifier,(n_properties.identifier)+SUBSCRIPTION_ID_PREAMBLE_LEN);
-							logI("Sepa Callback Client received subscription confirmation #%s\n",raisedSubscription->identifier);
+							g_message("Sepa Callback Client received subscription confirmation #%s",raisedSubscription->identifier);
 							break;
 						case NOTIFICATION_JSON:
-							logI("Sepa Callback Client notification packet received [sequence=%d, id=%s]\n",n_properties.sequence,(n_properties.identifier)+SUBSCRIPTION_ID_PREAMBLE_LEN);
+							g_message("Sepa Callback Client notification packet received [sequence=%d, id=%s]",n_properties.sequence,(n_properties.identifier)+SUBSCRIPTION_ID_PREAMBLE_LEN);
 							(raisedSubscription->subHandler)(added,addedLen,removed,removedLen);
 							break;
 						case UNSUBSCRIBE_CONFIRM:
-							logI("Sepa Callback Client unsubscribe confirm received [id=%s]\n",raisedSubscription->identifier);
+							g_message("Sepa Callback Client unsubscribe confirm received [id=%s]",raisedSubscription->identifier);
 							sepa_session.closing_subscription_code = raisedSubscription->subscription_code;
 							break;
 						default:
-							logW("Sepa Callback Client unknown parsing code: %d [id=%s]\n",parse_result,raisedSubscription->identifier);
+							g_warning("Sepa Callback Client unknown parsing code: %d [id=%s]",parse_result,raisedSubscription->identifier);
 							break;
 					}
 				}
-				else logE("Realloc error in sepa_subscription_callback LWS_CALLBACK_CLIENT_RECEIVE\n");
+				else g_critical("Realloc error in sepa_subscription_callback LWS_CALLBACK_CLIENT_RECEIVE");
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 				break;
 			default:
@@ -188,7 +194,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 
 void _set_chunk_max_size(int size) {
 	CHUNK_MAX_SIZE = size;
-	logW("CHUNK_MAX_SIZE setted to %d\n",size);
+	g_warning("CHUNK_MAX_SIZE setted to %d",size);
 }
 
 static void __sepa_subscriber_init() {
@@ -196,7 +202,7 @@ static void __sepa_subscriber_init() {
 	sepa_session.active_subscriptions = 0;
 	sepa_session.subscription_list = NULL;
 	pthread_mutex_init(&(sepa_session.subscription_mutex),NULL);
-	logI("Subscription engine initialized!\n");
+	g_message("Subscription engine initialized!");
 }
 
 pSEPA_subscriber sepa_subscriber_init() {
@@ -211,7 +217,7 @@ int sepa_subscriber_destroy() {
 		pthread_mutex_destroy(&(sepa_session.subscription_mutex));
 		return EXIT_SUCCESS;
 	}
-	logI("Error: %d subscriptions still running!",runningSubscriptions);
+	g_warning("%d subscriptions still running!",runningSubscriptions);
 	return EXIT_FAILURE;
 }
 
@@ -224,12 +230,12 @@ int sepa_subscription_builder(char * sparql_subscription,char * subscription_ali
 	
 	sa_ghostcopy = strdup(server_address);
 	if ((sparql_subscription==NULL) || (server_address==NULL) || (sa_ghostcopy==NULL)) {
-		logE("Nullpointer exception in subscription_builder\n");
+		g_error("Nullpointer exception in subscription_builder");
 		return EXIT_FAILURE;
 	}
 	subscription->subscription_sparql = sparql_subscription;
 	if (lws_parse_uri(sa_ghostcopy,&sub_protocol,&sub_address,&port,&p)) {
-		logE("Error while parsing address %s\n",server_address);
+		g_critical("Error while parsing address %s",server_address);
 		free(sa_ghostcopy);
 		return EXIT_FAILURE;
 	}
@@ -250,13 +256,13 @@ int sepa_subscription_builder(char * sparql_subscription,char * subscription_ali
 		if (!strcmp(subscription->protocol,"wss")) {
 			subscription->use_ssl=WSS_SECURE;
 			if (auth_token==NULL) {
-				logE("Fatal NullPointerException in auth_token field during secure subscription constuction");
+				g_error("Fatal NullPointerException in auth_token field during secure subscription constuction");
 				return EXIT_FAILURE;
 			}
 			else strcpy(subscription->subscription_authToken,auth_token->JWT);
 		}
 		else {
-			logE("Requested protocol %s error: must be ws or wss.\n",subscription->protocol);
+			g_error("Requested protocol %s error: must be ws or wss.",subscription->protocol);
 			return EXIT_FAILURE;
 		}
 	}
@@ -264,7 +270,7 @@ int sepa_subscription_builder(char * sparql_subscription,char * subscription_ali
 	subscription->resultBuffer = strdup("");
 	strcpy(subscription->identifier,"");
 	if (subscription->resultBuffer==NULL) {
-		logE("strdup resultBuffer failure in sepa_subscription_builder\n");
+		g_error("strdup resultBuffer failure in sepa_subscription_builder");
 		return EXIT_FAILURE;
 	}
 	
@@ -274,7 +280,7 @@ int sepa_subscription_builder(char * sparql_subscription,char * subscription_ali
 }
 
 void sepa_setSubscriptionHandlers(SubscriptionHandler subhandler,UnsubscriptionHandler unsubhandler,pSEPA_subscription_params subscription) {
-	if ((subscription==NULL) || (subhandler==NULL)) logE("NullPointerException in sepa_setSubscriptionHandlers\n");
+	if ((subscription==NULL) || (subhandler==NULL)) g_error("NullPointerException in sepa_setSubscriptionHandlers");
 	else {
 		subscription->subHandler = subhandler;
 		subscription->unsubHandler = unsubhandler;
@@ -285,12 +291,12 @@ int kpSubscribe(pSEPA_subscription_params params) {
 	int result = -1;
 	char *p;
 	if (params!=NULL) {
-		if (params->subHandler==NULL) logE("Subscription handler NullPointerException.\n");
+		if (params->subHandler==NULL) g_error("Subscription handler NullPointerException.");
 		else {
 			if (!pthread_mutex_lock(&(sepa_session.subscription_mutex))) {
 				sepa_session.active_subscriptions++;
 				sepa_session.subscription_list = (pSEPA_subscription_params *) realloc(sepa_session.subscription_list,sepa_session.active_subscriptions*sizeof(pSEPA_subscription_params));
-				if (sepa_session.subscription_list==NULL) logE("Realloc error in kpSubscribe.\n");
+				if (sepa_session.subscription_list==NULL) g_error("Realloc error in kpSubscribe.");
 				else {
 					if (sepa_session.active_subscriptions>1) params->subscription_code = (sepa_session.subscription_list[sepa_session.active_subscriptions-2])->subscription_code+1;
 					else params->subscription_code = 1;
@@ -298,12 +304,12 @@ int kpSubscribe(pSEPA_subscription_params params) {
 					result = params->subscription_code;
 				}
 				if ((result==-1) || (pthread_create(&(params->subscription_task),NULL,subscription_thread,(void *) params))) {
-					logE("Problem in creating subscription thread! Aborting subscription...\n");
+					g_critical("Problem in creating subscription thread! Aborting subscription...");
 					result = -1;
 				}
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 			}
-			else logE("kpSubscribe error: parameters are null or mutex not lockable.\n");
+			else g_critical("kpSubscribe error: parameters are null or mutex not lockable.");
 		}
 	}
 	return result;
@@ -313,12 +319,12 @@ int kpUnsubscribe(pSEPA_subscription_params params) {
 	int result=EXIT_FAILURE,i=0,code_index=-1;
 	char unsubscribeRequest[LWS_PRE+IDENTIFIER_LAST_INDEX+30];
 	if (params==NULL) {
-		logE("kpUnsubscribe error: null params request\n");
+		g_critical("kpUnsubscribe error: null params request");
 		return EXIT_FAILURE;
 	}
 	else {
 		if (!pthread_mutex_lock(&(sepa_session.subscription_mutex))) {
-			logI("Starting unsubscribe procedure!\n");
+			g_message("Starting unsubscribe procedure!");
 			while ((i<sepa_session.active_subscriptions) && (code_index==-1)) {
 				if ((sepa_session.subscription_list[i])->subscription_code==params->subscription_code) {
 					code_index = i;
@@ -326,22 +332,21 @@ int kpUnsubscribe(pSEPA_subscription_params params) {
 				else i++;
 			}
 			if (i==sepa_session.active_subscriptions) {
-				if (!i) logW("No active subscriptions: cannot unsubscribe.\n");
-				else logW("Nonexistent subscription code %d\n",params->subscription_code);
+				if (!i) g_critical("No active subscriptions: cannot unsubscribe.");
+				else g_critical("Nonexistent subscription code %d",params->subscription_code);
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 				return EXIT_FAILURE;
 			}
 			else {
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 				sprintf(unsubscribeRequest+LWS_PRE,"{\"unsubscribe\":\"sepa://subscription/%s\"}",params->identifier);
-				logD("%s",unsubscribeRequest+LWS_PRE);
+				g_message("Sent unsubscription packet %s",unsubscribeRequest+LWS_PRE);
 				while (lws_send_pipe_choked(params->ws_identifier));
 				lws_write(params->ws_identifier,unsubscribeRequest+LWS_PRE,strlen(unsubscribeRequest+LWS_PRE),LWS_WRITE_TEXT);
-				logI("Sent unsubscription packet...\n");
 			}
 		}
 		else {
-			logE("kpUnubscribe error: mutex not lockable.\n");
+			g_error("kpUnubscribe error: mutex not lockable.");
 			return EXIT_FAILURE;
 		}
 	}
@@ -362,13 +367,13 @@ int kpUnsubscribe(pSEPA_subscription_params params) {
 		}
 		sepa_session.subscription_list = (pSEPA_subscription_params *) realloc(sepa_session.subscription_list,sepa_session.active_subscriptions*sizeof(pSEPA_subscription_params));
 		if (sepa_session.subscription_list==NULL) {
-			logE("Realloc error in kpUnsubscribe\n");
+			g_critical("Realloc error in kpUnsubscribe");
 			result = EXIT_FAILURE;
 		}
 	}
 	
 	if (params->unsubHandler!=NULL) (params->unsubHandler)();
-	logI("Unsubscribe executed!\n");
+	g_message("Unsubscribe executed!");
 	pthread_mutex_unlock(&(sepa_session.subscription_mutex));
 	free(params->resultBuffer);
 	return result;
@@ -400,10 +405,10 @@ static void * subscription_thread(void * parameters) {
 	pSEPA_subscription_params params = (pSEPA_subscription_params) parameters;
 	int force_exit=0;
 	
-	logI("Thread per la sottoscrizione %d attivato.\n",params->subscription_code);
+	g_info("Thread for subscription %d launched.",params->subscription_code);
 	
 	if (params==NULL) {
-		logE("Subscription_thread NullPointerExceptions (parameters)\n");
+		g_critical("Subscription_thread parameters NullPointerExceptions");
 		pthread_exit(&exit_failure);
 	}
 	
@@ -418,7 +423,7 @@ static void * subscription_thread(void * parameters) {
 	lwsContext_info.ws_ping_pong_interval = 0;
 	ws_context = lws_create_context(&lwsContext_info);
 	if (ws_context==NULL) {
-		logE("Creating sepa subscription libwebsocket context failed\n");
+		g_critical("Creating sepa subscription libwebsocket context failed");
 		pthread_exit(&exit_failure);
 	}
 	
@@ -434,7 +439,7 @@ static void * subscription_thread(void * parameters) {
 	connect_info.pwsi = &(params->ws_identifier);
 
 	params->ws_identifier = lws_client_connect_via_info(&connect_info);
-	logD("Subscription %d wsi=%p\n",params->subscription_code,params->ws_identifier);
+	g_debug("Subscription %d wsi=%p",params->subscription_code,params->ws_identifier);
 	
 	while (!force_exit) {
 		lws_service(ws_context, 0);
@@ -445,7 +450,7 @@ static void * subscription_thread(void * parameters) {
 	}
 	lws_context_destroy(ws_context);
 	
-	logI("Thread per la sottoscrizione %d terminato.\n",params->subscription_code);
+	g_info("Thread for subscription %d successfully ended.",params->subscription_code);
 	pthread_exit(&exit_success);
 }
 
@@ -471,7 +476,7 @@ char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt)
 	char * request;
 	
 	if ((sparql_query==NULL) || (http_server==NULL)) {
-		logE("NullPointerException in kpProduce.\n");
+		g_critical("NullPointerException in kpProduce.");
 		return NULL;
 	}
 	
@@ -480,12 +485,12 @@ char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt)
 		if (strstr(http_server,"https:")!=NULL) {
 			protocol_used = HTTPS;
 			if (jwt==NULL) {
-				logE("NullPointerException in JWT with https query request\n");
+				g_critical("NullPointerException in JWT with https query request");
 				return NULL;
 			}
 		}
 		else {
-			logE("%s protocol error in kpProduce: only http and https are accepted.\n",http_server);
+			g_critical("%s protocol error in kpProduce: only http and https are accepted.",http_server);
 			return NULL; 
 		}
 	}
@@ -493,17 +498,11 @@ char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt)
 	data.size = 0;
 	data.json = (char *) malloc(QUERY_START_BUFFER*sizeof(char));
 	if (data.json==NULL) {
-		logE("malloc error in kpQuery (1).\n");
+		g_critical("malloc error in kpQuery (1).");
 		return NULL;
 	}
-	
-	//result = curl_global_init(CURL_GLOBAL_ALL);
-	//if (result) {
-		//logE("curl_global_init() failed.\n");
-		//return NULL;
-	//}
+
 	if (http_client_init()==EXIT_FAILURE) return NULL;
-	
 	curl = curl_easy_init();
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, http_server);
@@ -514,7 +513,7 @@ char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt)
 			
 			request = (char *) malloc((HTTP_TOKEN_HEADER_SIZE+strlen(jwt->JWT))*sizeof(char));
 			if (request==NULL) {
-				logE("malloc error in kpQuery. (2)\n");
+				g_critical("malloc error in kpQuery. (2)");
 				curl_easy_cleanup(curl);
 				http_client_free();
 				return NULL;
@@ -530,22 +529,21 @@ char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt)
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
 		result = curl_easy_perform(curl);
 		if (result!=CURLE_OK) {
-			logE("curl_easy_perform() failed: %s\n",curl_easy_strerror(result));
+			g_critical("curl_easy_perform() failed: %s",curl_easy_strerror(result));
 			response_code = KPI_QUERY_FAIL;
 		}
 		else {
 			curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
-			logI("Response code is %ld\n",response_code);
+			g_debug("Response code is %ld",response_code);
 			if (response_code!=HTTP_200_OK) response_code = KPI_QUERY_FAIL;
 		}
 		curl_easy_cleanup(curl);
 		if (protocol_used==HTTPS) free(request);
 	}
 	else {
-		logE("curl_easy_init() failed.\n");
+		g_critical("curl_easy_init() failed.");
 		response_code = KPI_QUERY_FAIL;
 	}
-	//curl_global_cleanup();
 	http_client_free();
 	if (response_code==KPI_QUERY_FAIL) return NULL;
 	else return data.json;

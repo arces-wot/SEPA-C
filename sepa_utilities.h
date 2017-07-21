@@ -35,43 +35,7 @@
 #define SEPA_UTILITIES
 #define JSMN_STRICT
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <curl/curl.h>
 #include "jsmn.h"
-
-#define SEPA_LOGGER_INFO
-
-#ifdef SUPER_VERBOSITY
-#define SEPA_LOGGER_DEBUG
-#endif
-
-#ifdef SEPA_LOGGER_ERROR
-	#define logE( format , ... ) fprintf (stderr, "ERROR		" format, ##__VA_ARGS__ )
-	#define logW( format , ... ) do { if (0) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ ); } while (0)
-	#define logI( format , ... ) do { if (0) fprintf (stderr, "INFO			" format, ##__VA_ARGS__ ); } while (0)
-	#define logD( format , ... ) do { if (0) fprintf (stderr, "DEBUG		" format, ##__VA_ARGS__ ); } while (0)
-#else
-	#ifdef SEPA_LOGGER_WARNING
-		#define logE( format , ... ) fprintf (stderr, "ERROR		" format, ##__VA_ARGS__ )
-		#define logW( format , ... ) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ )
-		#define logI( format , ... ) do { if (0) fprintf (stderr, "INFO			" format, ##__VA_ARGS__ ); } while (0)
-		#define logD( format , ... ) do { if (0) fprintf (stderr, "DEBUG		" format, ##__VA_ARGS__ ); } while (0)
-	#else
-		#ifdef SEPA_LOGGER_INFO
-			#define logE( format , ... ) fprintf (stderr, "ERROR		" format, ##__VA_ARGS__ )
-			#define logW( format , ... ) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ )
-			#define logI( format , ... ) fprintf (stderr, "INFO			" format, ##__VA_ARGS__ )
-			#define logD( format , ... ) do { if (0) fprintf (stderr, "DEBUG		" format, ##__VA_ARGS__ ); } while (0)
-		#else
-			#define logE( format , ... ) fprintf (stderr, "ERROR		" format, ##__VA_ARGS__ )
-			#define logW( format , ... ) fprintf (stderr, "WARNING		" format, ##__VA_ARGS__ )
-			#define logI( format , ... ) fprintf (stderr, "INFO			" format, ##__VA_ARGS__ )
-			#define logD( format , ... ) fprintf (stderr, "DEBUG		" format, ##__VA_ARGS__ )
-		#endif
-	#endif
-#endif
 
 #define COMPLETE_JSON					1
 #define INCOMPLETE_JSON					0
@@ -220,7 +184,6 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
  * @see http://zserge.com/jsmn.html error codes
  */
 int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen);
-//int checkReceivedJson(char * myjson);
 
 /**
  * @brief internal routine for getting bindings from a json, both query or subscription.

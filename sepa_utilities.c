@@ -19,7 +19,13 @@
  *
  */
 
+#include <stdlib.h>
+#include <string.h>
+#include <curl/curl.h>
 #include "sepa_utilities.h"
+
+#define G_LOG_DOMAIN    "SepaUtilities"
+#include <glib.h>
 
 // This variable is the 'client counter' for CURL. It's used in http_client_init and in 'http_client_free'.
 // Please don't touch it!
@@ -34,12 +40,12 @@ int http_client_init() {
             strcpy(executed,"(curl init)");
 			result = curl_global_init(CURL_GLOBAL_ALL);
 			if (result) {
-				logE("curl_global_init() failed.\n");
+				g_critical("curl_global_init() failed.");
 				return EXIT_FAILURE;
 			}
 		}
 		CURL_INITIALIZATION++;
-		logI("http_client_init() completed successfully: %d active clients %s\n",CURL_INITIALIZATION,executed);
+		g_debug("http_client_init() completed successfully: %d active clients %s",CURL_INITIALIZATION,executed);
 	}
 	return EXIT_SUCCESS;
 }
@@ -53,7 +59,7 @@ void http_client_free() {
             curl_global_cleanup();
 		}
 		CURL_INITIALIZATION--;
-		logI("http_client_free() completed successfully: %d active clients %s\n",CURL_INITIALIZATION,executed);
+		g_debug("http_client_free() completed successfully: %d active clients %s",CURL_INITIALIZATION,executed);
 	}
 }
 
@@ -61,7 +67,7 @@ int getJsonItem(char * json,jsmntok_t token,char ** destination) {
 	if (*destination!=NULL) free(*destination);
 	*destination = strndup(json+token.start,token.end-token.start);
 	if (*destination==NULL) {
-		logE("Error in getJsonItem.\n");
+		g_critical("Error in getJsonItem.");
 		return PARSING_ERROR;
 	}
 	return EXIT_SUCCESS;
@@ -109,7 +115,7 @@ void freeSepaNodes(sepaNode * nodeArray,int arraylen) {
 
 sepaNode buildSepaNode(char * node_bindingName,char * node_type,char * node_value) {
 	sepaNode result;
-	if ((node_bindingName==NULL) || (node_type==NULL) || (node_value==NULL)) logE("NullpointerException in buildSepaNode");
+	if ((node_bindingName==NULL) || (node_type==NULL) || (node_value==NULL)) g_critical("NullpointerException in buildSepaNode");
 	else {
 		result.bindingName = strdup(node_bindingName);
 		if (!strcmp(node_type,URI_STRING)) result.type = URI;
@@ -118,14 +124,14 @@ sepaNode buildSepaNode(char * node_bindingName,char * node_type,char * node_valu
 			else {
 				if (!strcmp(node_type,BNODE_STRING)) result.type = BNODE;
 				else {
-					logE("Detected strange node type: %s",node_type);
+					g_critical("Detected strange node type: %s",node_type);
 					result.type = UNKNOWN;
 				}
 			}
 		}
 		result.value = strdup(node_value);
-		logI("Created node: %s %d %s\n",result.bindingName,result.type,result.value);
-		if ((result.bindingName==NULL) || (result.type==UNKNOWN) || (result.value==NULL)) logE("strdup error in buildSepaNode.\n");
+		g_info("Created node: %s %d %s",result.bindingName,result.type,result.value);
+		if ((result.bindingName==NULL) || (result.type==UNKNOWN) || (result.value==NULL)) g_critical("strdup error in buildSepaNode.");
 	}
 	return result;
 }
@@ -137,16 +143,15 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 	char *js_buffer=NULL,*checkA,*checkC;
 
 	if (jsonResults==NULL) {
-		logE("NullpointerException in subscriptionResultParser.\n");
+		g_critical("NullpointerException in subscriptionResultParser.");
 		return PARSING_ERROR;
 	}
-	//if (checkReceivedJson(jsonResults)==INCOMPLETE_JSON) return JSMN_ERROR_PART;
 	jsmn_init(&parser);
 	jstok_dim = jsmn_parse(&parser, jsonResults, strlen(jsonResults), NULL, 0);
-	logD("results=%s - jstok_dim=%d\n",jsonResults,jstok_dim);
+	g_debug("results=%s - jstok_dim=%d\n",jsonResults,jstok_dim);
 	if (jstok_dim<0) {
-		if (jstok_dim==JSMN_ERROR_PART) logD("Result dimension parsing gave %d\n",jstok_dim);
-		else logE("Result dimension parsing gave %d\n",jstok_dim);
+		if (jstok_dim==JSMN_ERROR_PART) g_debug("Result dimension parsing gave %d",jstok_dim);
+		else g_critical("Result dimension parsing gave %d",jstok_dim);
 		return jstok_dim;
 	}
 
@@ -157,7 +162,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 	else {
 		jstokens = (jsmntok_t *) malloc(jstok_dim*sizeof(jsmntok_t));
 		if (jstokens==NULL) {
-			logE("Malloc error in json parsing!\n");
+			g_critical("Malloc error in json parsing!");
 			strcpy(jsonResults,"");
 			return PARSING_ERROR;
 		}
@@ -165,8 +170,8 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 		parsing_result = jsmn_parse(&parser, jsonResults, strlen(jsonResults), jstokens, jstok_dim);
 		if (parsing_result<0) {
 			free(jstokens);
-			if (parsing_result==JSMN_ERROR_PART) logD("Result total parsing gave %d\n",parsing_result);
-			else logE("Result dimension parsing gave %d\n",parsing_result);
+			if (parsing_result==JSMN_ERROR_PART) g_debug("Result total parsing gave %d",parsing_result);
+			else g_critical("Result dimension parsing gave %d",parsing_result);
 			return parsing_result;
 		}
 
@@ -178,13 +183,13 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 					parsing_result = getJsonItem(jsonResults,jstokens[i],&js_buffer);
 					if (parsing_result==EXIT_SUCCESS) {
 						if (!strcmp(js_buffer,"addedresults")) {
-							logI("Building added results...\n");
+							g_info("Building added results...");
 							*addedNodes = getResultBindings(jsonResults,&(jstokens[i+3]),addedlen);
 							completed++;
 						}
 						else {
 							if (!strcmp(js_buffer,"removedresults")) {
-								logI("Building removed results...\n");
+								g_info("Building removed results...");
 								*removedNodes = getResultBindings(jsonResults,&(jstokens[i+3]),removedlen);
 								completed++;
 							}
@@ -204,7 +209,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 							}
 						}
 					}
-					else logE("Error while looking for strings in json\n");
+					else g_critical("Error while looking for strings in json");
 				}
 			}
 			free(js_buffer);
@@ -223,7 +228,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 					parsing_result = SUBSCRIPTION_ID_JSON;
 				}
 				else {
-					logE("Subscription confirmation is corrupted: %s\n",jsonResults);
+					g_critical("Subscription confirmation is corrupted: %s",jsonResults);
 					parsing_result = PARSING_ERROR;
 				}
 			}
@@ -241,22 +246,22 @@ int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen) {
 	char *js_buffer = NULL;
 
 	if (jsonResults==NULL) {
-		logE("NullpointerException in queryResultParser.\n");
+		g_critical("NullpointerException in queryResultParser.");
 		return PARSING_ERROR;
 	}
 
 	jsmn_init(&parser);
 	jstok_dim = jsmn_parse(&parser, jsonResults, strlen(jsonResults), NULL, 0);
-	logD("results=%s - jstok_dim=%d\n",jsonResults,jstok_dim);
+	g_debug("results=%s - jstok_dim=%d",jsonResults,jstok_dim);
 	if (jstok_dim<0) {
-		if (jstok_dim==JSMN_ERROR_PART) logD("Result dimension parsing gave %d\n",jstok_dim);
-		else logE("Result dimension parsing gave %d\n",jstok_dim);
+		if (jstok_dim==JSMN_ERROR_PART) g_debug("Result dimension parsing gave %d",jstok_dim);
+		else g_critical("Result dimension parsing gave %d",jstok_dim);
 		return jstok_dim;
 	}
 
 	jstokens = (jsmntok_t *) malloc(jstok_dim*sizeof(jsmntok_t));
 	if (jstokens==NULL) {
-		logE("Malloc error in json parsing!\n");
+		g_critical("Malloc error in json parsing!");
 		strcpy(jsonResults,"");
 		return PARSING_ERROR;
 	}
@@ -264,7 +269,7 @@ int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen) {
 	parsing_result = jsmn_parse(&parser, jsonResults, strlen(jsonResults), jstokens, jstok_dim);
 	if (parsing_result<0) {
 		free(jstokens);
-		logE("Result dimension parsing gave %d\n",parsing_result);
+		g_critical("Result dimension parsing gave %d",parsing_result);
 		return parsing_result;
 	}
 
@@ -273,7 +278,7 @@ int queryResultsParser(char * jsonResults,sepaNode ** results,int * resultlen) {
 		if (jstokens[i].type==JSMN_STRING) {
 			parsing_result = getJsonItem(jsonResults,jstokens[i],&js_buffer);
 			if ((parsing_result==EXIT_SUCCESS) && (!strcmp(js_buffer,"results"))) {
-				logI("Building added results...\n");
+				g_info("Building query results...");
 				*results = getResultBindings(jsonResults,&(jstokens[i+3]),resultlen);
 				completed++;
 			}
@@ -300,24 +305,24 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 	sepaNode *result = NULL;
 
 	if (json==NULL) {
-		logE("NullpointerException in getResultBindings\n");
+		g_critical("NullpointerException in getResultBindings");
 		return NULL;
 	}
 	*outlen = 0;
-	logD("%s\n",json);
+	g_debug("%s",json);
 	if (tokens[0].type==JSMN_ARRAY) {
 		*outlen = tokens[0].size*tokens[1].size;
-		logI("Binding number is %d\n",*outlen);
+		g_info("Binding number is %d",*outlen);
 		if (*outlen==0) return NULL;
 		result = (sepaNode *) malloc((*outlen)*sizeof(sepaNode));
 		if (result==NULL) {
-			logE("Malloc error in getResultBindings\n");
+			g_critical("Malloc error in getResultBindings");
 			return NULL;
 		}
 		
 		#ifdef SUPER_VERBOSITY
 		if (getJsonItem(json,tokens[0],&js_buffer)==PARSING_ERROR) return NULL;
-		printf("array=%s - size=%d\n",js_buffer,tokens[0].size);
+		fprintf(stderr,"array=%s - size=%d\n",js_buffer,tokens[0].size);
 		#endif
 		
 		// here comes the wizard
@@ -325,24 +330,24 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 		while (res_index<*outlen) {
 			#ifdef SUPER_VERBOSITY
 			if (getJsonItem(json,tokens[j+1],&js_buffer)==PARSING_ERROR) return NULL;
-			printf("token[%d]=%s - token[%d].size=%d\n",j+1,js_buffer,j+1,tokens[j+1].size);
+			fprintf(stderr,"token[%d]=%s - token[%d].size=%d\n",j+1,js_buffer,j+1,tokens[j+1].size);
 			#endif
 			
 			for (; i<j+tokens[j+1].size*BINDING_LEN; i+=BINDING_LEN+k) {
 				if (getJsonItem(json,tokens[i+BINDING_NAME],&bindingName)==PARSING_ERROR) return NULL; // i+2
-				logD("Binding Name %d=%s - size=%d\n",BINDING_NAME,bindingName,tokens[i+BINDING_NAME].size);
+				g_debug("Binding Name %d=%s - size=%d",BINDING_NAME,bindingName,tokens[i+BINDING_NAME].size);
 				
 				if (getJsonItem(json,tokens[i+BINDING_TYPE-1],&bindingType)==PARSING_ERROR) return NULL;
 				if (!strcmp(bindingType,"datatype")) k=2;
 				else k=0;
 				
 				if (getJsonItem(json,tokens[i+BINDING_TYPE+k],&bindingType)==PARSING_ERROR) return NULL; // i+5+k
-				logD("Binding Type %d=%s - size=%d\n",BINDING_TYPE+k,bindingType,tokens[i+BINDING_TYPE+k].size);
+				g_debug("Binding Type %d=%s - size=%d",BINDING_TYPE+k,bindingType,tokens[i+BINDING_TYPE+k].size);
 				if (getJsonItem(json,tokens[i+BINDING_VALUE+k],&bindingValue)==PARSING_ERROR) return NULL; // i+7+k
-				logD("Binding Value %d=%s - size=%d\n",BINDING_VALUE+k,bindingValue,tokens[i+BINDING_VALUE+k].size);
+				g_debug("Binding Value %d=%s - size=%d",BINDING_VALUE+k,bindingValue,tokens[i+BINDING_VALUE+k].size);
 				
 				#ifdef SUPER_VERBOSITY
-				printf("name=%s type=%s value=%s\n",bindingName,bindingType,bindingValue);
+				fprintf(stderr,"name=%s type=%s value=%s\n",bindingName,bindingType,bindingValue);
 				#endif
 				
 				result[res_index] = buildSepaNode(bindingName,bindingType,bindingValue);
@@ -372,7 +377,7 @@ size_t queryResultAccumulator(void * ptr, size_t size, size_t nmemb, HttpJsonRes
     if (tmp!=NULL) data->json = tmp;
     else {
         if (data->json!=NULL) free(data->json);
-        logE("Failed to allocate memory.\n");
+        g_critical("Failed to allocate memory.");
         return 0;
     }
 

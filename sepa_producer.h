@@ -38,10 +38,6 @@
 #ifndef SEPA_PRODUCER
 #define SEPA_PRODUCER
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <curl/curl.h>
 #include "sepa_utilities.h"
 #include "sepa_secure.h"
 

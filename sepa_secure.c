@@ -19,7 +19,15 @@
  * 
  */
  
- #include "sepa_secure.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <curl/curl.h>
+#include "sepa_utilities.h"
+#include "sepa_secure.h"
+
+#define G_LOG_DOMAIN "SepaSecure"
+#include <glib.h>
  
 void sClient_free(sClient * client) {
 	free(client->client_id);
@@ -51,22 +59,17 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 	char *resultJson;
 	
 	if ((identity==NULL) || (registrationAddress==NULL) || (clientData==NULL)) {
-		logE("NullPointerException in registerClient.\n");
+		g_error("NullPointerException in registerClient.");
 		return EXIT_FAILURE;
 	}
 	
 	data.size = 0;
 	data.json = (char *) malloc(REGISTRATION_BUFFER_LEN*sizeof(char));
 	if (data.json==NULL) {
-		logE("malloc error in registerClient.\n");
+		g_error("malloc error in registerClient.");
 		return EXIT_FAILURE;
 	}
 	
-	//result = curl_global_init(CURL_GLOBAL_ALL);
-	//if (result) {
-		//logE("curl_global_init() failed.\n");
-		//return EXIT_FAILURE;
-	//}
 	if (http_client_init()==EXIT_FAILURE) return EXIT_FAILURE;
 	
 	curl = curl_easy_init();
@@ -74,7 +77,7 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 		curl_easy_setopt(curl, CURLOPT_URL, registrationAddress);
 		request = (char *) malloc((strlen(identity)+60)*sizeof(char));
 		if (request==NULL) {
-			logE("malloc error in registerClient.\n");
+			g_error("malloc error in registerClient.");
 			return EXIT_FAILURE;
 		}
 		sprintf(request,"{\"client_identity\":\"%s\",\"grant_types\":[\"client_credentials\"]}",identity);
@@ -89,18 +92,18 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
 		result = curl_easy_perform(curl);
 		if (result!=CURLE_OK) {
-			logE("registerClient curl_easy_perform() failed: %s\n",curl_easy_strerror(result));
+			g_error("registerClient curl_easy_perform() failed: %s",curl_easy_strerror(result));
 			return EXIT_FAILURE;
 		}
 		curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
-		logI("registerClient Response code is %ld\n",response_code);
+		g_debug("registerClient Response code is %ld",response_code);
 		curl_easy_cleanup(curl);
 		http_client_free();
 		if (response_code!=HTTP_CREATED) return EXIT_FAILURE;
 
 		resultJson = strdup(data.json);
 		if (resultJson==NULL) {
-			logE("registerClient strdup error %s\n",data.json);
+			g_critical("registerClient strdup error %s",data.json);
 			free(resultJson);
 			free(data.json);
 			free(request);
@@ -111,15 +114,15 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 		
 		jsmn_init(&parser);
 		jstok_dim = jsmn_parse(&parser, resultJson, data.size, NULL, 0);
-		logD("registerClient results=%s - jstok_dim=%d\n",resultJson,jstok_dim);
+		g_debug("registerClient results=%s - jstok_dim=%d",resultJson,jstok_dim);
 		if (jstok_dim<0) {
-			logE("registerClient Result dimension parsing (1) gave %d\n",jstok_dim);
+			g_critical("registerClient Result dimension parsing (1) gave %d",jstok_dim);
 			free(resultJson);
 			return EXIT_FAILURE;
 		}
 		jstokens = (jsmntok_t *) malloc(jstok_dim*sizeof(jsmntok_t));
 		if (jstokens==NULL) {
-			logE("registerClient Malloc error in json parsing\n");
+			g_critical("registerClient Malloc error in json parsing");
 			free(resultJson);
 			return EXIT_FAILURE;
 		}
@@ -127,7 +130,7 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 		jsmn_init(&parser);
 		parsing_result = jsmn_parse(&parser, resultJson, data.size, jstokens, jstok_dim);
 		if (parsing_result<0) {
-			logE("registerClient Result dimension parsing (2) gave %d\n",parsing_result);
+			g_critical("registerClient Result dimension parsing (2) gave %d",parsing_result);
 			free(resultJson);
 			free(jstokens);
 			return EXIT_FAILURE;
@@ -136,7 +139,7 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 			if (jstokens[i].type==JSMN_STRING) {
 				parsing_result = getJsonItem(resultJson,jstokens[i],&js_buffer);
 				if (parsing_result!=EXIT_SUCCESS) {
-					logE("registerClient error in getJsonItem (1)");
+					g_critical("registerClient error in getJsonItem (1)");
 					free(resultJson);
 					free(jstokens);
 					return EXIT_FAILURE;
@@ -145,18 +148,18 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 					completed++;
 					parsing_result = getJsonItem(resultJson,jstokens[i+1],&data_buffer);
 					if (parsing_result!=EXIT_SUCCESS) {
-						logE("registerClient error in getJsonItem (2)");
+						g_critical("registerClient error in getJsonItem (2)");
 						free(resultJson);
 						free(jstokens);
 						free(js_buffer);
 						return EXIT_FAILURE;
 					}
 					if (!strcmp(js_buffer,"client_id")) {
-						logD("registerClient Registration client id: %s\n",data_buffer);
+						g_debug("registerClient Registration client id: %s",data_buffer);
 						clientData->client_id = strdup(data_buffer);
 					}
 					else {
-						logD("registerClient Registration client secret: %s\n",data_buffer);
+						g_debug("registerClient Registration client secret: %s",data_buffer);
 						clientData->client_secret = strdup(data_buffer);
 					}
 				}
@@ -166,12 +169,12 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 		free(jstokens);
 		free(js_buffer);
 		if (completed<2) {
-			logE("registerClient Error: client_id/client_secret could not be assessed\n");
+			g_error("registerClient Error: client_id/client_secret could not be assessed");
 			return EXIT_FAILURE;
 		}
 	}
 	else {
-		logE("curl_easy_init() failed.\n");
+		g_critical("curl_easy_init() failed.");
 		http_client_free();
 	}
 	return EXIT_SUCCESS;
@@ -190,28 +193,21 @@ int tokenRequest(sClient * client,const char * requestAddress) {
 	int i,completed=0,parsing_result;
 	
 	if ((client==NULL) || (requestAddress==NULL)) {
-		logE("NullPointerException in tokenRequest\n");
+		g_error("NullPointerException in tokenRequest");
 		return EXIT_FAILURE;
 	}
 	
 	ascii_key = (char *) malloc((strlen(client->client_id)+strlen(client->client_secret)+1)*sizeof(char));
 	if (ascii_key==NULL) {
-		logE("Malloc error in tokenRequest\n");
+		g_error("Malloc error in tokenRequest");
 		return EXIT_FAILURE;
 	}
 	sprintf(ascii_key,"%s:%s",client->client_id,client->client_secret);
 	base64_key = g_base64_encode((guchar *) ascii_key,strlen(ascii_key));
-	logI("base64(%s)=%s\n",ascii_key,base64_key);
+	g_debug("base64(%s)=%s",ascii_key,base64_key);
 	free(ascii_key);
 	
-	//result = curl_global_init(CURL_GLOBAL_ALL); // TODO ce ne dovrebbe essere uno solo per processo!
-	//if (result) {
-		//logE("curl_global_init() failed.\n");
-		//g_free(base64_key);
-		//return EXIT_FAILURE;
-	//}
 	if (http_client_init()==EXIT_FAILURE) return EXIT_FAILURE;
-	
 	curl = curl_easy_init();
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, requestAddress);
@@ -220,7 +216,7 @@ int tokenRequest(sClient * client,const char * requestAddress) {
 		
 		ascii_key = (char *) malloc((strlen(base64_key)+21)*sizeof(char));
 		if (ascii_key==NULL) {
-			logE("Malloc error in tokenRequest (2)\n");
+			g_critical("Malloc error in tokenRequest (2)");
 			g_free(base64_key);
 			return EXIT_FAILURE;
 		}
@@ -234,7 +230,7 @@ int tokenRequest(sClient * client,const char * requestAddress) {
 		data.size = 0;
 		data.json = (char *) malloc(REGISTRATION_BUFFER_LEN*sizeof(char));
 		if (data.json==NULL) {
-			logE("malloc error in tokenRequest.\n");
+			g_error("malloc error in tokenRequest.");
 			return EXIT_FAILURE;
 		}
 		
@@ -243,12 +239,12 @@ int tokenRequest(sClient * client,const char * requestAddress) {
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
 		result = curl_easy_perform(curl);
 		if (result!=CURLE_OK) {
-			logE("registerClient curl_easy_perform() failed: %s\n",curl_easy_strerror(result));
+			g_critical("registerClient curl_easy_perform() failed: %s",curl_easy_strerror(result));
 			free(data.json);
 			return EXIT_FAILURE;
 		}
 		curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
-		logI("registerClient Response code is %ld\n",response_code);
+		g_debug("registerClient Response code is %ld",response_code);
 		curl_easy_cleanup(curl);
 	}
 	//curl_global_cleanup();
@@ -258,7 +254,7 @@ int tokenRequest(sClient * client,const char * requestAddress) {
 	jsmn_init(&parser);
 	jstokens = (jsmntok_t *) malloc(TOKEN_JSON_SIZE*sizeof(jsmntok_t));
 	if (jstokens==NULL) {
-		logE("tokenRequest malloc error in json parsing\n");
+		g_critical("tokenRequest malloc error in json parsing");
 		free(data.json);
 		http_client_free();
 		return EXIT_FAILURE;
@@ -266,7 +262,7 @@ int tokenRequest(sClient * client,const char * requestAddress) {
 	parsing_result = jsmn_parse(&parser, data.json, data.size, jstokens, TOKEN_JSON_SIZE);
 	if (parsing_result<0) {
 		free(jstokens);
-		logE("Result dimension parsing gave %d\n",parsing_result);
+		g_critical("Result dimension parsing gave %d",parsing_result);
 		return EXIT_FAILURE;
 	}
 	
@@ -291,14 +287,14 @@ int tokenRequest(sClient * client,const char * requestAddress) {
 			}
 		}
 		else {
-			logE("tokenRequest getJsonItem error!\n");
+			g_critical("tokenRequest getJsonItem error!");
 			free(data.json);
 			free(jstokens);
 			return EXIT_FAILURE;
 		}
 	}
 	if (completed!=3) {
-		logE("tokenRequest received a bad token confirmation json\n");
+		g_critical("tokenRequest received a bad token confirmation json\n");
 		free(data.json);
 		free(jstokens);
 		return EXIT_FAILURE;

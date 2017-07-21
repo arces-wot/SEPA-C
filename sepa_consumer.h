@@ -39,11 +39,7 @@
 #ifndef SEPA_CONSUMER
 #define SEPA_CONSUMER
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <pthread.h>
-#include <curl/curl.h>
 #include "/usr/local/include/libwebsockets.h"
 #include "sepa_utilities.h"
 #include "sepa_secure.h"
