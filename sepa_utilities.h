@@ -61,7 +61,7 @@
 #define BNODE_STRING		"bnode"
 
 #define HTTP_200_OK					200
-#define HTTP_CREATED				201
+#define HTTP_201_CREATED				201
 /**
  * @brief sepaNode type: URI, LITERAL, BNODE, or unknown upon initialization or error
  */

@@ -1,5 +1,5 @@
 <map id="sepa&#45;C&#45;kpi/examples/updatesepa.c" name="sepa&#45;C&#45;kpi/examples/updatesepa.c">
-<area shape="rect" id="node2" href="$sepa__producer_8h.html" title="Header file defining C producer functions for SEPA. " alt="" coords="198,96,316,123"/>
-<area shape="rect" id="node7" href="$sepa__utilities_8h.html" title="Header file defining json&#45;parsing&#45;related routines useful for communication with SEPA. " alt="" coords="157,245,267,272"/>
-<area shape="rect" id="node9" href="$sepa__secure_8h.html" title="Header file defining C secure mechanisms for SEPA. " alt="" coords="249,171,356,197"/>
+<area shape="rect" id="node2" href="$sepa__producer_8h.html" title="Header file defining C producer functions for SEPA. " alt="" coords="66,95,185,121"/>
+<area shape="rect" id="node3" href="$sepa__utilities_8h.html" title="Header file defining json&#45;parsing&#45;related routines useful for communication with SEPA. " alt="" coords="5,169,115,196"/>
+<area shape="rect" id="node5" href="$sepa__secure_8h.html" title="Header file defining C secure mechanisms for SEPA. " alt="" coords="139,169,245,196"/>
 </map>

@@ -99,7 +99,7 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 		g_debug("registerClient Response code is %ld",response_code);
 		curl_easy_cleanup(curl);
 		http_client_free();
-		if (response_code!=HTTP_CREATED) return EXIT_FAILURE;
+		if (response_code!=HTTP_201_CREATED) return EXIT_FAILURE;
 
 		resultJson = strdup(data.json);
 		if (resultJson==NULL) {
@@ -249,7 +249,7 @@ int tokenRequest(sClient * client,const char * requestAddress) {
 	}
 	//curl_global_cleanup();
 	http_client_free();
-	if (response_code!=HTTP_200_OK) return EXIT_FAILURE;
+	if (response_code!=HTTP_201_CREATED) return EXIT_FAILURE;
 	
 	jsmn_init(&parser);
 	jstokens = (jsmntok_t *) malloc(TOKEN_JSON_SIZE*sizeof(jsmntok_t));

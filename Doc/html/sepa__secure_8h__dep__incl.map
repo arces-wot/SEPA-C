@@ -1,9 +1,9 @@
 <map id="sepa&#45;C&#45;kpi/sepa_secure.h" name="sepa&#45;C&#45;kpi/sepa_secure.h">
-<area shape="rect" id="node2" href="$secure__apis_8c.html" title="Example of code used to make a secure registration to SEPA. " alt="" coords="5,81,149,122"/>
-<area shape="rect" id="node3" href="$sepa__consumer_8h.html" title="Header file defining C consumer functions for SEPA. " alt="" coords="175,88,367,115"/>
-<area shape="rect" id="node7" href="$sepa__producer_8h.html" title="Header file defining C producer functions for SEPA. " alt="" coords="391,88,576,115"/>
-<area shape="rect" id="node4" href="$sepaquery_8c.html" title="Example of code used to create query the SEPA. " alt="" coords="29,171,173,213"/>
-<area shape="rect" id="node5" href="$subexample_8c.html" title="Example of code used to make a subscription to SEPA. " alt="" coords="198,171,343,213"/>
-<area shape="rect" id="node6" href="$sepa__aggregator_8h.html" title="Header file defining C aggregator functions for SEPA. " alt="" coords="367,179,563,205"/>
-<area shape="rect" id="node8" href="$updatesepa_8c.html" title="Example of code used to create a consumer. " alt="" coords="587,171,732,213"/>
+<area shape="rect" id="node2" href="$secure__apis_8c.html" title="Example of code used to make a secure registration to SEPA. " alt="" coords="5,80,151,121"/>
+<area shape="rect" id="node3" href="$sepa__consumer_8h.html" title="Header file defining C consumer functions for SEPA. " alt="" coords="175,87,367,114"/>
+<area shape="rect" id="node7" href="$sepa__producer_8h.html" title="Header file defining C producer functions for SEPA. " alt="" coords="392,87,577,114"/>
+<area shape="rect" id="node4" href="$sepaquery_8c.html" title="Example of code used to create query the SEPA. " alt="" coords="29,169,175,211"/>
+<area shape="rect" id="node5" href="$subexample_8c.html" title="Example of code used to make a subscription to SEPA. " alt="" coords="199,169,344,211"/>
+<area shape="rect" id="node6" href="$sepa__aggregator_8h.html" title="Header file defining C aggregator functions for SEPA. " alt="" coords="368,177,564,203"/>
+<area shape="rect" id="node8" href="$updatesepa_8c.html" title="Example of code used to create a consumer. " alt="" coords="588,169,733,211"/>
 </map>

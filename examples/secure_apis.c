@@ -31,18 +31,20 @@
  
 #define SEPA_LOGGER_ERROR
 #include <stdio.h>
+#include <stdlib.h>
 #include "../sepa_secure.h"
+
 int main(int argc, char **argv) {
 	// compile with 
 	// $ gcc ./examples/secure_apis.c sepa_utilities.c sepa_consumer.c sepa_secure.c jsmn.c -o secure_apis -lwebsockets -pthread -lcurl `pkg-config --cflags --libs glib-2.0` -L/usr/local/lib
 	sClient authorizationData = _init_sClient();
 	
 	http_client_init();
-	if (registerClient("aabb","https://10.143.20.1:8443/oauth/register",&authorizationData)==EXIT_SUCCESS) {
+	if (registerClient("ccvvcvcv","https://127.0.0.1:8443/oauth/register",&authorizationData)==EXIT_SUCCESS) {
 		fprintfSecureClientData(stdout,authorizationData);
 		//authorizationData.client_id = strdup("e4f9123f-44c7-49c8-b549-9499c26d9897");
 		//authorizationData.client_secret = strdup("91eedc36-c379-431f-bc87-6fcd4e5707fc");
-		if (tokenRequest(&authorizationData,"https://10.143.20.1:8443/oauth/token")==EXIT_SUCCESS) {
+		if (tokenRequest(&authorizationData,"https://127.0.0.1:8443/oauth/token")==EXIT_SUCCESS) {
 			fprintfSecureClientData(stdout,authorizationData);
 			sClient_free(&authorizationData);
 		}

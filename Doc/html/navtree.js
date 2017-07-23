@@ -30,7 +30,7 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"_2home_2francesco_2_documents_2_work_2sepa-_c-kpi_2examples_2secure_apis_8c-example.html"
+"_2home_2francesco_2_work_2sepa-_c-kpi_2examples_2secure_apis_8c-example.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

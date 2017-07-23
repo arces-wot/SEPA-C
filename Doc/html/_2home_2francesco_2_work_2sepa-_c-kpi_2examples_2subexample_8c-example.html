@@ -88,7 +88,7 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_work_2sepa-_c-kpi_
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Data Structures</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Data Structures</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -129,6 +129,9 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_work_2sepa-_c-kpi_
 <div class="line"><span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;../sepa_consumer.h&quot;</span></div>
 <div class="line"></div>
+<div class="line"><span class="preprocessor">#define sub                 &quot;PREFIX wot:&lt;http://www.arces.unibo.it/wot#&gt; PREFIX rdf:&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; PREFIX td:&lt;http://w3c.github.io/wot/w3c-wot-td-ontology.owl#&gt; PREFIX dul:&lt;http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#&gt; SELECT ?instance ?input ?value WHERE {wot:RaspiLCD rdf:type td:Action. wot:RaspiLCD wot:hasInstance ?instance. ?instance rdf:type wot:ActionInstance. OPTIONAL {?instance td:hasInput ?input. ?input dul:hasDataValue ?value}}&quot;</span></div>
+<div class="line"><span class="comment">//#define sub &quot;SELECT * WHERE {?a ?b ?c}&quot;</span></div>
+<div class="line"><span class="comment">//#define sub &quot;SELECT ?input ?value WHERE {?input &lt;http://hasDataValue.org&gt; ?value}&quot;</span></div>
 <div class="line"><span class="comment">// declare your handlers</span></div>
 <div class="line"><span class="keywordtype">void</span> mySubscriptionNotification(<a name="_a0"></a><a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> * added,<span class="keywordtype">int</span> addedlen,<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> * removed,<span class="keywordtype">int</span> removedlen);</div>
 <div class="line"><span class="keywordtype">void</span> anotherSubscriptionNotification(<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> * added,<span class="keywordtype">int</span> addedlen,<a class="code" href="struct_s_e_p_a___node.html">sepaNode</a> * removed,<span class="keywordtype">int</span> removedlen);</div>
@@ -137,32 +140,32 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_work_2sepa-_c-kpi_
 <div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv) {</div>
 <div class="line">    <span class="comment">// initialize subscriptions</span></div>
 <div class="line">    <a name="_a1"></a><a class="code" href="structsubscription__params.html">SEPA_subscription_params</a> this_subscription = _initSubscription();</div>
-<div class="line">    <a class="code" href="structsubscription__params.html">SEPA_subscription_params</a> another_subscription = _initSubscription();</div>
+<div class="line">    <span class="comment">//SEPA_subscription_params another_subscription = _initSubscription();</span></div>
 <div class="line">    <span class="keywordtype">int</span> a;</div>
 <div class="line">    </div>
 <div class="line">    <span class="comment">// initialize subscription client engine</span></div>
-<div class="line">    <a name="a2"></a><a class="code" href="sepa__consumer_8h.html#a84049c5cdb0fed7c765a1726d8cc82a2">sepa_subscriber_init</a>();</div>
+<div class="line">    <a name="a2"></a><a class="code" href="sepa__consumer_8h.html#aba67c0aff5bc2c6b181342ab45d3b5f9">sepa_subscriber_init</a>();</div>
 <div class="line">    </div>
 <div class="line">    <span class="comment">// create subscriptions and set the respective handlers</span></div>
-<div class="line">    <a name="a3"></a><a class="code" href="sepa__consumer_8h.html#a5590e05304d2315c6ffd02f722658afa">sepa_subscription_builder</a>(<span class="stringliteral">&quot;SELECT ?a ?b ?c WHERE {?a ?b ?c}&quot;</span>,NULL,NULL,<span class="stringliteral">&quot;ws://10.0.2.15:9000/sparql&quot;</span>,&amp;this_subscription);</div>
-<div class="line">    <a class="code" href="sepa__consumer_8h.html#a5590e05304d2315c6ffd02f722658afa">sepa_subscription_builder</a>(<span class="stringliteral">&quot;SELECT ?x ?y WHERE {?x ?y &lt;http://pingpong&gt;}&quot;</span>,NULL,NULL,<span class="stringliteral">&quot;ws://10.0.2.15:9000/sparql&quot;</span>,&amp;another_subscription);</div>
+<div class="line">    <a name="a3"></a><a class="code" href="sepa__consumer_8h.html#ab682bc9e02952d1f7b2c2a2d85bb2c24">sepa_subscription_builder</a>(sub,NULL,NULL,<span class="stringliteral">&quot;ws://wot.arces.unibo.it:9000/subscribe&quot;</span>,&amp;this_subscription);</div>
+<div class="line">    <span class="comment">//sepa_subscription_builder(&quot;SELECT ?x ?y WHERE {?x ?y &lt;http://pingpong&gt;}&quot;,NULL,NULL,&quot;ws://10.0.2.15:9000/sparql&quot;,&amp;another_subscription);</span></div>
 <div class="line">    <a name="a4"></a><a class="code" href="sepa__consumer_8h.html#af5871fed763f8affb07d1b490bcda4c5">sepa_setSubscriptionHandlers</a>(mySubscriptionNotification,myUnsubscriptionNotification,&amp;this_subscription);</div>
-<div class="line">    <a class="code" href="sepa__consumer_8h.html#af5871fed763f8affb07d1b490bcda4c5">sepa_setSubscriptionHandlers</a>(anotherSubscriptionNotification,NULL,&amp;another_subscription);</div>
+<div class="line">    <span class="comment">//sepa_setSubscriptionHandlers(anotherSubscriptionNotification,NULL,&amp;another_subscription);</span></div>
 <div class="line">    </div>
 <div class="line">    <span class="comment">// check if it is correct</span></div>
 <div class="line">    <a name="a5"></a><a class="code" href="sepa__consumer_8h.html#aab4a036f5f8257ad74bcb6c1e9e66959">fprintfSubscriptionParams</a>(stdout,this_subscription);</div>
-<div class="line">    <a class="code" href="sepa__consumer_8h.html#aab4a036f5f8257ad74bcb6c1e9e66959">fprintfSubscriptionParams</a>(stdout,another_subscription);</div>
+<div class="line">    <span class="comment">//fprintfSubscriptionParams(stdout,another_subscription);</span></div>
 <div class="line">    </div>
 <div class="line">    <span class="comment">// subscribe</span></div>
 <div class="line">    <a name="a6"></a><a class="code" href="sepa__consumer_8h.html#a9f64db4ca07a201621235514724cc2fe">kpSubscribe</a>(&amp;this_subscription);</div>
-<div class="line">    <a class="code" href="sepa__consumer_8h.html#a9f64db4ca07a201621235514724cc2fe">kpSubscribe</a>(&amp;another_subscription);</div>
-<div class="line">    </div>
+<div class="line">    <span class="comment">//kpSubscribe(&amp;another_subscription);</span></div>
+<div class="line"></div>
 <div class="line">    <span class="comment">// prompt user to stop</span></div>
 <div class="line">    printf(<span class="stringliteral">&quot;insert a number to continue: &quot;</span>); scanf(<span class="stringliteral">&quot;%d&quot;</span>,&amp;a);</div>
 <div class="line">    </div>
 <div class="line">    <span class="comment">// unsubscribe</span></div>
 <div class="line">    <a name="a7"></a><a class="code" href="sepa__consumer_8h.html#a0b04be1cab854996d2f58283020d572a">kpUnsubscribe</a>(&amp;this_subscription);</div>
-<div class="line">    <a class="code" href="sepa__consumer_8h.html#a0b04be1cab854996d2f58283020d572a">kpUnsubscribe</a>(&amp;another_subscription);</div>
+<div class="line">    <span class="comment">//kpUnsubscribe(&amp;another_subscription);</span></div>
 <div class="line">    </div>
 <div class="line">    <span class="comment">// close subscription client engine</span></div>
 <div class="line">    <a name="a8"></a><a class="code" href="sepa__consumer_8h.html#abedaa83b98deaedb21932a74ea3d2723">sepa_subscriber_destroy</a>();</div>
@@ -209,7 +212,7 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_work_2sepa-_c-kpi_
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sat Jun 3 2017 15:48:16 for SEPA-API by
+    <li class="footer">Generated on Sun Jul 23 2017 16:09:19 for SEPA-API by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.8 </li>
   </ul>

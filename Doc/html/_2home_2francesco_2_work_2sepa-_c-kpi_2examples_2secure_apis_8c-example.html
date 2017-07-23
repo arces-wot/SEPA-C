@@ -88,7 +88,7 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_work_2sepa-_c-kpi_
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Data Structures</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Data Structures</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -128,12 +128,24 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_work_2sepa-_c-kpi_
 <div class="line"><span class="preprocessor">#define SEPA_LOGGER_ERROR</span></div>
 <div class="line"><span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;../sepa_secure.h&quot;</span></div>
-<div class="line"></div>
 <div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv) {</div>
-<div class="line">    <a name="_a0"></a><a class="code" href="structsecure__client.html">sClient</a> authorizationData;</div>
+<div class="line">    <span class="comment">// compile with </span></div>
+<div class="line">    <span class="comment">// $ gcc ./examples/secure_apis.c sepa_utilities.c sepa_consumer.c sepa_secure.c jsmn.c -o secure_apis -lwebsockets -pthread -lcurl `pkg-config --cflags --libs glib-2.0` -L/usr/local/lib</span></div>
+<div class="line">    <a name="_a0"></a><a class="code" href="structsecure__client.html">sClient</a> authorizationData = _init_sClient();</div>
 <div class="line">    </div>
-<div class="line">    <a name="a1"></a><a class="code" href="sepa__secure_8h.html#abba2685b21e3e5103e1f5e7dbc533de3">registerClient</a>(<span class="stringliteral">&quot;08:00:11:22:33:44:55:66:77&quot;</span>,<span class="stringliteral">&quot;https://10.0.2.15:8443/oauth/register&quot;</span>,&amp;authorizationData);</div>
-<div class="line">    <a name="a2"></a><a class="code" href="sepa__secure_8h.html#a1b54b7143642b1e30b036ec9025c2eb4">fprintfSecureClientData</a>(stdout,authorizationData);</div>
+<div class="line">    <a name="a1"></a><a class="code" href="sepa__utilities_8h.html#a8d0477cd258025612c75f29dbb514808">http_client_init</a>();</div>
+<div class="line">    <span class="keywordflow">if</span> (<a name="a2"></a><a class="code" href="sepa__secure_8h.html#abba2685b21e3e5103e1f5e7dbc533de3">registerClient</a>(<span class="stringliteral">&quot;aabb&quot;</span>,<span class="stringliteral">&quot;https://10.143.20.1:8443/oauth/register&quot;</span>,&amp;authorizationData)==EXIT_SUCCESS) {</div>
+<div class="line">        <a name="a3"></a><a class="code" href="sepa__secure_8h.html#a1b54b7143642b1e30b036ec9025c2eb4">fprintfSecureClientData</a>(stdout,authorizationData);</div>
+<div class="line">        <span class="comment">//authorizationData.client_id = strdup(&quot;e4f9123f-44c7-49c8-b549-9499c26d9897&quot;);</span></div>
+<div class="line">        <span class="comment">//authorizationData.client_secret = strdup(&quot;91eedc36-c379-431f-bc87-6fcd4e5707fc&quot;);</span></div>
+<div class="line">        <span class="keywordflow">if</span> (<a name="a4"></a><a class="code" href="sepa__secure_8h.html#aa262a363dd1f34cbc5da773971483dc9">tokenRequest</a>(&amp;authorizationData,<span class="stringliteral">&quot;https://10.143.20.1:8443/oauth/token&quot;</span>)==EXIT_SUCCESS) {</div>
+<div class="line">            <a class="code" href="sepa__secure_8h.html#a1b54b7143642b1e30b036ec9025c2eb4">fprintfSecureClientData</a>(stdout,authorizationData);</div>
+<div class="line">            <a name="a5"></a><a class="code" href="sepa__secure_8h.html#a9bb88c78af61f14470a2fcf65a0285d0">sClient_free</a>(&amp;authorizationData);</div>
+<div class="line">        }</div>
+<div class="line">        <span class="keywordflow">else</span> printf(<span class="stringliteral">&quot;Token request was rejected from sepa\n&quot;</span>);</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">else</span> printf(<span class="stringliteral">&quot;Registration was rejected from sepa\n&quot;</span>);</div>
+<div class="line">    <a name="a6"></a><a class="code" href="sepa__utilities_8h.html#ac7482b3013505ee29c51b5106a2e2a83">http_client_free</a>();</div>
 <div class="line">    <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
 </div><!-- fragment --> </div><!-- contents -->
@@ -141,7 +153,7 @@ $(document).ready(function(){initNavTree('_2home_2francesco_2_work_2sepa-_c-kpi_
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sat Jun 3 2017 15:48:16 for SEPA-API by
+    <li class="footer">Generated on Sun Jul 23 2017 16:09:19 for SEPA-API by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.8 </li>
   </ul>
