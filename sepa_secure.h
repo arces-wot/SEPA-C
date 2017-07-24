@@ -72,6 +72,16 @@ void sClient_free(sClient * client);
 void fprintfSecureClientData(FILE * outstream,sClient client_data);
 
 /**
+ * @brief Inverse of fprintfSecureClientData. 
+ *
+ * Reads a secure client JWT in the same format it is printed by fprintfSecureClientData.
+ * @param myFile: FILE* origin
+ * @param dest: pointer to sClient structure destination
+ * @return EXIT_SUCCESS, or EXIT_FAILURE
+ */
+int fscanfSecureClientData(FILE * myFile,sClient * dest);
+
+/**
  * @brief Registers the client for secure communication with SEPA
  * @param identity: the client's identity
  * @param registrationAddress: the address to which ask for registration

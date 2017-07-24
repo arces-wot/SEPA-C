@@ -36,15 +36,90 @@ void sClient_free(sClient * client) {
 	free(client->JWTtype);
 }
  
- void fprintfSecureClientData(FILE * outstream,sClient client_data) {
+void fprintfSecureClientData(FILE * outstream,sClient client_data) {
 	if (outstream!=NULL) {
-		fprintf(outstream,"Client id: %s\nClient secret: %s\nJWT=%s\nJWT type=%s\nJWT_expiration=%d\n",client_data.client_id,
+		fprintf(outstream,"Client id: %s\nClient secret: %s\nJWT: %s\nJWT type: %s\nJWT_expiration: %d\n",client_data.client_id,
 					client_data.client_secret,
 					client_data.JWT,
 					client_data.JWTtype,
 					client_data.expires_in);
 	}
- }
+}
+
+int fscanfSecureClientData(FILE * myFile,sClient * dest) {
+	char *inputString,*pch;
+	long offset_end;
+	int result,id_size,secret_size,jwt_size,type_size,expiration_size,iteration=0;
+	sClient temp = _init_sClient();
+	
+	result = fseek(myFile,0,SEEK_END);
+	if (result!=EXIT_SUCCESS) {
+		g_error("fseek error in fscanfSecureClientData");
+		return EXIT_FAILURE;
+	}
+	offset_end = ftell(myFile);
+	if (offset_end!=EXIT_SUCCESS) {
+		g_error("ftell error in fscanfSecureClientData");
+		return EXIT_FAILURE;
+	}
+	inputString = (char *) malloc((size_t) offset_end+1);
+	if (inputString==NULL) {
+		g_error("malloc error in fscanfSecureClientData (1)");
+		return EXIT_FAILURE;
+	}
+	rewind(myFile);
+	fread(inputString,1,(size_t) offset_end,myFile);
+	inputString[offset_end]='\0';
+	
+	pch = strtok(inputString,"\n");
+	while ((pch!=NULL) && (iteration<5)) {
+		switch (iteration) {
+			case 0:
+				dest->client_id = (char *) malloc((strlen(pch)-10)*sizeof(char));
+				if (dest->client_id==NULL) {
+					free(inputString);
+					g_error("malloc error in fscanfSecureClientData (client_id)");
+					return EXIT_FAILURE;
+				}
+				sscanf(pch,"Client id: %s",dest->client_id);
+				break;
+			case 1:
+				dest->client_secret = (char *) malloc((strlen(pch)-14)*sizeof(char));
+				if (dest->client_secret==NULL) {
+					free(inputString);
+					g_error("malloc error in fscanfSecureClientData (client_secret)");
+					return EXIT_FAILURE;
+				}
+				sscanf(pch,"Client secret: %s",dest->client_secret);
+				break;
+			case 2:
+				dest->JWT = (char *) malloc((strlen(pch)-4)*sizeof(char));
+				if (dest->JWT==NULL) {
+					free(inputString);
+					g_error("malloc error in fscanfSecureClientData (JWT)");
+					return EXIT_FAILURE;
+				}
+				sscanf(pch,"JWT: %s",dest->JWT);
+				break;
+			case 3: 
+				dest->JWTtype = (char *) malloc((strlen(pch)-9)*sizeof(char));
+				if (dest->JWTtype==NULL) {
+					free(inputString);
+					g_error("malloc error in fscanfSecureClientData (JWTtype)");
+					return EXIT_FAILURE;
+				}
+				sscanf(pch,"JWT type: %s",dest->JWTtype);
+				break;
+			case 4:
+				sscanf(pch,"JWT_expiration: %d",&(dest->expires_in));
+				break;
+		}
+		iteration++;
+		pch = strtok(NULL,"\n");
+	}		
+	free(inputString);
+	return EXIT_SUCCESS;
+}
  
 int registerClient(const char * identity,const char * registrationAddress, sClient * clientData) {
 	CURL *curl;
