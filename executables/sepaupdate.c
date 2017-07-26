@@ -1,5 +1,5 @@
 /*
- * sepaquery.c
+ * sepaupdate.c
  * 
  * Copyright 2017 Francesco Antoniazzi <francesco.antoniazzi@unibo.it>
  * 
@@ -23,21 +23,21 @@
  */
 
 /**
- * @brief Makes a query to the SEPA
- * @file sepaquery.c
+ * @brief Makes an update to the SEPA
+ * @file sepaupdate.c
  * @author Francesco Antoniazzi <francesco.antoniazzi@unibo.it>
- * @date 24 jul 2017
+ * @date 26 jul 2017
  */
  
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
-#include "../sepa_consumer.h"
+#include "../sepa_producer.h"
 
 int main(int argc, char **argv) {
 	FILE *inputFile;
-	char *query_result=NULL;
 	int result,n;
+	long update_result;
 	sClient jwt = _init_sClient();
 	
 	switch (argc) {
@@ -45,11 +45,11 @@ int main(int argc, char **argv) {
 			if (!isatty(STDIN_FILENO)) {
 				// pipelining case with separegister
 				result = fscanfSecureClientData(stdin,&jwt);
-				query_result = kpQuery(argv[1],argv[2],&jwt);
+				update_result = kpProduce(argv[1],argv[2],&jwt);
 				sClient_free(&jwt);
 			}
 			// otherwise unsecure query
-			else query_result = kpQuery(argv[1],argv[2],NULL);
+			else update_result = kpProduce(argv[1],argv[2],NULL);
 			break;
 		case 4:
 			// secure query reading from file output of separegister
@@ -59,20 +59,18 @@ int main(int argc, char **argv) {
 				return EXIT_FAILURE;
 			}
 			result = fscanfSecureClientData(inputFile,&jwt);
-			if (result==EXIT_SUCCESS) query_result = kpQuery(argv[1],argv[2],&jwt);
+			if (result==EXIT_SUCCESS) update_result = kpProduce(argv[1],argv[2],&jwt);
 			fclose(inputFile);
 			sClient_free(&jwt);
 			break;
 		default:
-			fprintf(stderr,"USAGE:\nUnsecure query:\nsepaquery [SPARQL_QUERY] [ADDRESS]\n\nSecure query:\nsepaquery [SPARQL_QUERY] [ADDRESS] [JWT_FILE]\n");
-			fprintf(stderr,"\nTrick: ./separegister [ID] [ADDRESS] | ./sepaquery [SPARQL] [QUERY_ADDRESS]\n");
+			fprintf(stderr,"USAGE:\nUnsecure update:\nsepaupdate [SPARQL_UPDATE] [ADDRESS]\n\nSecure update:\nsepaupdate [SPARQL_UPDATE] [ADDRESS] [JWT_FILE]\n");
+			fprintf(stderr,"\nTrick: ./separegister [ID] [ADDRESS] | ./sepaquery [SPARQL_UPDATE] [UPDATE_ADDRESS]\n");
 			return EXIT_FAILURE;
 	}
-	if (query_result==NULL) {
-		g_error("NullPointerException in query result.");
+	if (update_result!=HTTP_200_OK) {
+		g_critical("Sepa response code: %ld",update_result);
 		return EXIT_FAILURE;
 	}
-	printf("%s\n",query_result);
-	free(query_result);
 	return EXIT_SUCCESS;
 }

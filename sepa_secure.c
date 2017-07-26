@@ -47,29 +47,22 @@ void fprintfSecureClientData(FILE * outstream,sClient client_data) {
 }
 
 int fscanfSecureClientData(FILE * myFile,sClient * dest) {
-	char *inputString,*pch;
-	long offset_end;
-	int result,id_size,secret_size,jwt_size,type_size,expiration_size,iteration=0;
+	char *inputString=NULL,*pch;
+	int i,str_size=0,result,id_size,secret_size,jwt_size,type_size,expiration_size,iteration=0;
 	sClient temp = _init_sClient();
 	
-	result = fseek(myFile,0,SEEK_END);
-	if (result!=EXIT_SUCCESS) {
-		g_error("fseek error in fscanfSecureClientData");
-		return EXIT_FAILURE;
+	for (i=0; !feof(myFile); i++) {
+		if (i==str_size) {
+			str_size += 300;
+			inputString = (char *) realloc(inputString,str_size*sizeof(char));
+			if (inputString==NULL) {
+				g_error("realloc error in fscanfSecureClientData (1)");
+				return EXIT_FAILURE;
+			}
+		}
+		inputString[i] = getc(myFile);
 	}
-	offset_end = ftell(myFile);
-	if (offset_end!=EXIT_SUCCESS) {
-		g_error("ftell error in fscanfSecureClientData");
-		return EXIT_FAILURE;
-	}
-	inputString = (char *) malloc((size_t) offset_end+1);
-	if (inputString==NULL) {
-		g_error("malloc error in fscanfSecureClientData (1)");
-		return EXIT_FAILURE;
-	}
-	rewind(myFile);
-	fread(inputString,1,(size_t) offset_end,myFile);
-	inputString[offset_end]='\0';
+	g_debug("InputString=%s\n",inputString);
 	
 	pch = strtok(inputString,"\n");
 	while ((pch!=NULL) && (iteration<5)) {

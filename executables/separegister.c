@@ -40,6 +40,8 @@
 int main(int argc, char **argv) {
 	sClient authorizationData = _init_sClient();
 	char *id,*R_address,*T_address;
+	char r_path[] = REGISTRATION_PATH;
+	char t_path[] = TOKEN_PATH;
 	
 	if (argc!=3) {
 		fprintf(stderr,"USAGE:\nseparegister [ID] [ADDRESS]\n");
@@ -47,16 +49,22 @@ int main(int argc, char **argv) {
 	}
 	
 	id = strdup(argv[1]);
-	R_address = (char *) malloc((strlen(argv[2])+strlen(REGISTRATION_PATH)+1)*sizeof(char));
-	T_address = (char *) malloc((strlen(argv[2])+strlen(TOKEN_PATH)+1)*sizeof(char));
+	R_address = (char *) malloc((strlen(argv[2])+strlen(r_path)+1)*sizeof(char));
+	T_address = (char *) malloc((strlen(argv[2])+strlen(t_path)+1)*sizeof(char));
 	if ((id==NULL) || (R_address==NULL) || (T_address==NULL)) {
 		g_error("Malloc error!\n");
 		return EXIT_FAILURE;
 	}
 	strcpy(R_address,argv[2]);
-	strcat(R_address,REGISTRATION_PATH);
 	strcpy(T_address,argv[2]);
-	strcat(T_address,TOKEN_PATH);
+	if (argv[2][strlen(argv[2])-1]=='/') {
+		strcat(R_address,r_path+1);
+		strcat(T_address,t_path+1);
+	}
+	else {
+		strcat(R_address,r_path);
+		strcat(T_address,t_path);
+	}
 	
 	http_client_init();
 	if (registerClient(id,R_address,&authorizationData)!=EXIT_SUCCESS) {

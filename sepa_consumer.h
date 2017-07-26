@@ -55,7 +55,7 @@
 #define RX_BUFFER_SIZE						100
 #define UNSUBSCRIBE_TAG_LEN					12
 #define KPI_QUERY_FAIL						-2
-#define SUBSCRIPTION_AUTH_TOKEN_LEN			0
+#define SUBSCRIPTION_AUTH_TOKEN_LEN			1000
 #define _DEFAULT_CHUNK_MAX_SIZE				64 /**< Default dimension of websocket output buffer */
 #define _getSubscriptionProtocols()			_protocols
 #define _getSubscriptionProtocolName()		_protocols[0].name

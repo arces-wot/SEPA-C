@@ -89,7 +89,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 		switch (reason) {
 			case LWS_CALLBACK_CLIENT_ESTABLISHED:
 				pthread_mutex_lock(&(sepa_session.subscription_mutex));
-				if (raisedSubscription->use_ssl==WSS_SECURE) sub_packet_length += SUBSCRIPTION_AUTH_TOKEN_LEN;
+				if (raisedSubscription->use_ssl!=WS_NOT_SECURE) sub_packet_length += SUBSCRIPTION_AUTH_TOKEN_LEN;
 				if (raisedSubscription->subscription_alias!=NULL) sub_packet_length += strlen(raisedSubscription->subscription_alias);
 				sub_packet_length += strlen(raisedSubscription->subscription_sparql);
 				
@@ -98,8 +98,9 @@ static int sepa_subscription_callback(	struct lws *wsi,
 					sparql_buffer = packet_buffer+LWS_PRE;
 					sprintf(sparql_buffer,"{\"subscribe\":\"%s\"",raisedSubscription->subscription_sparql);
 					if (raisedSubscription->subscription_alias!=NULL) sprintf(sparql_buffer+strlen(sparql_buffer)+1,",\"alias\":\"%s\"",raisedSubscription->subscription_alias);
-					if (raisedSubscription->use_ssl==WSS_SECURE) sprintf(sparql_buffer+strlen(sparql_buffer)+1,",\"authorization\":\"%s\"",raisedSubscription->subscription_authToken);
+					if (raisedSubscription->use_ssl!=WS_NOT_SECURE) sprintf(sparql_buffer,"%s,\"authorization\":\"Bearer %s\"",sparql_buffer,raisedSubscription->subscription_authToken);
 					strcat(sparql_buffer,"}");
+					printf("packet = %s\n",sparql_buffer);
 
 					if (strlen(sparql_buffer)<=CHUNK_MAX_SIZE) {
 						g_message("Sending websocket frame...");
@@ -254,12 +255,14 @@ int sepa_subscription_builder(char * sparql_subscription,char * subscription_ali
 	if (!strcmp(subscription->protocol,"ws")) subscription->use_ssl=WS_NOT_SECURE;
 	else {
 		if (!strcmp(subscription->protocol,"wss")) {
-			subscription->use_ssl=WSS_SECURE;
+			// TODO in the future some flags should not be there
+			subscription->use_ssl=LCCSCF_ALLOW_SELFSIGNED | LCCSCF_SKIP_SERVER_CERT_HOSTNAME_CHECK | LCCSCF_USE_SSL;
 			if (auth_token==NULL) {
 				g_error("Fatal NullPointerException in auth_token field during secure subscription constuction");
 				return EXIT_FAILURE;
 			}
 			else strcpy(subscription->subscription_authToken,auth_token->JWT);
+			g_debug("Secure websocket JWT=%s",subscription->subscription_authToken);
 		}
 		else {
 			g_error("Requested protocol %s error: must be ws or wss.",subscription->protocol);
@@ -421,6 +424,8 @@ static void * subscription_thread(void * parameters) {
 	lwsContext_info.gid = -1;
 	lwsContext_info.uid = -1;
 	lwsContext_info.ws_ping_pong_interval = 0;
+	// TODO in the future some flags should not be there
+	lwsContext_info.options = LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT | LWS_SERVER_OPTION_PEER_CERT_NOT_REQUIRED;
 	ws_context = lws_create_context(&lwsContext_info);
 	if (ws_context==NULL) {
 		g_critical("Creating sepa subscription libwebsocket context failed");
