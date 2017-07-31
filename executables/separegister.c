@@ -42,9 +42,10 @@ int main(int argc, char **argv) {
 	char *id,*R_address,*T_address;
 	char r_path[] = REGISTRATION_PATH;
 	char t_path[] = TOKEN_PATH;
+	FILE *outFile;
 	
-	if (argc!=3) {
-		fprintf(stderr,"USAGE:\nseparegister [ID] [ADDRESS]\n");
+	if (argc!=4) {
+		fprintf(stderr,"USAGE:\nseparegister [ID] [ADDRESS] [OUT_JWT_FILE]\n");
 		return EXIT_FAILURE;
 	}
 	
@@ -78,6 +79,13 @@ int main(int argc, char **argv) {
 	}
 
 	fprintfSecureClientData(stdout,authorizationData);
+	
+	outFile = fopen(argv[3],"w");
+	if (outFile==NULL) g_critical("Error while opening %s",argv[3]);
+	else {
+		fprintfSecureClientData(outFile,authorizationData);
+		fclose(outFile);
+	}
 	sClient_free(&authorizationData);
 	
 	http_client_free();

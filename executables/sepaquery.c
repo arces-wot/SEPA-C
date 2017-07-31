@@ -37,10 +37,28 @@
 int main(int argc, char **argv) {
 	FILE *inputFile;
 	char *query_result=NULL;
-	int result,n;
+	int result,n,r,human=0;
 	sClient jwt = _init_sClient();
+	sepaNode *qResult;
 	
 	switch (argc) {
+		case 5:
+			human=1;
+		case 4:
+			if ((argc==4) && (!strcmp(argv[3],"--human"))) human=1;
+			else {
+				// secure query reading from file output of separegister
+				inputFile = fopen(argv[3],"r");
+				if (inputFile==NULL) {
+					g_error("Error while opening %s",argv[3]);
+					return EXIT_FAILURE;
+				}
+				result = fscanfSecureClientData(inputFile,&jwt);
+				if (result==EXIT_SUCCESS) query_result = kpQuery(argv[1],argv[2],&jwt);
+				fclose(inputFile);
+				sClient_free(&jwt);
+				break;
+			}
 		case 3:
 			if (!isatty(STDIN_FILENO)) {
 				// pipelining case with separegister
@@ -51,20 +69,8 @@ int main(int argc, char **argv) {
 			// otherwise unsecure query
 			else query_result = kpQuery(argv[1],argv[2],NULL);
 			break;
-		case 4:
-			// secure query reading from file output of separegister
-			inputFile = fopen(argv[3],"r");
-			if (inputFile==NULL) {
-				g_error("Error while opening %s",argv[3]);
-				return EXIT_FAILURE;
-			}
-			result = fscanfSecureClientData(inputFile,&jwt);
-			if (result==EXIT_SUCCESS) query_result = kpQuery(argv[1],argv[2],&jwt);
-			fclose(inputFile);
-			sClient_free(&jwt);
-			break;
 		default:
-			fprintf(stderr,"USAGE:\nUnsecure query:\nsepaquery [SPARQL_QUERY] [ADDRESS]\n\nSecure query:\nsepaquery [SPARQL_QUERY] [ADDRESS] [JWT_FILE]\n");
+			fprintf(stderr,"USAGE:\nUnsecure query:\nsepaquery [SPARQL_QUERY] [ADDRESS] [--human]\n\nSecure query:\nsepaquery [SPARQL_QUERY] [ADDRESS] [JWT_FILE] [--human]\n");
 			fprintf(stderr,"\nTrick: ./separegister [ID] [ADDRESS] | ./sepaquery [SPARQL] [QUERY_ADDRESS]\n");
 			return EXIT_FAILURE;
 	}
@@ -72,7 +78,15 @@ int main(int argc, char **argv) {
 		g_error("NullPointerException in query result.");
 		return EXIT_FAILURE;
 	}
-	printf("%s\n",query_result);
+	if (human) {
+		r = queryResultsParser(query_result,&qResult,&n);
+		if (r!=EXIT_SUCCESS) {
+			g_error("Query result parsing failure.");
+			return EXIT_FAILURE;
+		}
+		fprintfSepaNodes(stdout,qResult,n,"");
+	}
+	else printf("%s\n",query_result);
 	free(query_result);
 	return EXIT_SUCCESS;
 }

@@ -57,6 +57,7 @@
 #define KPI_QUERY_FAIL						-2
 #define SUBSCRIPTION_AUTH_TOKEN_LEN			1000
 #define _DEFAULT_CHUNK_MAX_SIZE				64 /**< Default dimension of websocket output buffer */
+#define LWS_PIPE_CHOKED_TIMEOUT				4.0 /**< Max seconds (float) available for websocket pipe freeing */
 #define _getSubscriptionProtocols()			_protocols
 #define _getSubscriptionProtocolName()		_protocols[0].name
 #define _getSubscriptionCallback()			_protocols[0].sepa_subscription_callback

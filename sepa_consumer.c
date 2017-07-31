@@ -83,6 +83,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 	char *chunk_buffer;
 	int i,end=0;
 	size_t chunk_len;
+	GTimer *timer;
 	
 	raisedSubscription = getRaisedSubscription(wsi);
 	if (raisedSubscription!=NULL) {
@@ -95,6 +96,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 				
 				packet_buffer = (char *) malloc((LWS_PRE+sub_packet_length)*sizeof(char));
 				if (packet_buffer!=NULL) {
+					timer = g_timer_new();
 					sparql_buffer = packet_buffer+LWS_PRE;
 					sprintf(sparql_buffer,"{\"subscribe\":\"%s\"",raisedSubscription->subscription_sparql);
 					if (raisedSubscription->subscription_alias!=NULL) sprintf(sparql_buffer+strlen(sparql_buffer)+1,",\"alias\":\"%s\"",raisedSubscription->subscription_alias);
@@ -104,14 +106,16 @@ static int sepa_subscription_callback(	struct lws *wsi,
 
 					if (strlen(sparql_buffer)<=CHUNK_MAX_SIZE) {
 						g_message("Sending websocket frame...");
-						while (lws_send_pipe_choked(wsi));
+						g_timer_start(timer);
+						while ((lws_send_pipe_choked(wsi)) && (g_timer_elapsed(timer,NULL)<LWS_PIPE_CHOKED_TIMEOUT));
 						lws_write(wsi,sparql_buffer,strlen(sparql_buffer),LWS_WRITE_TEXT);
 					}
 					else {
 						chunk_buffer = sparql_buffer;
 						do {
 							chunk_len = strlen(chunk_buffer);
-							while (lws_send_pipe_choked(wsi));
+							g_timer_start(timer);
+							while ((lws_send_pipe_choked(wsi)) && (g_timer_elapsed(timer,NULL)<LWS_PIPE_CHOKED_TIMEOUT));
 							if (chunk_buffer==sparql_buffer) {
 								g_message("Writing websocket chunk...");
 								i=lws_write(wsi,chunk_buffer,CHUNK_MAX_SIZE,LWS_WRITE_TEXT | LWS_WRITE_NO_FIN);
@@ -131,6 +135,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 						} while (!end);
 					}
 					free(packet_buffer);
+					g_timer_destroy(timer);
 				}
 				else g_critical("Malloc error in sepa_subscription_callback LWS_CALLBACK_CLIENT_ESTABLISHED");
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
@@ -320,7 +325,8 @@ int kpSubscribe(pSEPA_subscription_params params) {
 
 int kpUnsubscribe(pSEPA_subscription_params params) {
 	int result=EXIT_FAILURE,i=0,code_index=-1;
-	char unsubscribeRequest[LWS_PRE+IDENTIFIER_LAST_INDEX+30];
+	char unsubscribeRequest[LWS_PRE+IDENTIFIER_LAST_INDEX+1024];
+	GTimer *timer;
 	if (params==NULL) {
 		g_critical("kpUnsubscribe error: null params request");
 		return EXIT_FAILURE;
@@ -342,10 +348,14 @@ int kpUnsubscribe(pSEPA_subscription_params params) {
 			}
 			else {
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
-				sprintf(unsubscribeRequest+LWS_PRE,"{\"unsubscribe\":\"sepa://subscription/%s\"}",params->identifier);
+				sprintf(unsubscribeRequest+LWS_PRE,"{\"unsubscribe\":\"sepa://subscription/%s\"",params->identifier);
+				if (params->use_ssl!=WS_NOT_SECURE) sprintf(unsubscribeRequest+LWS_PRE,"%s,\"authorization\":\"Bearer %s\"",unsubscribeRequest+LWS_PRE,params->subscription_authToken);
+				strcat(unsubscribeRequest+LWS_PRE,"}");
 				g_message("Sent unsubscription packet %s",unsubscribeRequest+LWS_PRE);
-				while (lws_send_pipe_choked(params->ws_identifier));
+				timer = g_timer_new();
+				while ((lws_send_pipe_choked(params->ws_identifier)) && (g_timer_elapsed(timer,NULL)<LWS_PIPE_CHOKED_TIMEOUT));
 				lws_write(params->ws_identifier,unsubscribeRequest+LWS_PRE,strlen(unsubscribeRequest+LWS_PRE),LWS_WRITE_TEXT);
+				g_timer_destroy(timer);
 			}
 		}
 		else {
