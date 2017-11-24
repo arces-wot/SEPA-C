@@ -140,7 +140,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 	jsmn_parser parser;
 	jsmntok_t *jstokens;
 	int parsing_result,jstok_dim,i,completed=0;
-	char *js_buffer=NULL,*checkA,*checkC;
+	char *js_buffer=NULL;
 
 	if (jsonResults==NULL) {
 		g_critical("NullpointerException in subscriptionResultParser.");
@@ -175,7 +175,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 			return parsing_result;
 		}
 
-		if (jstok_dim>3) {
+		if (strstr(jsonResults,"subscribed\":\"")==NULL){
 			// notification to subscription case
 			parsing_result = EXIT_SUCCESS;
 			for (i=0; (i<jstok_dim) && (parsing_result==EXIT_SUCCESS) && (completed<4); i++) {
@@ -218,19 +218,28 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 		}
 		else {
 			// (un)subscription confirm case
-			checkA = strstr(jsonResults,"{\"subscribed\":\"");
-			checkC = strstr(jsonResults,"{\"unsubscribed\":\"");
-			if (checkC!=NULL) parsing_result = UNSUBSCRIBE_CONFIRM;
+			if (strstr(jsonResults,"\"unsubscribed\":\"")!=NULL) parsing_result = UNSUBSCRIBE_CONFIRM;
 			else {
-				if (checkA!=NULL) {
-					sscanf(jsonResults,"{\"subscribed\":\"" IDENTIFIER_STRING_LEN "\"}",data->identifier);
-					(data->identifier)[IDENTIFIER_LAST_INDEX]='\0';
-					parsing_result = SUBSCRIPTION_ID_JSON;
+				// subscription confirmation case
+				parsing_result = EXIT_SUCCESS;
+				for (i=0; (i<jstok_dim) && (parsing_result==EXIT_SUCCESS) && (completed<2); i++) {
+					parsing_result = getJsonItem(jsonResults,jstokens[i],&js_buffer);
+					if (parsing_result==EXIT_SUCCESS) {
+						if (!strcmp(js_buffer,"subscribed")) {
+							getJsonItem(jsonResults,jstokens[i+1],&js_buffer);
+							strcpy(data->identifier,js_buffer);
+							g_info("Subscription identifier detected: %s",data->identifier);
+							completed++;
+						}
+						if (!strcmp(js_buffer,"firstResults")) {
+							getJsonItem(jsonResults,jstokens[i+1],&js_buffer);
+							queryResultsParser(js_buffer,addedNodes,addedlen);
+							completed++;
+						}
+					}
 				}
-				else {
-					g_critical("Subscription confirmation is corrupted: %s",jsonResults);
-					parsing_result = PARSING_ERROR;
-				}
+				parsing_result = SUBSCRIPTION_ID_JSON;
+				free(js_buffer);
 			}
 		}
 		free(jstokens);

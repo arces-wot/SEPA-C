@@ -174,6 +174,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 						case SUBSCRIPTION_ID_JSON:
 							strcpy(raisedSubscription->identifier,(n_properties.identifier)+SUBSCRIPTION_ID_PREAMBLE_LEN);
 							g_message("Sepa Callback Client received subscription confirmation #%s",raisedSubscription->identifier);
+							(raisedSubscription->subHandler)(added,addedLen,NULL,0);
 							break;
 						case NOTIFICATION_JSON:
 							g_message("Sepa Callback Client notification packet received [sequence=%d, id=%s]",n_properties.sequence,(n_properties.identifier)+SUBSCRIPTION_ID_PREAMBLE_LEN);
@@ -348,7 +349,7 @@ int kpUnsubscribe(pSEPA_subscription_params params) {
 			}
 			else {
 				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
-				sprintf(unsubscribeRequest+LWS_PRE,"{\"unsubscribe\":\"sepa://subscription/%s\"",params->identifier);
+				sprintf(unsubscribeRequest+LWS_PRE,"{\"unsubscribe\":\"sepa://spuid/%s\"",params->identifier);
 				if (params->use_ssl!=WS_NOT_SECURE) sprintf(unsubscribeRequest+LWS_PRE,"%s,\"authorization\":\"Bearer %s\"",unsubscribeRequest+LWS_PRE,params->subscription_authToken);
 				strcat(unsubscribeRequest+LWS_PRE,"}");
 				g_message("Sent unsubscription packet %s",unsubscribeRequest+LWS_PRE);

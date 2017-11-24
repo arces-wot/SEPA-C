@@ -48,7 +48,7 @@
 #define IDENTIFIER_ARRAY_LEN			58
 #define IDENTIFIER_LAST_INDEX			57
 #define IDENTIFIER_STRING_LEN			"%56s"
-#define SUBSCRIPTION_ID_PREAMBLE_LEN	20
+#define SUBSCRIPTION_ID_PREAMBLE_LEN	13
 #define _initSepaNode()					{.bindingName=NULL,.type=UNKNOWN,.value=NULL}
 
 #define BINDING_LEN			6

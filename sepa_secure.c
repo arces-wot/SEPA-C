@@ -48,11 +48,11 @@ void fprintfSecureClientData(FILE * outstream,sClient client_data) {
 
 int fscanfSecureClientData(FILE * myFile,sClient * dest) {
 	char *inputString=NULL,*pch;
-	int i,str_size=0,result,id_size,secret_size,jwt_size,type_size,expiration_size,iteration=0;
+	int i=0,str_size=0,result,id_size,secret_size,jwt_size,type_size,expiration_size,iteration=0;
 	sClient temp = _init_sClient();
 	
-	for (i=0; !feof(myFile); i++) {
-		if (i==str_size) {
+    while (!feof(myFile)) {
+        if (i==str_size) {
 			str_size += 300;
 			inputString = (char *) realloc(inputString,str_size*sizeof(char));
 			if (inputString==NULL) {
@@ -61,7 +61,8 @@ int fscanfSecureClientData(FILE * myFile,sClient * dest) {
 			}
 		}
 		inputString[i] = getc(myFile);
-	}
+        i++;
+    }
 	g_debug("InputString=%s\n",inputString);
 	
 	pch = strtok(inputString,"\n");
