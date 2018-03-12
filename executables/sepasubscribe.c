@@ -19,7 +19,7 @@
  * MA 02110-1301, USA.
  * 
  * Compile with
- gcc ./executables/sepaquery.c jsmn.c sepa_producer.c sepa_consumer.c sepa_utilities.c sepa_secure.c -lcurl -pthread `pkg-config --cflags --libs glib-2.0 libwebsockets` -o ./executables/sepaquery
+ gcc ./executables/sepasubscribe.c jsmn.c sepa_producer.c sepa_consumer.c sepa_utilities.c sepa_secure.c -lcurl -pthread `pkg-config --cflags --libs glib-2.0 libwebsockets` -o ./executables/sepasubscribe
  G_MESSAGES_DEBUG=all /path/to/application
  */
 
@@ -32,6 +32,7 @@
  
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <signal.h>
 #include <glib.h>

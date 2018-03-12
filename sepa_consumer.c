@@ -102,7 +102,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 					if (raisedSubscription->subscription_alias!=NULL) sprintf(sparql_buffer+strlen(sparql_buffer)+1,",\"alias\":\"%s\"",raisedSubscription->subscription_alias);
 					if (raisedSubscription->use_ssl!=WS_NOT_SECURE) sprintf(sparql_buffer,"%s,\"authorization\":\"Bearer %s\"",sparql_buffer,raisedSubscription->subscription_authToken);
 					strcat(sparql_buffer,"}");
-					printf("packet = %s\n",sparql_buffer);
+					g_debug("packet = %s\n",sparql_buffer);
 
 					if (strlen(sparql_buffer)<=CHUNK_MAX_SIZE) {
 						g_message("Sending websocket frame...");
