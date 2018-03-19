@@ -186,6 +186,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 							break;
 						default:
 							g_warning("Sepa Callback Client unknown parsing code: %d [id=%s]",parse_result,raisedSubscription->identifier);
+							g_assert_not_reached();
 							break;
 					}
 				}
@@ -232,14 +233,14 @@ int sepa_subscription_builder(char * sparql_subscription,char * subscription_ali
 	const char *p;
 	const char *sub_address;
 	const char *sub_protocol;
-	char *sa_ghostcopy;
+	char *sa_ghostcopy; // server address ghost copy
 	int port;
 	
 	sa_ghostcopy = strdup(server_address);
-	if ((sparql_subscription==NULL) || (server_address==NULL) || (sa_ghostcopy==NULL)) {
-		g_error("Nullpointer exception in subscription_builder");
-		return EXIT_FAILURE;
-	}
+	g_assert_nonnull(sparql_subscription);
+	g_assert_nonnull(server_address);
+	g_assert_nonnull(sa_ghostcopy);
+
 	subscription->subscription_sparql = sparql_subscription;
 	if (lws_parse_uri(sa_ghostcopy,&sub_protocol,&sub_address,&port,&p)) {
 		g_critical("Error while parsing address %s",server_address);
@@ -277,11 +278,8 @@ int sepa_subscription_builder(char * sparql_subscription,char * subscription_ali
 	}
 	
 	subscription->resultBuffer = strdup("");
+	g_assert_nonnull(subscription->resultBuffer);
 	strcpy(subscription->identifier,"");
-	if (subscription->resultBuffer==NULL) {
-		g_error("strdup resultBuffer failure in sepa_subscription_builder");
-		return EXIT_FAILURE;
-	}
 	
 	subscription->subHandler = NULL;
 	subscription->unsubHandler = NULL;
@@ -289,36 +287,36 @@ int sepa_subscription_builder(char * sparql_subscription,char * subscription_ali
 }
 
 void sepa_setSubscriptionHandlers(SubscriptionHandler subhandler,UnsubscriptionHandler unsubhandler,pSEPA_subscription_params subscription) {
-	if ((subscription==NULL) || (subhandler==NULL)) g_error("NullPointerException in sepa_setSubscriptionHandlers");
-	else {
-		subscription->subHandler = subhandler;
-		subscription->unsubHandler = unsubhandler;
-	}
+	g_assert_nonnull(subscription);
+	g_assert_nonnull(subhandler);
+	subscription->subHandler = subhandler;
+	subscription->unsubHandler = unsubhandler;
 }
 
 int kpSubscribe(pSEPA_subscription_params params) {
 	int result = -1;
-	if (params!=NULL) {
-		if (params->subHandler==NULL) g_error("Subscription handler NullPointerException.");
+	g_assert_nonnull(params);
+	g_assert_nonnull(params->subHandler);
+
+	if (!pthread_mutex_lock(&(sepa_session.subscription_mutex))) {
+		sepa_session.active_subscriptions++;
+		sepa_session.subscription_list = (pSEPA_subscription_params *) realloc(sepa_session.subscription_list,sepa_session.active_subscriptions*sizeof(pSEPA_subscription_params));
+		if (sepa_session.subscription_list==NULL) g_error("Realloc error in kpSubscribe.");
 		else {
-			if (!pthread_mutex_lock(&(sepa_session.subscription_mutex))) {
-				sepa_session.active_subscriptions++;
-				sepa_session.subscription_list = (pSEPA_subscription_params *) realloc(sepa_session.subscription_list,sepa_session.active_subscriptions*sizeof(pSEPA_subscription_params));
-				if (sepa_session.subscription_list==NULL) g_error("Realloc error in kpSubscribe.");
-				else {
-					if (sepa_session.active_subscriptions>1) params->subscription_code = (sepa_session.subscription_list[sepa_session.active_subscriptions-2])->subscription_code+1;
-					else params->subscription_code = 1;
-					sepa_session.subscription_list[sepa_session.active_subscriptions-1]=params;
-					result = params->subscription_code;
-				}
-				if ((result==-1) || (pthread_create(&(params->subscription_task),NULL,subscription_thread,(void *) params))) {
-					g_critical("Problem in creating subscription thread! Aborting subscription...");
-					result = -1;
-				}
-				pthread_mutex_unlock(&(sepa_session.subscription_mutex));
-			}
-			else g_critical("kpSubscribe error: parameters are null or mutex not lockable.");
+			if (sepa_session.active_subscriptions>1) params->subscription_code = (sepa_session.subscription_list[sepa_session.active_subscriptions-2])->subscription_code+1;
+			else params->subscription_code = 1;
+			sepa_session.subscription_list[sepa_session.active_subscriptions-1]=params;
+			result = params->subscription_code;
 		}
+		if ((result==-1) || (pthread_create(&(params->subscription_task),NULL,subscription_thread,(void *) params))) {
+			g_critical("Problem in creating subscription thread! Aborting subscription...");
+			result = -1;
+		}
+		pthread_mutex_unlock(&(sepa_session.subscription_mutex));
+	}
+	else {
+		g_critical("kpSubscribe error: mutex not lockable.");
+		g_assert_not_reached();
 	}
 	return result;
 }
@@ -360,6 +358,7 @@ int kpUnsubscribe(pSEPA_subscription_params params) {
 		}
 		else {
 			g_error("kpUnubscribe error: mutex not lockable.");
+			g_assert_not_reached();
 			return EXIT_FAILURE;
 		}
 	}
@@ -470,15 +469,15 @@ static void * subscription_thread(void * parameters) {
 }
 
 void fprintfSubscriptionParams(FILE * outstream,SEPA_subscription_params params) {
-	if (outstream!=NULL) {
-		fprintf(outstream,"SPARQL=%s\nSSL=%d\nPROTOCOL=%s\nADDRESS=%s\nPATH=%s\nPORT=%d\n",
-				params.subscription_sparql,
-				params.use_ssl,
-				params.protocol,
-				params.address,
-				params.path,
-				params.port);
-	}
+	g_assert_nonnull(outstream);
+	
+	fprintf(outstream,"SPARQL=%s\nSSL=%d\nPROTOCOL=%s\nADDRESS=%s\nPATH=%s\nPORT=%d\n",
+			params.subscription_sparql,
+			params.use_ssl,
+			params.protocol,
+			params.address,
+			params.path,
+			params.port);
 }
 
 char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt) {
@@ -490,32 +489,25 @@ char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt)
 	HttpJsonResult data;
 	char * request;
 	
-	if ((sparql_query==NULL) || (http_server==NULL)) {
-		g_critical("NullPointerException in kpProduce.");
-		return NULL;
-	}
+	g_assert_nonnull(sparql_query);
+	g_assert_nonnull(http_server);
 	
 	if (strstr(http_server,"http:")!=NULL) protocol_used = HTTP;
 	else {
 		if (strstr(http_server,"https:")!=NULL) {
 			protocol_used = HTTPS;
-			if (jwt==NULL) {
-				g_critical("NullPointerException in JWT with https query request");
-				return NULL;
-			}
+			g_assert_nonnull(jwt);
 		}
 		else {
 			g_critical("%s protocol error in kpProduce: only http and https are accepted.",http_server);
+			g_assert_not_reached();
 			return NULL; 
 		}
 	}
 	
 	data.size = 0;
 	data.json = (char *) malloc(QUERY_START_BUFFER*sizeof(char));
-	if (data.json==NULL) {
-		g_critical("malloc error in kpQuery (1).");
-		return NULL;
-	}
+	g_assert_nonnull(data.json);
 
 	if (http_client_init()==EXIT_FAILURE) {
 		free(data.json);
@@ -534,6 +526,7 @@ char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt)
 				g_critical("malloc error in kpQuery. (2)");
 				curl_easy_cleanup(curl);
 				http_client_free();
+				g_assert_not_reached();
 				return NULL;
 			}
 			sprintf(request,"Authorization: Bearer %s",jwt->JWT);
