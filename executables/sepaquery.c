@@ -75,16 +75,10 @@ int main(int argc, char **argv) {
 			fprintf(stderr,"\nTrick: ./separegister [ID] [ADDRESS] | ./sepaquery [SPARQL] [QUERY_ADDRESS]\n");
 			return EXIT_FAILURE;
 	}
-	if (query_result==NULL) {
-		g_error("NullPointerException in query result.");
-		return EXIT_FAILURE;
-	}
+	g_assert_nonnull(query_result);
 	if (human) {
 		r = queryResultsParser(query_result,&qResult,&n);
-		if (r!=EXIT_SUCCESS) {
-			g_error("Query result parsing failure.");
-			return EXIT_FAILURE;
-		}
+		g_assert_cmpint(r,==,EXIT_SUCCESS);
 		fprintfSepaNodes(stdout,qResult,n,"");
 	}
 	else printf("%s\n",query_result);

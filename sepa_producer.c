@@ -36,10 +36,8 @@ long kpProduce(const char * update_string,const char * http_server,sClient * jwt
 	int protocol_used = KPI_PRODUCE_FAIL;
 	char *request;
 	
-	if ((update_string==NULL) || (http_server==NULL)) {
-		g_critical("NullPointerException in kpProduce.");
-		return KPI_PRODUCE_FAIL;
-	}
+	g_assert_nonnull(update_string);
+	g_assert_nonnull(http_server);
 	
 	if (strstr(http_server,"http:")!=NULL) protocol_used = HTTP;
 	else {

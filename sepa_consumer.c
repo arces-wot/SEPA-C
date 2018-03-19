@@ -496,6 +496,7 @@ char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt)
 	else {
 		if (strstr(http_server,"https:")!=NULL) {
 			protocol_used = HTTPS;
+			g_critical("https protocol requires JWT");
 			g_assert_nonnull(jwt);
 		}
 		else {
