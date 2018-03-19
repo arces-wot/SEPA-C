@@ -56,6 +56,7 @@ int fscanfSecureClientData(FILE * myFile,sClient * dest) {
 			str_size += 300;
 			inputString = (char *) realloc(inputString,str_size*sizeof(char));
 			if (inputString==NULL) {
+				free(inputString);
 				g_error("realloc error in fscanfSecureClientData (1)");
 				return EXIT_FAILURE;
 			}
@@ -139,7 +140,10 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 		return EXIT_FAILURE;
 	}
 	
-	if (http_client_init()==EXIT_FAILURE) return EXIT_FAILURE;
+	if (http_client_init()==EXIT_FAILURE) {
+		free(data.json);
+		return EXIT_FAILURE;
+	}
 	
 	curl = curl_easy_init();
 	if (curl) {
@@ -147,6 +151,7 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 		request = (char *) malloc((strlen(identity)+60)*sizeof(char));
 		if (request==NULL) {
 			g_error("malloc error in registerClient.");
+			free(data.json);
 			return EXIT_FAILURE;
 		}
 		sprintf(request,"{\"client_identity\":\"%s\",\"grant_types\":[\"client_credentials\"]}",identity);
@@ -162,6 +167,8 @@ int registerClient(const char * identity,const char * registrationAddress, sClie
 		result = curl_easy_perform(curl);
 		if (result!=CURLE_OK) {
 			g_error("registerClient curl_easy_perform() failed: %s",curl_easy_strerror(result));
+			free(data.json);
+			free(request);
 			return EXIT_FAILURE;
 		}
 		curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
@@ -253,7 +260,7 @@ int tokenRequest(sClient * client,const char * requestAddress) {
 	CURL *curl;
 	CURLcode result;
 	struct curl_slist *list = NULL;
-	long response_code;
+	long response_code=0;
 	gchar *base64_key;
 	char *ascii_key,*jsonItem=NULL;
 	HttpJsonResult data;

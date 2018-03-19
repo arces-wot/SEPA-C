@@ -19,14 +19,27 @@
  * MA 02110-1301, USA.
  * 
  * 
+ gcc ./sepa-c-test.c ../sepa_utilities.c ../jsmn.c -lcurl `pkg-config --cflags --libs glib-2.0` -o ./sepatest
+
  */
 
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <glib.h>
+#include "../sepa_utilities.h"
 
-int main(int argc, char **argv)
-{
-	
-	return 0;
+static void curl_http_test() {
+	g_assert_cmpint(http_client_init(),==,EXIT_SUCCESS);
+	http_client_free();
+}
+
+int main(int argc, char **argv) {
+	g_test_init(&argc,&argv,NULL);
+
+	// sepa_utilities.c tests
+	g_test_add_func("/sepa_utilities/assertions",curl_http_test);
+
+	return g_test_run();
 }
 

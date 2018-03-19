@@ -330,7 +330,10 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 		}
 		
 		#ifdef SUPER_VERBOSITY
-		if (getJsonItem(json,tokens[0],&js_buffer)==PARSING_ERROR) return NULL;
+		if (getJsonItem(json,tokens[0],&js_buffer)==PARSING_ERROR) {
+			freeSepaNodes(result,*outlen);
+			return NULL;
+		}
 		fprintf(stderr,"array=%s - size=%d\n",js_buffer,tokens[0].size);
 		#endif
 		
@@ -338,21 +341,36 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 		i=0; j=0;
 		while (res_index<*outlen) {
 			#ifdef SUPER_VERBOSITY
-			if (getJsonItem(json,tokens[j+1],&js_buffer)==PARSING_ERROR) return NULL;
+			if (getJsonItem(json,tokens[j+1],&js_buffer)==PARSING_ERROR) {
+				freeSepaNodes(result,*outlen);
+				return NULL;
+			}
 			fprintf(stderr,"token[%d]=%s - token[%d].size=%d\n",j+1,js_buffer,j+1,tokens[j+1].size);
 			#endif
 			
 			for (; i<j+tokens[j+1].size*BINDING_LEN; i+=BINDING_LEN+k) {
-				if (getJsonItem(json,tokens[i+BINDING_NAME],&bindingName)==PARSING_ERROR) return NULL; // i+2
+				if (getJsonItem(json,tokens[i+BINDING_NAME],&bindingName)==PARSING_ERROR) {
+					freeSepaNodes(result,*outlen);
+					return NULL;
+				}// i+2
 				g_debug("Binding Name %d=%s - size=%d",BINDING_NAME,bindingName,tokens[i+BINDING_NAME].size);
 				
-				if (getJsonItem(json,tokens[i+BINDING_TYPE-1],&bindingType)==PARSING_ERROR) return NULL;
+				if (getJsonItem(json,tokens[i+BINDING_TYPE-1],&bindingType)==PARSING_ERROR) {
+					freeSepaNodes(result,*outlen);
+					return NULL;
+				}
 				if (!strcmp(bindingType,"datatype")) k=2;
 				else k=0;
 				
-				if (getJsonItem(json,tokens[i+BINDING_TYPE+k],&bindingType)==PARSING_ERROR) return NULL; // i+5+k
+				if (getJsonItem(json,tokens[i+BINDING_TYPE+k],&bindingType)==PARSING_ERROR) {
+					freeSepaNodes(result,*outlen);
+					return NULL;
+				} // i+5+k
 				g_debug("Binding Type %d=%s - size=%d",BINDING_TYPE+k,bindingType,tokens[i+BINDING_TYPE+k].size);
-				if (getJsonItem(json,tokens[i+BINDING_VALUE+k],&bindingValue)==PARSING_ERROR) return NULL; // i+7+k
+				if (getJsonItem(json,tokens[i+BINDING_VALUE+k],&bindingValue)==PARSING_ERROR) {
+					freeSepaNodes(result,*outlen);
+					return NULL;
+				} // i+7+k
 				g_debug("Binding Value %d=%s - size=%d",BINDING_VALUE+k,bindingValue,tokens[i+BINDING_VALUE+k].size);
 				
 				#ifdef SUPER_VERBOSITY

@@ -100,7 +100,7 @@ static int sepa_subscription_callback(	struct lws *wsi,
 					sparql_buffer = packet_buffer+LWS_PRE;
 					sprintf(sparql_buffer,"{\"subscribe\":\"%s\"",raisedSubscription->subscription_sparql);
 					if (raisedSubscription->subscription_alias!=NULL) sprintf(sparql_buffer+strlen(sparql_buffer)+1,",\"alias\":\"%s\"",raisedSubscription->subscription_alias);
-					if (raisedSubscription->use_ssl!=WS_NOT_SECURE) sprintf(sparql_buffer,"%s,\"authorization\":\"Bearer %s\"",sparql_buffer,raisedSubscription->subscription_authToken);
+					if (raisedSubscription->use_ssl!=WS_NOT_SECURE) sprintf(sparql_buffer+strlen(sparql_buffer)+1,",\"authorization\":\"Bearer %s\"",raisedSubscription->subscription_authToken);
 					strcat(sparql_buffer,"}");
 					g_debug("packet = %s\n",sparql_buffer);
 
@@ -298,7 +298,6 @@ void sepa_setSubscriptionHandlers(SubscriptionHandler subhandler,UnsubscriptionH
 
 int kpSubscribe(pSEPA_subscription_params params) {
 	int result = -1;
-	char *p;
 	if (params!=NULL) {
 		if (params->subHandler==NULL) g_error("Subscription handler NullPointerException.");
 		else {
@@ -518,7 +517,10 @@ char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt)
 		return NULL;
 	}
 
-	if (http_client_init()==EXIT_FAILURE) return NULL;
+	if (http_client_init()==EXIT_FAILURE) {
+		free(data.json);
+		return NULL;
+	}
 	curl = curl_easy_init();
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, http_server);
