@@ -135,8 +135,21 @@ int getJsonItem(char * json,jsmntok_t token,char ** destination);
  * @param nodeArray: array of sepaNode
  * @param arraylen: length of nodeArray
  * @param prefix: a string to be printed before outputs
+ * @see sprintfSepaNodes
  */
 void fprintfSepaNodes(FILE * outstream,sepaNode * nodeArray,int arraylen,const char * prefix);
+
+/**
+ * @brief sprintf for sepaNodes
+ * 
+ * Prints to string the content of a sepaNode array
+ * @param outstring: char* to which write
+ * @param nodeArray: array of sepaNode
+ * @param arraylen: length of nodeArray
+ * @param prefix: a string to be printed before outputs
+ * @see fprintfSepaNodes
+ */
+void sprintfSepaNodes(char * outstring,sepaNode * nodeArray,int arraylen,const char * prefix);
 
 /**
  * @brief Free memory utility

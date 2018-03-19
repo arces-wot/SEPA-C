@@ -94,8 +94,40 @@ void fprintfSepaNodes(FILE * outstream,sepaNode * nodeArray,int arraylen,const c
 						break;
 				}
 				if (nodeArray[i].value!=NULL) fprintf(outstream,"Value = %s;\n",nodeArray[i].value);
-				else fprintf(outstream,"Value = None;\n");
+				else {
+					fprintf(outstream,"Value = None;\n");
+					g_assert_not_reached();
+				}
 			}
+		}
+	}
+}
+
+void sprintfSepaNodes(char * outstring,sepaNode * nodeArray,int arraylen,const char * prefix) {
+	int i;
+	strcpy(outstring,"");
+	for (i=0; i<arraylen; i++) {
+		if (nodeArray[i].bindingName!=NULL) sprintf(outstring+strlen(outstring),"%s #%d Binding = %s; ",prefix,i+1,nodeArray[i].bindingName);
+		else sprintf(outstring+strlen(outstring),"%s #%d Binding = None; ",prefix,i+1);
+		switch (nodeArray[i].type) {
+			case URI:
+				sprintf(outstring+strlen(outstring),"Field type = URI; ");
+				break;
+			case LITERAL:
+				sprintf(outstring+strlen(outstring),"Field type = LITERAL; ");
+				break;
+			case BNODE:
+				sprintf(outstring+strlen(outstring),"Field type = BNODE; ");
+				break;
+			default:
+				sprintf(outstring+strlen(outstring),"Field type = UNKNOWN; ");
+				g_assert_not_reached();
+				break;
+		}
+		if (nodeArray[i].value!=NULL) sprintf(outstring+strlen(outstring),"Value = %s;\n",nodeArray[i].value);
+		else {
+			sprintf(outstring+strlen(outstring),"Value = None;\n");
+			g_assert_not_reached();
 		}
 	}
 }
