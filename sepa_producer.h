@@ -52,6 +52,6 @@
  * @param http_server: the address of the SEPA engine, for example "http://sepa.org:1234/sparql"
  * @return a long containing the http response code
  */
-long kpProduce(const char * update_string,const char * http_server,sClient * jwt);
+long sepa_update(const char * update_string,const char * http_server,sClient * jwt);
 
 #endif // SEPA_PRODUCER

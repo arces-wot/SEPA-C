@@ -147,12 +147,12 @@ int main(int argc, char **argv) {
 	fprintf(stderr,"\\**********************************************/\n");
 	
 	sepa_setSubscriptionHandlers(mySubscriptionNotification,myUnsubscriptionNotification,&this_subscription);
-	kpSubscribe(&this_subscription);
+	sepa_subscribe(&this_subscription);
 	
 	signal(SIGINT,interruptHandler);
 	while (!end_process) sleep(3);
 	
-	kpUnsubscribe(&this_subscription);
+	sepa_unsubscribe(&this_subscription);
 	sClient_free(&jwt);
 	free(alias);
 	sepa_subscriber_destroy();

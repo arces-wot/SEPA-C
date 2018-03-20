@@ -190,14 +190,14 @@ int sepa_subscription_builder(char * sparql_subscription,char * subscription_ali
  * @param params: pointer to the subscription object; must be non null
  * @return the subscription code, or -1
  */
-int kpSubscribe(pSEPA_subscription_params params);
+int sepa_subscribe(pSEPA_subscription_params params);
 
 /**
  * @brief Performs unsubscription.
  * @param params: pointer to the subscription object; must be non null
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
-int kpUnsubscribe(pSEPA_subscription_params params);
+int sepa_unsubscribe(pSEPA_subscription_params params);
 
 /**
  * @brief Queries the SEPA.
@@ -210,6 +210,6 @@ int kpUnsubscribe(pSEPA_subscription_params params);
  * @see queryResultsParser
  * @see sClient
  */
-char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt);
+char * sepa_query(const char * sparql_query,const char * http_server,sClient * jwt);
 
 #endif // SEPA_CONSUMER

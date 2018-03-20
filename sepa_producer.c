@@ -27,7 +27,7 @@
 #define G_LOG_DOMAIN "SepaProducer"
 #include <glib.h>
 
-long kpProduce(const char * update_string,const char * http_server,sClient * jwt) {
+long sepa_update(const char * update_string,const char * http_server,sClient * jwt) {
 	CURL *curl;
 	CURLcode result;
 	struct curl_slist *list = NULL;

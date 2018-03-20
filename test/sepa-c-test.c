@@ -1,7 +1,7 @@
 /*
  * sepa-c-test.c
  * 
- * Copyright 2018 Francesco Antoniazzi <francesco@fantoniazzi>
+ * Copyright 2018 Francesco Antoniazzi <francesco.antoniazzi1991@gmail.com>
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,10 +55,10 @@ static void curl_http_test() {
 }
 
 static void jsmn_parse_test() {
-	char data[600],*extracted_item=NULL,*position;
+	char data[600],*extracted_item=NULL;
 	jsmn_parser parser;
 	jsmntok_t *jstokens;
-	int jstok_dim,r,nodeLen,count=0;
+	int jstok_dim,r,nodeLen;
 	FILE *query_output;
 	sepaNode *nodes;
 	
@@ -114,11 +114,11 @@ static void sepa_producer_test(const void* setting) {
 	}
 		
 	sprintf(sepa_complete_address,"http://%s:%d/%supdate",psetting->address,port,sepa_path);
-	result = kpProduce("DELETE {?a ?b ?c} WHERE {?a ?b ?c}",sepa_complete_address,NULL);
+	result = sepa_update("DELETE {?a ?b ?c} WHERE {?a ?b ?c}",sepa_complete_address,NULL);
 	g_assert(result==HTTP_200_OK);
 	
 	sprintf(sepa_complete_address,"http://%s:%d/%squery",psetting->address,port,sepa_path);
-	query_result = kpQuery("SELECT * WHERE {?a ?b ?c}",sepa_complete_address,NULL);
+	query_result = sepa_query("SELECT * WHERE {?a ?b ?c}",sepa_complete_address,NULL);
 	g_assert_nonnull(query_result);
 	g_assert_cmpstr(query_result,==,"{\"head\":{\"vars\":[\"a\",\"b\",\"c\"]},\"results\":{\"bindings\":[]}}");
 }

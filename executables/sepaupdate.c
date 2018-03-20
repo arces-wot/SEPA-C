@@ -46,11 +46,11 @@ int main(int argc, char **argv) {
 			if (!isatty(STDIN_FILENO)) {
 				// pipelining case with separegister
 				result = fscanfSecureClientData(stdin,&jwt);
-				update_result = kpProduce(argv[1],argv[2],&jwt);
+				update_result = sepa_update(argv[1],argv[2],&jwt);
 				sClient_free(&jwt);
 			}
 			// otherwise unsecure query
-			else update_result = kpProduce(argv[1],argv[2],NULL);
+			else update_result = sepa_update(argv[1],argv[2],NULL);
 			break;
 		case 4:
 			// secure query reading from file output of separegister
@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 				return EXIT_FAILURE;
 			}
 			result = fscanfSecureClientData(inputFile,&jwt);
-			if (result==EXIT_SUCCESS) update_result = kpProduce(argv[1],argv[2],&jwt);
+			if (result==EXIT_SUCCESS) update_result = sepa_update(argv[1],argv[2],&jwt);
 			fclose(inputFile);
 			sClient_free(&jwt);
 			break;

@@ -293,7 +293,7 @@ void sepa_setSubscriptionHandlers(SubscriptionHandler subhandler,UnsubscriptionH
 	subscription->unsubHandler = unsubhandler;
 }
 
-int kpSubscribe(pSEPA_subscription_params params) {
+int sepa_subscribe(pSEPA_subscription_params params) {
 	int result = -1;
 	g_assert_nonnull(params);
 	g_assert_nonnull(params->subHandler);
@@ -321,7 +321,7 @@ int kpSubscribe(pSEPA_subscription_params params) {
 	return result;
 }
 
-int kpUnsubscribe(pSEPA_subscription_params params) {
+int sepa_unsubscribe(pSEPA_subscription_params params) {
 	int result=EXIT_FAILURE,i=0,code_index=-1;
 	char unsubscribeRequest[LWS_PRE+IDENTIFIER_LAST_INDEX+1024];
 	GTimer *timer;
@@ -480,7 +480,7 @@ void fprintfSubscriptionParams(FILE * outstream,SEPA_subscription_params params)
 			params.port);
 }
 
-char * kpQuery(const char * sparql_query,const char * http_server,sClient * jwt) {
+char * sepa_query(const char * sparql_query,const char * http_server,sClient * jwt) {
 	CURL *curl;
 	CURLcode result;
 	struct curl_slist *list = NULL;

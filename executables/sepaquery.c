@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 					return EXIT_FAILURE;
 				}
 				result = fscanfSecureClientData(inputFile,&jwt);
-				if (result==EXIT_SUCCESS) query_result = kpQuery(argv[1],argv[2],&jwt);
+				if (result==EXIT_SUCCESS) query_result = sepa_query(argv[1],argv[2],&jwt);
 				fclose(inputFile);
 				sClient_free(&jwt);
 				break;
@@ -64,11 +64,11 @@ int main(int argc, char **argv) {
 			if (!isatty(STDIN_FILENO)) {
 				// pipelining case with separegister
 				result = fscanfSecureClientData(stdin,&jwt);
-				query_result = kpQuery(argv[1],argv[2],&jwt);
+				query_result = sepa_query(argv[1],argv[2],&jwt);
 				sClient_free(&jwt);
 			}
 			// otherwise unsecure query
-			else query_result = kpQuery(argv[1],argv[2],NULL);
+			else query_result = sepa_query(argv[1],argv[2],NULL);
 			break;
 		default:
 			fprintf(stderr,"USAGE:\nUnsecure query:\nsepaquery [SPARQL_QUERY] [ADDRESS] [--human]\n\nSecure query:\nsepaquery [SPARQL_QUERY] [ADDRESS] [JWT_FILE] [--human]\n");
