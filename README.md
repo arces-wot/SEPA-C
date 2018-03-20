@@ -21,19 +21,29 @@ sudo ldconfig
 Compile executables examples:
 ```
 cd SEPA-C
-gcc ./executables/sepaquery.c jsmn.c sepa_producer.c sepa_consumer.c sepa_utilities.c sepa_secure.c -lcurl -pthread `pkg-config --cflags --libs glib-2.0 libwebsockets` -o ./executables/sepaquery
-gcc ./executables/sepaupdate.c jsmn.c sepa_producer.c sepa_consumer.c sepa_utilities.c sepa_secure.c -lcurl -pthread `pkg-config --cflags --libs glib-2.0 libwebsockets` -o ./executables/sepaupdate
-gcc ./executables/sepasubscribe.c jsmn.c sepa_producer.c sepa_consumer.c sepa_utilities.c sepa_secure.c -lcurl -pthread `pkg-config --cflags --libs glib-2.0 libwebsockets` -o ./executables/sepasubscribe
-```
-Notice that you can do this with the shortcut
-```
-cd SEPA-C
-eval $(cat ./executables/sepaquery.c | grep gcc)
-eval $(cat ./executables/sepaupdate.c | grep gcc)
-eval $(cat ./executables/sepasubscribe.c | grep gcc)
+make
 ```
 
-Use the same 3 files to have some examples in how to write your own program.
+and to clean up...
+```
+cd SEPA-C
+make clean
+```
+
+Use the following 3 files to have some examples in how to write your own program.
+```
+./executables/sepaquery.c
+./executables/sepaupdate.c
+./executables/sepasubscribe.c
+```
+Documentation is coming...
+
+# Testing
+After make, you can also run some tests
+```
+./sepatest [sepa-ip-address]
+```
+Where `sepa-ip-address` is someting like 192.168.1.100, without protocols and ports (we consider the standards written in [SPARQL 1.1 SE Protocol](http://wot.arces.unibo.it/TR/sparql11-se-protocol.html).
 
 # Author
 In case, contact [fr4ncidir](https://github.com/fr4ncidir)
