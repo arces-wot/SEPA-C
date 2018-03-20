@@ -1,8 +1,8 @@
 *.exe
 *.o
 *.dxgn
-/executables/sepaquery
-/executables/separegister
-/executables/sepasubscribe
-/executables/sepaupdate
-/test/sepatest
+sepaquery
+separegister
+sepasubscribe
+sepaupdate
+sepatest

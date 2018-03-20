@@ -62,7 +62,7 @@ static void jsmn_parse_test() {
 	FILE *query_output;
 	sepaNode *nodes;
 	
-	query_output = fopen("./query_output.json","r");
+	query_output = fopen("./test/query_output.json","r");
 	g_assert_nonnull(query_output);
 	fgets(data,500,query_output);
 	data[strlen(data)-1]='\0';
