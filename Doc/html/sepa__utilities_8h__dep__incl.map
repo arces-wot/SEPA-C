@@ -1,8 +1,0 @@
-<map id="sepa&#45;C&#45;kpi/sepa_utilities.h" name="sepa&#45;C&#45;kpi/sepa_utilities.h">
-<area shape="rect" id="node2" href="$sepa__consumer_8h.html" title="Header file defining C consumer functions for SEPA. " alt="" coords="151,80,343,107"/>
-<area shape="rect" id="node6" href="$sepa__producer_8h.html" title="Header file defining C producer functions for SEPA. " alt="" coords="368,80,553,107"/>
-<area shape="rect" id="node3" href="$sepaquery_8c.html" title="Example of code used to create query the SEPA. " alt="" coords="5,155,151,196"/>
-<area shape="rect" id="node4" href="$subexample_8c.html" title="Example of code used to make a subscription to SEPA. " alt="" coords="175,155,320,196"/>
-<area shape="rect" id="node5" href="$sepa__aggregator_8h.html" title="Header file defining C aggregator functions for SEPA. " alt="" coords="344,162,540,189"/>
-<area shape="rect" id="node7" href="$updatesepa_8c.html" title="Example of code used to create a consumer. " alt="" coords="564,155,709,196"/>
-</map>

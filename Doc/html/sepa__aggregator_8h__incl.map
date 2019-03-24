@@ -1,6 +1,0 @@
-<map id="sepa&#45;C&#45;kpi/sepa_aggregator.h" name="sepa&#45;C&#45;kpi/sepa_aggregator.h">
-<area shape="rect" id="node2" href="$sepa__producer_8h.html" title="Header file defining C producer functions for SEPA. " alt="" coords="51,80,170,107"/>
-<area shape="rect" id="node6" href="$sepa__consumer_8h.html" title="Header file defining C consumer functions for SEPA. " alt="" coords="195,80,320,107"/>
-<area shape="rect" id="node3" href="$sepa__utilities_8h.html" title="Header file defining json&#45;parsing&#45;related routines useful for communication with SEPA. " alt="" coords="5,162,115,189"/>
-<area shape="rect" id="node5" href="$sepa__secure_8h.html" title="Header file defining C secure mechanisms for SEPA. " alt="" coords="139,162,245,189"/>
-</map>
