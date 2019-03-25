@@ -14,6 +14,7 @@ int store_sClient(const char *path, sClient jwt) {
     if (jwtBin == NULL) {
         error_string = strdup_format(path, "error writing jwt file %s - ");
         perror(error_string);
+        free(error_string);
         return EXIT_FAILURE;
     }
 
@@ -47,6 +48,7 @@ int read_sClient(const char *path, psClient jwt) {
     if (jwtBin == NULL) {
         error_string = strdup_format(path, "error opening jwt file %s - ");
         perror(error_string);
+        free(error_string);
         return EXIT_FAILURE;
     }
     fread(jwt, sizeof(sClient), 1, jwtBin);
@@ -83,7 +85,7 @@ void sClient_free(psClient jwt) {
 }
 
 
-long sepa_register(const char *client_id,
+long sepa_register(char *client_id,
                    const char *registration_request_url,
                    psClient jwt) {
     CURL *curl;
@@ -234,7 +236,7 @@ long sepa_request_token(const char *token_request_url, psClient jwt) {
     #endif
     list = curl_slist_append(list, "Content-Type: application/json");
     list = curl_slist_append(list, "Accept: application/json");
-    if (strcmp(ascii_key, "")) list = curl_slist_append(list, ascii_key);
+    if (*ascii_key != '\0') list = curl_slist_append(list, ascii_key);
 
     data.size = 0;
     data.json = (char *) malloc(REGISTRATION_BUFFER_LENGTH*sizeof(char));
