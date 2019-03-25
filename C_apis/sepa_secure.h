@@ -28,8 +28,8 @@ typedef struct secure_client_data {
 
 #define printf_sClient(jwt)     fprintf_sClient(stdout, jwt)
 void fprintf_sClient(FILE *destination, sClient jwt);
-void store_sClient(const char *path, sClient jwt);
-void read_sClient(const char *path, psClient jwt);
+int store_sClient(const char *path, sClient jwt);
+int read_sClient(const char *path, psClient jwt);
 
 void sClient_free(psClient jwt);
 

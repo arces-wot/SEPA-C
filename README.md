@@ -5,8 +5,7 @@ There's a main in both the folders, to make an example.
 
 For now, the apis have been tested
 - on windows, compiling with MINGW.
-
-Soon tests also on a Linux machine.
+- on Linux, compiling with gcc 7.3.0
 
 
 

@@ -175,6 +175,9 @@ void * channel_function(void *parameters) {
     real_path = (char *) malloc((strlen(path)+3)*sizeof(char));
     assert(real_path);
     sprintf(real_path, "/%s", path);
+    #ifdef __SEPA_VERBOSE
+    printf("Protocol: %s, Address: %s, Port: %d, Path: %s\n", protocol, address, port, real_path);
+    #endif // __SEPA_VERBOSE
 
     lwsContext_info.port = CONTEXT_PORT_NO_LISTEN;
     lwsContext_info.protocols = &_protocol;
@@ -255,7 +258,7 @@ int open_subscription_channel(const char *host,
     lws_set_log_level(LLL_ERR | LLL_WARN, NULL);
     #endif // __SEPA_VERBOSE
 
-    channel->connected = PTHREAD_COND_INITIALIZER;
+    channel->connected = (pthread_cond_t) PTHREAD_COND_INITIALIZER;
     assert(!pthread_mutex_lock(&global_sub_mutex));
 
     channel->host = strdup(host);
@@ -297,7 +300,7 @@ int open_subscription_channel(const char *host,
         }
     }
     channel->r_buffer = NULL;
-    channel->ws_mutex = PTHREAD_MUTEX_INITIALIZER;
+    channel->ws_mutex = (pthread_mutex_t) PTHREAD_MUTEX_INITIALIZER;
 
     if (!result) {
         assert(!pthread_create(&channel_thread, NULL, channel_function, (void *) channel));

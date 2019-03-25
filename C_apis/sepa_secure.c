@@ -5,12 +5,17 @@ void fprintf_sClient(FILE *destination, sClient jwt) {
             jwt.client_id, jwt.client_secret, jwt.JWT, jwt.JWTtype, jwt.expiration);
 }
 
-void store_sClient(const char *path, sClient jwt) {
+int store_sClient(const char *path, sClient jwt) {
     FILE *jwtBin;
     char empty = '\n';
+    char *error_string;
 
     jwtBin = fopen(path, "w+b");
-    assert(jwtBin);
+    if (jwtBin == NULL) {
+        error_string = strdup_format(path, "error writing jwt file %s - ");
+        perror(error_string);
+        return EXIT_FAILURE;
+    }
 
     fwrite(&jwt, sizeof(sClient), 1, jwtBin);
     fwrite(jwt.client_id, sizeof(char), strlen(jwt.client_id), jwtBin);
@@ -22,13 +27,14 @@ void store_sClient(const char *path, sClient jwt) {
     fwrite(jwt.JWTtype, sizeof(char), strlen(jwt.JWTtype), jwtBin);
     fwrite(&empty, sizeof(char), 1, jwtBin);
     fclose(jwtBin);
+    return EXIT_SUCCESS;
 }
 
-void read_sClient(const char *path, psClient jwt) {
+int read_sClient(const char *path, psClient jwt) {
     FILE *jwtBin;
     struct stat info;
     long fsize;
-    char *buffer;
+    char *buffer, *error_string;
 
     stat(path, &info);
     fsize = info.st_size;
@@ -38,7 +44,11 @@ void read_sClient(const char *path, psClient jwt) {
 
     assert(jwt);
     jwtBin = fopen(path, "r+b");
-    assert(jwtBin);
+    if (jwtBin == NULL) {
+        error_string = strdup_format(path, "error opening jwt file %s - ");
+        perror(error_string);
+        return EXIT_FAILURE;
+    }
     fread(jwt, sizeof(sClient), 1, jwtBin);
 
     fgets(buffer, fsize, jwtBin);
@@ -59,6 +69,7 @@ void read_sClient(const char *path, psClient jwt) {
 
     fclose(jwtBin);
     free(buffer);
+    return EXIT_SUCCESS;
 }
 
 void sClient_free(psClient jwt) {
@@ -187,8 +198,7 @@ long sepa_request_token(const char *token_request_url, psClient jwt) {
     struct curl_slist *list = NULL;
     long response_code;
     HttpJsonResult data;
-    char ascii_key[100] = "";
-    char *b64_key, *jwt_expiration, *next;
+    char *ascii_key, *b64_key, *jwt_expiration, *next;
 
     jsmn_parser parser;
     jsmntok_t *jstokens;
@@ -202,11 +212,14 @@ long sepa_request_token(const char *token_request_url, psClient jwt) {
         return 1;
     }
 
+    ascii_key = (char *) malloc((strlen(jwt->client_id)+strlen(jwt->client_secret)+3)*sizeof(char));
+    assert(ascii_key);
     sprintf(ascii_key, "%s:%s", jwt->client_id, jwt->client_secret);
     b64_key = b64_encode(ascii_key);
     #ifdef __SEPA_VERBOSE
     printf("JWT: base64(%s) = %s\n", ascii_key, b64_key);
     #endif
+    free(ascii_key);
 
     assert(http_client_init() != EXIT_FAILURE);
     curl = curl_easy_init();
@@ -215,13 +228,13 @@ long sepa_request_token(const char *token_request_url, psClient jwt) {
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0); // CHECK HERE
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0); // CHECK HERE
 
-    sprintf(ascii_key, "Authorization: Basic %s", b64_key);
+    ascii_key = strdup_format(b64_key, "Authorization: Basic %s");
     #ifdef __SEPA_VERBOSE
     printf("Ascii_key = %s\n", ascii_key);
     #endif
     list = curl_slist_append(list, "Content-Type: application/json");
     list = curl_slist_append(list, "Accept: application/json");
-    list = curl_slist_append(list, ascii_key);
+    if (strcmp(ascii_key, "")) list = curl_slist_append(list, ascii_key);
 
     data.size = 0;
     data.json = (char *) malloc(REGISTRATION_BUFFER_LENGTH*sizeof(char));
@@ -231,6 +244,7 @@ long sepa_request_token(const char *token_request_url, psClient jwt) {
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, queryResultAccumulator);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
     result = curl_easy_perform(curl);
+    free(ascii_key);
     if (result != CURLE_OK) {
         fprintf(stderr, "sepa_request_token curl_easy_perform() failed: %s\n", curl_easy_strerror(result));
         freeHttpJsonResult(&data);

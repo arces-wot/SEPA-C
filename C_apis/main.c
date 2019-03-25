@@ -72,19 +72,21 @@ void how_to_make_a_secure_query() {
                              &result_data);
     printf("---SECURE QUERY #1---\n");
     printf("Result code: %ld\n", result_code);
-    if (result_code == 200) printf("JWT=%s\nResult data:%s\n", jwt.JWT, result_data.json);
-    printf("---END---\n\n\n");
+    if (result_code == 200) {
+        printf("JWT=%s\nResult data:%s\n", jwt.JWT, result_data.json);
+        printf("---END---\n\n\n");
 
-    // This shows how to store an sClient information in a file for future usage.
-    store_sClient("./data.jwt", jwt);
+        // This shows how to store an sClient information in a file for future usage.
+        store_sClient("./data.jwt", jwt);
 
-    result_code = sepa_query_all_secure("https://localhost:8443/secure/query",
-                                        "THISCLIENTID",
-                                        &jwt,
-                                        &result_data);
-    printf("---SECURE QUERY #2---\n");
-    printf("Result code: %ld\n", result_code);
-    if (result_code == 200) printf("JWT=%s\nResult data:%s\n", jwt.JWT, result_data.json);
+        result_code = sepa_query_all_secure("https://localhost:8443/secure/query",
+                                            "THISCLIENTID",
+                                            &jwt,
+                                            &result_data);
+        printf("---SECURE QUERY #2---\n");
+        printf("Result code: %ld\n", result_code);
+        if (result_code == 200) printf("JWT=%s\nResult data:%s\n", jwt.JWT, result_data.json);
+    }
     printf("---END---\n\n\n");
 }
 
@@ -115,27 +117,27 @@ void how_to_make_a_secure_update() {
     HttpJsonResult result_data;
 
     // This shows how to retrieve an sClient information from a file
-    read_sClient("./data.jwt", &in_jwt);
+    if (read_sClient("./data.jwt", &in_jwt) == EXIT_SUCCESS) {
+        result_code = sepa_clear_secure("https://localhost:8443/secure/update",
+                                        "THISCLIENTID",
+                                        &in_jwt,
+                                        &result_data);
+        printf("---SECURE UPDATE #1---\n");
+        printf("Result code: %ld\n", result_code);
+        if (result_code == 200) printf("JWT=%s\nResult data:%s\n", in_jwt.JWT, result_data.json);
+        printf("---END---\n\n\n");
 
-    result_code = sepa_clear_secure("https://localhost:8443/secure/update",
-                                    "THISCLIENTID",
-                                    &in_jwt,
-                                    &result_data);
-    printf("---SECURE UPDATE #1---\n");
-    printf("Result code: %ld\n", result_code);
-    if (result_code == 200) printf("JWT=%s\nResult data:%s\n", in_jwt.JWT, result_data.json);
-    printf("---END---\n\n\n");
-
-    result_code = sepa_update_secure("insert data {<http://pippo.org> <http://paperino.org> <http://topolino.org>}",
-                                     "https://localhost:8443/secure/update",
-                                     "THISCLIENTID",
-                                     &in_jwt,
-                                     &result_data);
-    printf("---SECURE UPDATE #2---\n");
-    printf("Result code: %ld\n", result_code);
-    if (result_code == 200) printf("JWT=%s\nResult data:%s\n", in_jwt.JWT, result_data.json);
-    printf("---END---\n\n\n");
-    sClient_free(&in_jwt);
+        result_code = sepa_update_secure("insert data {<http://pippo.org> <http://paperino.org> <http://topolino.org>}",
+                                         "https://localhost:8443/secure/update",
+                                         "THISCLIENTID",
+                                         &in_jwt,
+                                         &result_data);
+        printf("---SECURE UPDATE #2---\n");
+        printf("Result code: %ld\n", result_code);
+        if (result_code == 200) printf("JWT=%s\nResult data:%s\n", in_jwt.JWT, result_data.json);
+        printf("---END---\n\n\n");
+        sClient_free(&in_jwt);
+    }
 }
 
 
@@ -168,20 +170,20 @@ void how_to_make_a_secure_subscription() {
     int i, r;
 
     // This shows how to retrieve an sClient information from a file
-    read_sClient("./data.jwt", &in_jwt);
+    if (read_sClient("./data.jwt", &in_jwt) == EXIT_SUCCESS) {
+        r = new_secure_channel("wss://localhost:9443/secure/subscribe",
+                            1,
+                            "THISCLIENTID",
+                            &in_jwt,
+                            &ssc);
 
-    r = new_secure_channel("wss://localhost:9443/secure/subscribe",
-                        1,
-                        "THISCLIENTID",
-                        &in_jwt,
-                        &ssc);
-
-    if (!r) {
-        mysSub = sepa_subscribe_secure("select * where {?a ?b ?c}",
-                                        "everything_secure",
-                                        mySubscriptionHandler_secure,
-                                        &ssc);
-        printf("Insert a number to continue...\n\n"); scanf("%d", &i);
+        if (!r) {
+            mysSub = sepa_subscribe_secure("select * where {?a ?b ?c}",
+                                            "everything_secure",
+                                            mySubscriptionHandler_secure,
+                                            &ssc);
+            printf("Insert a number to continue...\n\n"); scanf("%d", &i);
+        }
     }
 }
 
