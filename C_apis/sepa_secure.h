@@ -28,17 +28,16 @@ typedef struct secure_client_data {
 
 #define printf_sClient(jwt)     fprintf_sClient(stdout, jwt)
 void fprintf_sClient(FILE *destination, sClient jwt);
-int store_sClient(const char *path, sClient jwt);
-int read_sClient(const char *path, psClient jwt);
+int store_sClient(char *path, sClient jwt);
+int read_sClient(char *path, psClient jwt);
 
 void sClient_free(psClient jwt);
 
-long sepa_register(const char *client_id,
+long sepa_register(char *client_id,
                    const char *registration_request_url,
                    psClient jwt);
 
-long sepa_request_token(const char *token_request_url,
-                        psClient jwt);
+long sepa_request_token(const char *token_request_url, psClient jwt);
 #ifdef __cplusplus
 }
 #endif

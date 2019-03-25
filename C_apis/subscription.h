@@ -16,8 +16,6 @@ extern "C" {
 #include "sepa_secure.h"
 #include "sepa_utils.h"
 
-#define __SEPA_VERBOSE
-
 #define MAX_WAITING_CHANNELS    5
 #define RX_BUFFER_SIZE          100
 #define LWS_PIPE_CHOKED_TIMEOUT	4.0 /**< Max seconds (float) available for websocket pipe freeing */
@@ -63,14 +61,14 @@ int open_subscription_channel(const char *host,
                               int n_sub,
                               const char *registration_request_url,
                               const char *token_request_url,
-                              const char *client_id,
+                              char *client_id,
                               psClient jwt,
                               pSubscriptionChannel channel);
 
 pSubscription sepa_subscribe(const char *sparql,
                              const char *alias,
-                             const char *d_graph,
-                             const char *n_graph,
+                             char *d_graph,
+                             char *n_graph,
                              SubscriptionHandler handler,
                              pSubscriptionChannel channel);
 

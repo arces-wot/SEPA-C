@@ -4,7 +4,7 @@ long sepa_update(const char *sparql_update,
                  const char *host,
                  const char *registration_request_url,
                  const char *token_request_url,
-                 const char *client_id,
+                 char *client_id,
                  psClient jwt,
                  pHttpJsonResult result_data) {
     CURL *curl;

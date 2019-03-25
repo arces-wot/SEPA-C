@@ -240,7 +240,7 @@ int open_subscription_channel(const char *host,
                               int n_sub,
                               const char *registration_request_url,
                               const char *token_request_url,
-                              const char *client_id,
+                              char *client_id,
                               psClient jwt,
                               pSubscriptionChannel channel) {
     pthread_t channel_thread;
@@ -340,8 +340,8 @@ static void send_text_ws(struct lws *wsi, char *buffer) {
 
 pSubscription sepa_subscribe(const char *sparql,
                              const char *alias,
-                             const char *d_graph,
-                             const char *n_graph,
+                             char *d_graph,
+                             char *n_graph,
                              SubscriptionHandler handler,
                              pSubscriptionChannel channel) {
     char packet_format[] = "{\"subscribe\": {\"sparql\": \"%s\", \"alias\": \"%s\"%s%s%s}}";

@@ -5,7 +5,7 @@ void fprintf_sClient(FILE *destination, sClient jwt) {
             jwt.client_id, jwt.client_secret, jwt.JWT, jwt.JWTtype, jwt.expiration);
 }
 
-int store_sClient(const char *path, sClient jwt) {
+int store_sClient(char *path, sClient jwt) {
     FILE *jwtBin;
     char empty = '\n';
     char *error_string;
@@ -31,7 +31,7 @@ int store_sClient(const char *path, sClient jwt) {
     return EXIT_SUCCESS;
 }
 
-int read_sClient(const char *path, psClient jwt) {
+int read_sClient(char *path, psClient jwt) {
     FILE *jwtBin;
     struct stat info;
     long fsize;
@@ -231,6 +231,7 @@ long sepa_request_token(const char *token_request_url, psClient jwt) {
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0); // CHECK HERE
 
     ascii_key = strdup_format(b64_key, "Authorization: Basic %s");
+    free(b64_key);
     #ifdef __SEPA_VERBOSE
     printf("Ascii_key = %s\n", ascii_key);
     #endif
