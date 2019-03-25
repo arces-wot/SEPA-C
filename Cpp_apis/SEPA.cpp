@@ -123,7 +123,7 @@ const long SEPA::sparql_query_secure(std::string sparql,
                              real_host.c_str(),
                              real_reg_url.c_str(),
                              real_tok_url.c_str(),
-                             this->client_id.c_str(),
+                             (char *) this->client_id.c_str(),
                              &(this->secure_client),
                              &data);
     if (result == 200) *destination << std::string(data.json);
@@ -132,12 +132,12 @@ const long SEPA::sparql_query_secure(std::string sparql,
 
 
 const void SEPA::storeSecureClient(std::string filepath) {
-    store_sClient(filepath.c_str(), this->secure_client);
+    store_sClient((char *) filepath.c_str(), this->secure_client);
 }
 
 const void SEPA::setSecureClient(std::string filepath) {
     sClient_free(&(this->secure_client));
-    read_sClient(filepath.c_str(), &(this->secure_client));
+    read_sClient((char *) filepath.c_str(), &(this->secure_client));
 }
 
 const long SEPA::update_unsecure(std::string identifier,
@@ -197,7 +197,7 @@ const long SEPA::sparql_update_secure(std::string sparql,
                               real_host.c_str(),
                               real_reg_url.c_str(),
                               real_tok_url.c_str(),
-                              this->client_id.c_str(),
+                              (char *) this->client_id.c_str(),
                               &(this->secure_client),
                               &data);
     if ((result == 200) && (destination != nullptr)) *destination << std::string(data.json);
@@ -216,17 +216,17 @@ void SEPA::subscribe(std::string identifier,
 
     auto sparql = this->getSapObject().getQuery(identifier, bindings, true);
     auto graphs = this->getSapObject().graphs();
-    const char *d_graph, *n_graph;
+    char *d_graph, *n_graph;
     if (default_graph.empty()) {
-        if (graphs["default-graph-uri"]) d_graph = graphs["default-graph-uri"].as<string>().c_str();
+        if (graphs["default-graph-uri"]) d_graph = (char *) graphs["default-graph-uri"].as<string>().c_str();
         else d_graph = NULL;
     }
-    else d_graph = default_graph.c_str();
+    else d_graph = (char *) default_graph.c_str();
     if (named_graph.empty()) {
-        if (graphs["named-graph-uri"]) n_graph = graphs["named-graph-uri"].as<string>().c_str();
+        if (graphs["named-graph-uri"]) n_graph = (char *) graphs["named-graph-uri"].as<string>().c_str();
         else n_graph = NULL;
     }
-    else n_graph = named_graph.c_str();
+    else n_graph = (char *) named_graph.c_str();
 
     this->subscriptions.push_back(sepa_subscribe(sparql.c_str(),
                                                  alias.c_str(),
@@ -243,16 +243,16 @@ void SEPA::sparql_subscribe(std::string sparql,
     assert(handler);
     assert(channel);
 
-    const char *d_graph, *n_graph;
+    char *d_graph, *n_graph;
     if (this->getSapObject().isEmpty()) {
         d_graph = NULL;
         n_graph = NULL;
     }
     else {
         auto graphs = this->getSapObject().graphs();
-        if (graphs["default-graph-uri"]) d_graph = graphs["default-graph-uri"].as<string>().c_str();
+        if (graphs["default-graph-uri"]) d_graph = (char *) graphs["default-graph-uri"].as<string>().c_str();
         else d_graph = NULL;
-        if (graphs["named-graph-uri"]) n_graph = graphs["named-graph-uri"].as<string>().c_str();
+        if (graphs["named-graph-uri"]) n_graph = (char *) graphs["named-graph-uri"].as<string>().c_str();
         else n_graph = NULL;
     }
 

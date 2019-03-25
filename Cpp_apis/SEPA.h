@@ -3,10 +3,10 @@
 
 #include <sstream>
 #include "YSAPObject.h"
-#include "../Sepa-Api-C/sepa_utils.h"
-#include "../Sepa-Api-C/query.h"
-#include "../Sepa-Api-C/update.h"
-#include "../Sepa-Api-C/subscription.h"
+#include "sepa_utils.h"
+#include "query.h"
+#include "update.h"
+#include "subscription.h"
 
 #ifdef WIN32
 #include <rpc.h>
