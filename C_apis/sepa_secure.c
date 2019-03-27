@@ -307,13 +307,14 @@ long sepa_request_token(const char *token_request_url, psClient jwt) {
 
     if (jsmn_explore(data.json, &jwt_expiration,
                  jstokens, jstok_dim, 2,
-                 "token", "token_type") < 0) {
+                 "token", "expires_in") < 0) {
         fprintf(stderr, "Unable to jsmn_explore() for JWT type\n");
         freeHttpJsonResult(&data);
         free(jstokens);
         return 7;
     }
     jwt->expiration = strtol(jwt_expiration, &next, 10);
+    free(jwt_expiration);
     #ifdef __SEPA_VERBOSE
     fprintf(stderr, "JWT expiration: %ld\n", jwt->expiration);
     #endif
